@@ -83,6 +83,14 @@ const AppContent: React.FC = () => {
     setShowProfileModal(false);
   };
 
+  const handleWelcomeEnter = (selectedMode?: AppMode) => {
+    if (selectedMode) {
+      setMode(selectedMode);
+    }
+    setShowWelcome(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleUploadArticle = (file: File) => {
     // Simulating an upload process
     alert(`Document "${file.name}" has been successfully uploaded to your private research workspace.`);
@@ -215,7 +223,7 @@ const AppContent: React.FC = () => {
         onProfileClick={() => setShowProfileModal(true)} 
       />
       
-      {showWelcome && <WelcomeScreen onEnter={() => setShowWelcome(false)} />}
+      {showWelcome && <WelcomeScreen onEnter={handleWelcomeEnter} />}
       
       {showProfileModal && userProfile && (
         <ProfileModal 

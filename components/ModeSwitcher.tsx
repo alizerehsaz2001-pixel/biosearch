@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench, Mail, Cpu, Presentation, Crosshair } from 'lucide-react';
 import { AppMode } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ModeSwitcherProps {
   currentMode: AppMode;
@@ -9,26 +11,28 @@ interface ModeSwitcherProps {
   orientation?: 'horizontal' | 'vertical';
 }
 
-export const MODES: { id: AppMode; label: string; icon: React.ElementType; desc: string; color: string; bg: string }[] = [
-  { id: 'QUERY_BUILDER', label: 'Query Builder', icon: Search, desc: 'Generate Boolean strings', color: 'text-indigo-600', bg: 'bg-indigo-50' },
-  { id: 'PRECISION_SEARCH_COMMANDER', label: 'Precision Search', icon: Crosshair, desc: 'Advanced manual filters', color: 'text-blue-600', bg: 'bg-blue-50' },
-  { id: 'PICO_PROTOCOL', label: 'Protocol Definer', icon: FileText, desc: 'PICO frameworks', color: 'text-teal-600', bg: 'bg-teal-50' },
-  { id: 'ABSTRACT_SCREENER', label: 'Abstract Screener', icon: Filter, desc: 'AI exclusion criteria', color: 'text-rose-600', bg: 'bg-rose-50' },
-  { id: 'DATA_EXTRACTOR', label: 'Data Extractor', icon: FlaskConical, desc: 'Parse quantitative data', color: 'text-cyan-600', bg: 'bg-cyan-50' },
-  { id: 'CRITICAL_ANALYST', label: 'Critical Analyst', icon: BrainCircuit, desc: 'Identify trends & gaps', color: 'text-violet-600', bg: 'bg-violet-50' },
-  { id: 'ISO_COMPLIANCE_AUDITOR', label: 'ISO Auditor', icon: ShieldCheck, desc: 'Regulatory compliance', color: 'text-amber-600', bg: 'bg-amber-50' },
-  { id: 'NOVELTY_GENERATOR', label: 'Novelty Gen', icon: Lightbulb, desc: 'Generate hypotheses', color: 'text-pink-600', bg: 'bg-pink-50' },
-  { id: 'IMAGE_ANALYZER', label: 'Image Analyst', icon: Scan, desc: 'Insights from figures', color: 'text-blue-600', bg: 'bg-blue-50' },
-  { id: 'RESOURCE_SCOUT', label: 'Resource Scout', icon: Compass, desc: 'Find databases', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-  { id: 'OPEN_ACCESS_FINDER', label: 'Open Access', icon: Unlock, desc: 'Find legal PDFs', color: 'text-teal-600', bg: 'bg-teal-50' },
-  { id: 'LAB_SCOUT', label: 'Lab Scout', icon: GraduationCap, desc: 'Find professors & labs', color: 'text-orange-600', bg: 'bg-orange-50' },
-  { id: 'PROTOCOL_TROUBLESHOOTER', label: 'Troubleshooter', icon: Wrench, desc: 'Diagnose failed experiments', color: 'text-red-600', bg: 'bg-red-50' },
-  { id: 'ACADEMIC_EMAIL_DRAFTER', label: 'Email Strategist', icon: Mail, desc: 'Write cold emails', color: 'text-purple-600', bg: 'bg-purple-50' },
-  { id: 'ML_DEEP_LEARNING_ARCHITECT', label: 'Bio-AI Architect', icon: Cpu, desc: 'Design ML/DL models', color: 'text-fuchsia-600', bg: 'bg-fuchsia-50' },
-  { id: 'PPT_ARCHITECT', label: 'PPT Architect', icon: Presentation, desc: 'Data to Slides', color: 'text-amber-600', bg: 'bg-amber-50' },
+export const MODES: { id: AppMode; icon: React.ElementType; color: string; bg: string }[] = [
+  { id: 'QUERY_BUILDER', icon: Search, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+  { id: 'PRECISION_SEARCH_COMMANDER', icon: Crosshair, color: 'text-blue-600', bg: 'bg-blue-50' },
+  { id: 'PICO_PROTOCOL', icon: FileText, color: 'text-teal-600', bg: 'bg-teal-50' },
+  { id: 'ABSTRACT_SCREENER', icon: Filter, color: 'text-rose-600', bg: 'bg-rose-50' },
+  { id: 'DATA_EXTRACTOR', icon: FlaskConical, color: 'text-cyan-600', bg: 'bg-cyan-50' },
+  { id: 'CRITICAL_ANALYST', icon: BrainCircuit, color: 'text-violet-600', bg: 'bg-violet-50' },
+  { id: 'ISO_COMPLIANCE_AUDITOR', icon: ShieldCheck, color: 'text-amber-600', bg: 'bg-amber-50' },
+  { id: 'NOVELTY_GENERATOR', icon: Lightbulb, color: 'text-pink-600', bg: 'bg-pink-50' },
+  { id: 'IMAGE_ANALYZER', icon: Scan, color: 'text-blue-600', bg: 'bg-blue-50' },
+  { id: 'RESOURCE_SCOUT', icon: Compass, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  { id: 'OPEN_ACCESS_FINDER', icon: Unlock, color: 'text-teal-600', bg: 'bg-teal-50' },
+  { id: 'LAB_SCOUT', icon: GraduationCap, color: 'text-orange-600', bg: 'bg-orange-50' },
+  { id: 'PROTOCOL_TROUBLESHOOTER', icon: Wrench, color: 'text-red-600', bg: 'bg-red-50' },
+  { id: 'ACADEMIC_EMAIL_DRAFTER', icon: Mail, color: 'text-purple-600', bg: 'bg-purple-50' },
+  { id: 'ML_DEEP_LEARNING_ARCHITECT', icon: Cpu, color: 'text-fuchsia-600', bg: 'bg-fuchsia-50' },
+  { id: 'PPT_ARCHITECT', icon: Presentation, color: 'text-amber-600', bg: 'bg-amber-50' },
 ];
 
 const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, disabled, orientation = 'horizontal' }) => {
+  const { t } = useLanguage();
+
   if (orientation === 'vertical') {
     return (
       <div className="flex flex-col gap-2 w-full">
@@ -52,10 +56,10 @@ const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, 
               </div>
               <div className="flex-1 min-w-0">
                 <p className={`text-sm font-semibold truncate ${isActive ? 'text-slate-800' : 'text-slate-600'}`}>
-                  {mode.label}
+                  {t(`mode.${mode.id}.label`)}
                 </p>
                 <p className={`text-xs truncate ${isActive ? 'text-slate-500' : 'text-slate-400'}`}>
-                  {mode.desc}
+                  {t(`mode.${mode.id}.desc`)}
                 </p>
               </div>
               {isActive && <ChevronRight className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />}
@@ -84,7 +88,7 @@ const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, 
                     `}
                 >
                     <mode.icon className={`w-4 h-4 ${currentMode === mode.id ? mode.color : 'text-slate-400'}`} />
-                    <span>{mode.label}</span>
+                    <span>{t(`mode.${mode.id}.label`)}</span>
                 </button>
             ))}
         </div>

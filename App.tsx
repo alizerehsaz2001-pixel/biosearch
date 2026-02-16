@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import Header from './components/Header';
 import SearchInput from './components/SearchInput';
@@ -21,13 +22,17 @@ import History from './components/History';
 import ModeSwitcher from './components/ModeSwitcher';
 import WelcomeScreen from './components/WelcomeScreen';
 import OnboardingScreen from './components/OnboardingScreen';
+import ProfileModal from './components/ProfileModal';
 import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
 import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { t } = useLanguage();
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [mode, setMode] = useState<AppMode>('QUERY_BUILDER');
   const [status, setStatus] = useState<QueryStatus>(QueryStatus.IDLE);
@@ -70,6 +75,17 @@ const App: React.FC = () => {
     setUserProfile(profile);
     localStorage.setItem('bio_search_profile', JSON.stringify(profile));
     setShowOnboarding(false);
+  };
+
+  const handleProfileUpdate = (updatedProfile: UserProfile) => {
+    setUserProfile(updatedProfile);
+    localStorage.setItem('bio_search_profile', JSON.stringify(updatedProfile));
+    setShowProfileModal(false);
+  };
+
+  const handleUploadArticle = (file: File) => {
+    // Simulating an upload process
+    alert(`Document "${file.name}" has been successfully uploaded to your private research workspace.`);
   };
 
   const savedIds = useMemo(() => savedResults.map(r => r.id), [savedResults]);
@@ -191,23 +207,37 @@ const App: React.FC = () => {
 
   if (showOnboarding) return <OnboardingScreen onComplete={handleOnboardingComplete} />;
   
-  if (showWelcome) return <WelcomeScreen onEnter={() => setShowWelcome(false)} />;
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Header />
+      <Header 
+        userProfile={userProfile} 
+        onUpload={handleUploadArticle} 
+        onProfileClick={() => setShowProfileModal(true)} 
+      />
+      
+      {showWelcome && <WelcomeScreen onEnter={() => setShowWelcome(false)} />}
+      
+      {showProfileModal && userProfile && (
+        <ProfileModal 
+          currentProfile={userProfile} 
+          onSave={handleProfileUpdate} 
+          onClose={() => setShowProfileModal(false)} 
+        />
+      )}
+
+      {!showWelcome && (
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row flex-1 w-full">
         {/* Sidebar */}
         <aside className="hidden md:flex w-72 shrink-0 border-r border-slate-200 bg-white p-6 overflow-y-auto max-h-[calc(100vh-4rem)] sticky top-16 flex-col">
            <div className="mb-8">
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 px-1">Specialized Modules</h3>
+              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 px-1">{t('sidebar.modules')}</h3>
               <ModeSwitcher currentMode={mode} onModeChange={handleModeChange} disabled={status === QueryStatus.LOADING} orientation="vertical" />
            </div>
 
            {savedResults.length > 0 && (
              <div className="mb-8">
                 <div className="flex items-center justify-between mb-4 px-1">
-                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Saved Architectures</h3>
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{t('sidebar.saved')}</h3>
                   <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{savedResults.length}</span>
                 </div>
                 <div className="space-y-1.5">
@@ -224,7 +254,7 @@ const App: React.FC = () => {
                         <p className="text-xs font-bold text-slate-700 truncate group-hover:text-amber-800">
                           {saved.originalQuery || 'Research Node'}
                         </p>
-                        <p className="text-[9px] text-slate-400 truncate font-bold uppercase tracking-wider mt-0.5">{saved.type.replace(/_/g, ' ')}</p>
+                        <p className="text-[9px] text-slate-400 truncate font-bold uppercase tracking-wider mt-0.5">{t(`mode.${saved.type}.label`)}</p>
                       </div>
                       <button 
                         onClick={(e) => handleDeleteSaved(saved.id, e)}
@@ -246,25 +276,25 @@ const App: React.FC = () => {
                 <div className="p-1.5 bg-white/20 rounded-lg">
                   <FolderHeart className="w-4 h-4 text-white" />
                 </div>
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Cloud Storage</h4>
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider">{t('sidebar.cloud')}</h4>
               </div>
               {userProfile ? (
                  <div>
                     <p className="text-[10px] text-indigo-100/80 leading-relaxed font-medium">
-                      Welcome, <span className="text-white font-bold">{userProfile.email}</span>.
+                      {t('sidebar.welcome_user')} <span className="text-white font-bold">{userProfile.email}</span>.
                     </p>
                     <p className="text-[9px] text-indigo-200 mt-1 uppercase tracking-wide">{userProfile.level}</p>
                  </div>
               ) : (
                 <p className="text-[10px] text-indigo-100/80 leading-relaxed font-medium">
-                  Sign in to sync your research architectures across all your devices.
+                  {t('sidebar.login_prompt')}
                 </p>
               )}
            </div>
 
            <div className="mt-4 text-center pb-2">
              <p className="text-[10px] text-slate-400 font-medium">
-               Designed & Developed by <span className="text-slate-600 font-bold block">Ali Zerehsaz</span>
+               {t('sidebar.credit')} <span className="text-slate-600 font-bold block">Ali Zerehsaz</span>
              </p>
            </div>
         </aside>
@@ -278,10 +308,10 @@ const App: React.FC = () => {
 
             <div className="text-center mb-10 space-y-4">
               <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
-                Research <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getGradient()}`}>Architect</span>
+                {t('hero.title_start')} <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getGradient()}`}>{t('hero.title_end')}</span>
               </h2>
               <p className="text-lg text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
-                Empowering biomaterials researchers with expert query engineering and protocol definition agents.
+                {t('hero.subtitle')}
               </p>
             </div>
 
@@ -336,8 +366,17 @@ const App: React.FC = () => {
             <History history={history} savedResults={savedResults} onSelect={handleArchiveSelect} />
           </div>
         </main>
+        )}
       </div>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
 

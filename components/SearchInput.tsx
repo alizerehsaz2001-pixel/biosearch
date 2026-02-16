@@ -147,7 +147,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonColor = "bg-violet-600 text-white hover:bg-violet-700";
         break;
     case 'ISO_COMPLIANCE_AUDITOR':
-        placeholder = "Paste the Methods section to audit against ISO 10993 and ASTM standards...";
+        placeholder = "Describe device context & paste Methods to audit against ISO 10993/ASTM databases...";
         buttonLabel = 'Audit Compliance';
         buttonIcon = <ShieldCheck className="w-4 h-4" />;
         buttonColor = "bg-amber-600 text-white hover:bg-amber-700";
@@ -177,7 +177,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonColor = "bg-teal-600 text-white hover:bg-teal-700";
         break;
     case 'LAB_SCOUT':
-        placeholder = "Enter research topic and target region (e.g., 'pH-sensitive hydrogels for glioblastoma in South Korea')...";
+        placeholder = "Topic: [e.g. Hydrogels], Country: [e.g. South Korea], City: [Optional], Tier: [Optional]...";
         buttonLabel = 'Find Labs';
         buttonIcon = <GraduationCap className="w-4 h-4" />;
         buttonColor = "bg-orange-600 text-white hover:bg-orange-700";

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GraduationCap, MapPin, FlaskConical, BookOpen, Search, Copy, Check } from 'lucide-react';
+import { GraduationCap, MapPin, FlaskConical, BookOpen, Search, Copy, Check, Globe, Link as LinkIcon, User, ExternalLink } from 'lucide-react';
 import { SearchResult } from '../types';
 
 interface LabScoutResultCardProps {
@@ -15,74 +15,128 @@ const LabScoutResultCard: React.FC<LabScoutResultCardProps> = ({ result }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Parser to separate the list of labs
-  const renderLabs = (content: string) => {
-    const sections = content.split('###').filter(s => s.trim().length > 0);
+  const renderContent = (content: string) => {
+    // Check for Region header
+    const regionMatch = content.match(/### 🌍 Region: (.*)/);
+    const region = regionMatch ? regionMatch[1].trim() : '';
     
-    return sections.map((section, index) => {
-        const lines = section.trim().split('\n');
-        const header = lines[0].replace(/^\d+\.\s*/, '').replace(/^\*\*/, '').replace(/\*\*$/, '');
-        
-        // Extract fields
-        const labName = lines.find(l => l.includes('Lab Name'))?.split('**Lab Name:**')[1]?.trim() || '';
-        const paper = lines.find(l => l.includes('Key Recent Paper'))?.split('**Key Recent Paper:**')[1]?.trim() || '';
-        const focus = lines.find(l => l.includes('Research Focus'))?.split('**Research Focus:**')[1]?.trim() || '';
-        const reason = lines.find(l => l.includes('Why Match'))?.split('**Why Match:**')[1]?.trim() || '';
-        const website = lines.find(l => l.includes('Website/Profile'))?.split('**Website/Profile:**')[1]?.trim() || '';
+    // Split by #### to get individual labs. 
+    // The first element might be the region header or empty if split includes it.
+    const sections = content.split('####').slice(1);
 
-        return (
-            <div key={index} className="bg-white rounded-xl border border-orange-100 p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
-                <div className="flex items-start gap-3 mb-4">
-                    <div className="bg-orange-100 p-2 rounded-lg text-orange-600 shrink-0 mt-1">
-                        <GraduationCap className="w-5 h-5" />
-                    </div>
-                    <div>
-                        <h4 className="text-lg font-bold text-slate-800 leading-tight">
-                            {header}
-                        </h4>
-                        {labName && (
-                            <p className="text-sm text-slate-500 font-medium mt-1 flex items-center gap-1">
-                                <FlaskConical className="w-3 h-3" /> {labName}
-                            </p>
-                        )}
-                    </div>
+    return (
+        <div>
+            {region && (
+                <div className="mb-6 p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-center gap-2 shadow-sm">
+                    <span className="text-xl">🌍</span>
+                    <h3 className="font-bold text-slate-800 text-lg">Target Region: <span className="text-orange-700">{region}</span></h3>
                 </div>
-                
-                <div className="space-y-3">
-                     {focus && (
-                        <div className="text-sm text-slate-700">
-                            <span className="font-semibold text-orange-800 text-xs uppercase tracking-wide block mb-1">Focus</span>
-                            {focus}
-                        </div>
-                    )}
-
-                    {paper && (
-                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                             <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1 flex items-center gap-1">
-                                <BookOpen className="w-3 h-3" /> Recent Key Paper
-                             </p>
-                             <p className="text-slate-700 text-sm italic">"{paper}"</p>
-                        </div>
-                    )}
+            )}
+            
+            <div className="grid grid-cols-1 gap-6">
+                {sections.map((section, index) => {
+                    const lines = section.trim().split('\n');
+                    // Extract Lab Name from header "1. Lab Name: Bio-Interface Lab"
+                    const titleLine = lines[0].replace(/^\d+\.\s*(Lab Name:)?\s*/, '').trim();
                     
-                    {reason && (
-                        <div className="flex items-start gap-2 pt-2 border-t border-slate-100">
-                            <Search className="w-4 h-4 text-orange-400 mt-0.5" />
-                            <div>
-                                <span className="text-xs font-semibold text-slate-500 uppercase">Why Match:</span>
-                                <p className="text-sm text-slate-600 mt-0.5">{reason}</p>
+                    const university = lines.find(l => l.includes('**University:**'))?.split('**University:**')[1]?.trim() || '';
+                    const pi = lines.find(l => l.includes('**Principal Investigator:**'))?.split('**Principal Investigator:**')[1]?.trim() || '';
+                    const city = lines.find(l => l.includes('**City:**'))?.split('**City:**')[1]?.trim() || '';
+                    const match = lines.find(l => l.includes('**Research Match:**'))?.split('**Research Match:**')[1]?.trim() || '';
+                    const highlight = lines.find(l => l.includes('**Recent Highlight:**'))?.split('**Recent Highlight:**')[1]?.trim() || '';
+                    const link = lines.find(l => l.includes('**Official Link:**'))?.split('**Official Link:**')[1]?.trim() || '';
+
+                    // Construct Search URLs
+                    const scholarProfileUrl = pi && university 
+                        ? `https://scholar.google.com/scholar?q=${encodeURIComponent(pi + " " + university)}` 
+                        : null;
+                    const paperSearchUrl = highlight 
+                        ? `https://scholar.google.com/scholar?q=${encodeURIComponent(highlight)}` 
+                        : null;
+
+                    return (
+                        <div key={index} className="bg-white rounded-xl border border-orange-100 p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                             <div className="flex items-start gap-3 mb-4 border-b border-orange-50 pb-3">
+                                <div className="bg-orange-100 p-2.5 rounded-lg text-orange-600 shrink-0 mt-1">
+                                    <FlaskConical className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="text-lg font-bold text-slate-800 leading-tight mb-1">
+                                        {titleLine}
+                                    </h4>
+                                    {university && (
+                                        <p className="text-sm text-slate-500 font-medium flex items-center gap-1.5">
+                                            <GraduationCap className="w-4 h-4" /> 
+                                            {university}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {pi && (
+                                        <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                            <User className="w-4 h-4 text-orange-400" />
+                                            <span className="font-medium">PI: {pi}</span>
+                                        </div>
+                                    )}
+                                    {city && (
+                                        <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                            <MapPin className="w-4 h-4 text-orange-400" />
+                                            <span>{city}</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {match && (
+                                    <div className="text-sm text-slate-700 mt-2">
+                                        <span className="font-semibold text-orange-800 text-xs uppercase tracking-wide block mb-1">Research Fit</span>
+                                        {match}
+                                    </div>
+                                )}
+
+                                {highlight && (
+                                    <div className="bg-orange-50/50 p-3 rounded-lg border border-orange-100">
+                                        <div className="flex justify-between items-start">
+                                            <p className="text-xs uppercase tracking-wider text-orange-600/80 font-bold mb-1 flex items-center gap-1">
+                                                <BookOpen className="w-3 h-3" /> Recent Activity (2024-2026)
+                                            </p>
+                                            {paperSearchUrl && (
+                                                 <a 
+                                                    href={paperSearchUrl} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer" 
+                                                    className="flex items-center gap-1 text-[10px] bg-white border border-orange-200 px-2 py-0.5 rounded text-orange-700 hover:bg-orange-50 font-medium transition-colors"
+                                                    title="Search this paper on Google Scholar"
+                                                 >
+                                                    <Search className="w-3 h-3" /> Find Paper
+                                                 </a>
+                                            )}
+                                        </div>
+                                        <p className="text-slate-700 text-sm italic line-clamp-2">"{highlight}"</p>
+                                    </div>
+                                )}
+
+                                <div className="pt-3 flex flex-wrap gap-3 justify-end border-t border-slate-50 mt-2">
+                                     {scholarProfileUrl && (
+                                        <a href={scholarProfileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-blue-200 transition-all">
+                                            <GraduationCap className="w-3 h-3" /> Google Scholar Profile
+                                        </a>
+                                     )}
+                                     {link && link !== 'N/A' && (
+                                        <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 px-3 py-1.5 rounded-lg shadow-sm hover:shadow transition-all">
+                                            <LinkIcon className="w-3 h-3" /> Lab Website
+                                        </a>
+                                     )}
+                                </div>
                             </div>
                         </div>
-                    )}
-                     {website && website !== 'N/A' && (
-                        <div className="pt-2 text-xs text-blue-600 truncate">
-                            {website}
-                        </div>
-                    )}
-                </div>
+                    );
+                })}
             </div>
-        );
-    });
+        </div>
+    );
   };
 
   return (
@@ -90,12 +144,12 @@ const LabScoutResultCard: React.FC<LabScoutResultCardProps> = ({ result }) => {
       <div className="bg-gradient-to-r from-orange-50 to-amber-50 px-6 py-4 border-b border-orange-100 flex justify-between items-center">
         <div className="flex items-center gap-2">
             <div className="bg-white p-1.5 rounded-md shadow-sm border border-orange-100 text-orange-600">
-                <MapPin className="w-4 h-4" />
+                <Globe className="w-4 h-4" />
             </div>
-            <h3 className="font-semibold text-slate-800">Lab & Supervisor Scout</h3>
+            <h3 className="font-semibold text-slate-800">International Lab Scout</h3>
         </div>
         <div className="text-xs text-orange-700/70 font-mono bg-orange-50 px-2 py-1 rounded border border-orange-100">
-            Academic Headhunter
+            Research Navigator
         </div>
       </div>
       
@@ -107,8 +161,8 @@ const LabScoutResultCard: React.FC<LabScoutResultCardProps> = ({ result }) => {
             </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6">
-            {renderLabs(result.content)}
+        <div>
+            {renderContent(result.content)}
         </div>
 
         <div className="mt-8 flex justify-end">

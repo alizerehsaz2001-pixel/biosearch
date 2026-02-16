@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Microscope, Search } from 'lucide-react';
 
@@ -13,7 +14,7 @@ const Header: React.FC = () => {
             <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
               BioSearch <span className="text-indigo-600">Architect</span>
             </h1>
-            <p className="text-xs text-slate-500 hidden sm:block">Biomedical Query Engineering Powered by Gemini</p>
+            <p className="text-xs text-slate-500 hidden sm:block">Biomaterials Query Engineering Powered by Gemini</p>
           </div>
         </div>
         <div className="flex items-center space-x-4">

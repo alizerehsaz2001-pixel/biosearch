@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench, Mail, Cpu } from 'lucide-react';
+import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench, Mail, Cpu, Presentation, Crosshair } from 'lucide-react';
 import { AppMode } from '../types';
 
 interface ModeSwitcherProps {
@@ -11,6 +11,7 @@ interface ModeSwitcherProps {
 
 export const MODES: { id: AppMode; label: string; icon: React.ElementType; desc: string; color: string; bg: string }[] = [
   { id: 'QUERY_BUILDER', label: 'Query Builder', icon: Search, desc: 'Generate Boolean strings', color: 'text-indigo-600', bg: 'bg-indigo-50' },
+  { id: 'PRECISION_SEARCH_COMMANDER', label: 'Precision Search', icon: Crosshair, desc: 'Advanced manual filters', color: 'text-blue-600', bg: 'bg-blue-50' },
   { id: 'PICO_PROTOCOL', label: 'Protocol Definer', icon: FileText, desc: 'PICO frameworks', color: 'text-teal-600', bg: 'bg-teal-50' },
   { id: 'ABSTRACT_SCREENER', label: 'Abstract Screener', icon: Filter, desc: 'AI exclusion criteria', color: 'text-rose-600', bg: 'bg-rose-50' },
   { id: 'DATA_EXTRACTOR', label: 'Data Extractor', icon: FlaskConical, desc: 'Parse quantitative data', color: 'text-cyan-600', bg: 'bg-cyan-50' },
@@ -24,10 +25,10 @@ export const MODES: { id: AppMode; label: string; icon: React.ElementType; desc:
   { id: 'PROTOCOL_TROUBLESHOOTER', label: 'Troubleshooter', icon: Wrench, desc: 'Diagnose failed experiments', color: 'text-red-600', bg: 'bg-red-50' },
   { id: 'ACADEMIC_EMAIL_DRAFTER', label: 'Email Strategist', icon: Mail, desc: 'Write cold emails', color: 'text-purple-600', bg: 'bg-purple-50' },
   { id: 'ML_DEEP_LEARNING_ARCHITECT', label: 'Bio-AI Architect', icon: Cpu, desc: 'Design ML/DL models', color: 'text-fuchsia-600', bg: 'bg-fuchsia-50' },
+  { id: 'PPT_ARCHITECT', label: 'PPT Architect', icon: Presentation, desc: 'Data to Slides', color: 'text-amber-600', bg: 'bg-amber-50' },
 ];
 
 const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, disabled, orientation = 'horizontal' }) => {
-  
   if (orientation === 'vertical') {
     return (
       <div className="flex flex-col gap-2 w-full">
@@ -65,7 +66,6 @@ const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, 
     );
   }
 
-  // Horizontal Layout (Mobile)
   return (
     <div className="w-full mb-8 overflow-x-auto no-scrollbar">
       <div className="flex justify-start min-w-full px-1">

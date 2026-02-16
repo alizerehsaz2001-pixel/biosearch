@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const SEARCH_SYSTEM_INSTRUCTION = `You are an expert Information Specialist and Biomedical Engineer. Your task is to translate natural language research topics into advanced boolean search strings suitable for PubMed and Scopus.
+const SEARCH_SYSTEM_INSTRUCTION = `You are an expert Information Specialist and Biomaterials Engineer. Your task is to translate natural language research topics into advanced boolean search strings suitable for PubMed and Scopus.
 
 Follow this strict process:
 1. Analyze the user's research topic to identify key concepts (e.g., Biomaterial type, Application, Disease model).
@@ -22,6 +22,26 @@ Output Format (Markdown):
 ## Inclusion/Exclusion Criteria
 - **Include:** [List specific rules]
 - **Exclude:** [List specific rules]`;
+
+const PRECISION_SEARCH_SYSTEM_INSTRUCTION = `You are a Precision Literature Search Engine Interface.
+Your goal is to construct highly specific search queries based on user-defined filters, optimized for PubMed, Scopus, and Google Scholar.
+
+**Task:**
+1. **Construct Boolean Logic:** Create a complex search string using AND, OR, NOT, parentheses, and field tags (e.g., [Title/Abstract], [MeSH]).
+2. **Generate Direct Links:** Create clickable URLs for:
+    - **PubMed:** Use advanced search syntax (e.g., (Hydrogels[MeSH] OR "Injectable Gel") AND ("Bone Regeneration"[Title/Abstract]) AND 2020:2026[dp] NOT Review[pt]).
+    - **Google Scholar:** Use allintitle:, site:, filetype:pdf operators.
+    - **ScienceDirect:** Use advanced search URL parameters.
+
+**Output Format:**
+### 🔍 Precision Search Query
+**Generated Boolean String:**
+\`[Boolean String]\`
+
+### 🔗 Direct Search Links
+- **PubMed (Filtered):** [Click Here](URL)
+- **Google Scholar (Filtered):** [Click Here](URL)
+- **ScienceDirect (Journal Specific):** [Click Here](URL)`;
 
 const SCREENER_SYSTEM_INSTRUCTION = `You are a stringent Research Assistant tasked with screening scientific abstracts based on predefined criteria.
 I will provide an abstract and the inclusion/exclusion criteria.
@@ -141,7 +161,7 @@ If the image is a microscopy/material image:
 
 Provide the output in structured Markdown.`;
 
-const RESOURCE_SCOUT_INSTRUCTION = `You are a Research Librarian and Biomedical Engineering Information Specialist. Your goal is to direct the user to the *best* specific database for their query and generate direct search URLs.
+const RESOURCE_SCOUT_INSTRUCTION = `You are a Research Librarian and Biomaterials Engineering Information Specialist. Your goal is to direct the user to the *best* specific database for their query and generate direct search URLs.
 
 Database Expertise:
 - **PubMed:** For biological outcomes, toxicity, and clinical applications.
@@ -201,7 +221,7 @@ Output JSON Format:
   "alternative_text": "Advice: 'If paywalled, try searching the title on ResearchGate or use the DOI on Anna's Archive.'"
 }`;
 
-const LAB_SCOUT_SYSTEM_INSTRUCTION = `You are an International Research Navigator specializing in Biomaterials & Biomedical Engineering.
+const LAB_SCOUT_SYSTEM_INSTRUCTION = `You are an International Research Navigator specializing in Biomaterials Engineering.
 Your task is to find active research labs based on specific geographic and thematic filters.
 
 **Input Parameters:**
@@ -270,8 +290,8 @@ Output Structure (Strictly follow this):
 **Body:**
 [Full Email Body]`;
 
-const ML_ARCHITECT_SYSTEM_INSTRUCTION = `You are a Lead AI Research Scientist specializing in Computational Biology and Medical Imaging.
-Your task is to design a complete Machine Learning or Deep Learning pipeline for a specific biomedical research problem provided by the user.
+const ML_ARCHITECT_SYSTEM_INSTRUCTION = `You are a Lead AI Research Scientist specializing in Computational Biomaterials and Medical Imaging.
+Your task is to design a complete Machine Learning or Deep Learning pipeline for a specific research problem provided by the user.
 
 Input: User describes their data type (e.g., MRI images, Genomic sequences, Tabular clinical data) and prediction goal.
 
@@ -296,6 +316,53 @@ Output Format (Markdown):
 \`\`\`
 `;
 
+const PPT_ARCHITECT_SYSTEM_INSTRUCTION = `You are a Data Visualization Specialist for Scientific Presentations.
+Your task is to convert raw research data (tables, experimental results, statistics) into a structured PowerPoint slide outline.
+
+**Input Formats Accepted:**
+- CSV/Excel tables
+- Experimental results in text format
+- Statistical summaries
+
+**Task:**
+1. **Analyze the Data:** Determine the best visualization type (Bar chart, Line graph, Table, Bullet points).
+2. **Generate Slide Structure:** 
+   - **Slide Title:** Descriptive and insight-driven.
+   - **Visual Type:** Recommendation for visualization.
+   - **Data to Display:** Formatted numerical or textual data.
+   - **Key Takeaway:** Interpretation of the result.
+
+**Output Format:** Provide TWO sections:
+
+### 📊 Scientific Slide Outline (Markdown)
+For each slide:
+- **Title:** [Title]
+- **Visual:** [Type]
+- **Content:** [Points/Data]
+- **Takeaway:** [Impact]
+
+### ⚙️ Google Slides JSON (Option A)
+Provide a raw JSON block at the end:
+\`\`\`json
+{
+  "slides": [
+    {
+      "title": "Slide Title",
+      "type": "bar_chart",
+      "data": { "labels": [], "values": [] },
+      "caption": "Takeaway message"
+    }
+  ]
+}
+\`\`\``;
+
+// Common config for thinking models
+const THINKING_CONFIG = {
+  thinkingConfig: {
+    thinkingBudget: 32768, 
+  }
+};
+
 const getAIClient = () => {
   if (!process.env.API_KEY) {
     throw new Error("API Key is missing. Please check your environment variables.");
@@ -303,7 +370,23 @@ const getAIClient = () => {
   return new GoogleGenAI({ apiKey: process.env.API_KEY });
 };
 
-export const generateSearchString = async (topic: string, studyTypes?: string[]): Promise<string> => {
+const extractGroundingSources = (response: any) => {
+  const sources: { title: string; uri: string }[] = [];
+  const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+  if (chunks) {
+    chunks.forEach((chunk: any) => {
+      if (chunk.web) {
+        sources.push({
+          title: chunk.web.title,
+          uri: chunk.web.uri,
+        });
+      }
+    });
+  }
+  return sources.length > 0 ? sources : undefined;
+};
+
+export const generateSearchString = async (topic: string, studyTypes?: string[]): Promise<{ content: string }> => {
   const ai = getAIClient();
   let prompt = topic;
 
@@ -311,357 +394,235 @@ export const generateSearchString = async (topic: string, studyTypes?: string[])
     prompt = `Topic: ${topic}\n\nRestrict results to these study types: ${studyTypes.join(', ')}. Apply appropriate field tags (e.g., [pt] for PubMed).`;
   }
 
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
-      config: {
-        systemInstruction: SEARCH_SYSTEM_INSTRUCTION,
-        temperature: 0.2,
-      },
-    });
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: prompt,
+    config: {
+      systemInstruction: SEARCH_SYSTEM_INSTRUCTION,
+      temperature: 0.2,
+    },
+  });
 
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text.replace(/^```\w*\n?/, '').replace(/\n?```$/, '').trim();
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to generate search string. Please try again.");
-  }
+  return { content: response.text.replace(/^```\w*\n?/, '').replace(/\n?```$/, '').trim() };
 };
 
-export const generatePicoProtocol = async (topic: string): Promise<string> => {
+export const generatePicoProtocol = async (topic: string): Promise<{ content: string }> => {
   const ai = getAIClient();
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: topic,
-      config: {
-        systemInstruction: PICO_SYSTEM_INSTRUCTION,
-        temperature: 0.4,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to generate protocol definition. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    contents: topic,
+    config: {
+      systemInstruction: PICO_SYSTEM_INSTRUCTION,
+      temperature: 0.4,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
 };
 
-export const screenAbstract = async (abstract: string, criteria: string): Promise<string> => {
+export const screenAbstract = async (abstract: string, criteria: string): Promise<{ content: string }> => {
   const ai = getAIClient();
   const prompt = `Criteria:\n${criteria}\n\nAbstract:\n${abstract}`;
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
-      config: {
-        systemInstruction: SCREENER_SYSTEM_INSTRUCTION,
-        responseMimeType: 'application/json',
-        temperature: 0.1,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to screen abstract. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    contents: prompt,
+    config: {
+      systemInstruction: SCREENER_SYSTEM_INSTRUCTION,
+      responseMimeType: 'application/json',
+      temperature: 0.1,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
 };
 
-export const extractTechnicalData = async (textInput: string): Promise<string> => {
+export const extractTechnicalData = async (textInput: string): Promise<{ content: string }> => {
   const ai = getAIClient();
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: textInput,
-      config: {
-        systemInstruction: EXTRACTOR_SYSTEM_INSTRUCTION,
-        responseMimeType: 'application/json',
-        temperature: 0.1,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to extract data. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    contents: textInput,
+    config: {
+      systemInstruction: EXTRACTOR_SYSTEM_INSTRUCTION,
+      responseMimeType: 'application/json',
+      temperature: 0.1,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
 };
 
-export const generateCriticalAnalysis = async (dataInput: string): Promise<string> => {
+export const generateCriticalAnalysis = async (dataInput: string): Promise<{ content: string }> => {
   const ai = getAIClient();
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: dataInput,
-      config: {
-        systemInstruction: ANALYST_SYSTEM_INSTRUCTION,
-        temperature: 0.5,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to generate critical analysis. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    contents: dataInput,
+    config: {
+      systemInstruction: ANALYST_SYSTEM_INSTRUCTION,
+      temperature: 0.5,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
 };
 
-export const generateIsoComplianceReview = async (methodsSection: string): Promise<string> => {
+export const generateIsoComplianceReview = async (methodsSection: string): Promise<{ content: string }> => {
   const ai = getAIClient();
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: methodsSection,
-      config: {
-        systemInstruction: AUDITOR_SYSTEM_INSTRUCTION,
-        temperature: 0.2,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to generate ISO compliance review. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    contents: methodsSection,
+    config: {
+      systemInstruction: AUDITOR_SYSTEM_INSTRUCTION,
+      temperature: 0.2,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
 };
 
-export const generateNoveltyIdeas = async (summaryInput: string): Promise<string> => {
+export const generateNoveltyIdeas = async (summaryInput: string): Promise<{ content: string }> => {
   const ai = getAIClient();
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: summaryInput,
-      config: {
-        systemInstruction: NOVELTY_SYSTEM_INSTRUCTION,
-        temperature: 0.7, // Higher temperature for creativity
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to generate novel research ideas. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    contents: summaryInput,
+    config: {
+      systemInstruction: NOVELTY_SYSTEM_INSTRUCTION,
+      temperature: 0.7,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
 };
 
-export const analyzeImage = async (imageBase64: string, promptText: string): Promise<string> => {
+export const analyzeImage = async (imageBase64: string, promptText: string): Promise<{ content: string }> => {
   const ai = getAIClient();
-
-  // Clean base64 string if it contains the data URL prefix
   const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-  // Simple check for mime type, default to png if not found in string (though usually passed with prefix in UI)
   const mimeType = imageBase64.match(/^data:(image\/\w+);base64,/) ? imageBase64.match(/^data:(image\/\w+);base64,/)?.[1] : 'image/png';
 
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview', // MUST use Pro for vision tasks
-      contents: {
-        parts: [
-            {
-                inlineData: {
-                    mimeType: mimeType || 'image/png',
-                    data: base64Data
-                }
-            },
-            {
-                text: promptText || "Analyze this image in the context of biomedical research. Extract text and explain figures."
-            }
-        ]
-      },
-      config: {
-        systemInstruction: IMAGE_SYSTEM_INSTRUCTION,
-        temperature: 0.3,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to analyze image. Please ensure the format is supported.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview', // Already Pro, adding Thinking
+    contents: {
+      parts: [
+          { inlineData: { mimeType: mimeType || 'image/png', data: base64Data } },
+          { text: promptText || "Analyze this image in the context of biomaterials research. Extract text and explain figures." }
+      ]
+    },
+    config: {
+      systemInstruction: IMAGE_SYSTEM_INSTRUCTION,
+      temperature: 0.3,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
 };
 
-export const generateResourceSuggestions = async (topic: string): Promise<string> => {
+export const generateResourceSuggestions = async (topic: string): Promise<{ content: string, sources?: any[] }> => {
   const ai = getAIClient();
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: topic,
-      config: {
-        systemInstruction: RESOURCE_SCOUT_INSTRUCTION,
-        responseMimeType: 'application/json',
-        temperature: 0.3,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to suggest resources. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: topic,
+    config: {
+      systemInstruction: RESOURCE_SCOUT_INSTRUCTION,
+      responseMimeType: 'application/json',
+      temperature: 0.3,
+      tools: [{ googleSearch: {} }]
+    },
+  });
+  return { content: response.text, sources: extractGroundingSources(response) };
 };
 
-export const findOpenAccess = async (input: string): Promise<string> => {
+export const findOpenAccess = async (input: string): Promise<{ content: string, sources?: any[] }> => {
   const ai = getAIClient();
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: input,
-      config: {
-        systemInstruction: OPEN_ACCESS_SYSTEM_INSTRUCTION,
-        responseMimeType: 'application/json',
-        temperature: 0.2,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to find open access info. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: input,
+    config: {
+      systemInstruction: OPEN_ACCESS_SYSTEM_INSTRUCTION,
+      responseMimeType: 'application/json',
+      temperature: 0.2,
+      tools: [{ googleSearch: {} }]
+    },
+  });
+  return { content: response.text, sources: extractGroundingSources(response) };
 };
 
-export const findLabs = async (input: string): Promise<string> => {
+export const findLabs = async (input: string): Promise<{ content: string, sources?: any[] }> => {
   const ai = getAIClient();
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: input,
-      config: {
-        systemInstruction: LAB_SCOUT_SYSTEM_INSTRUCTION,
-        temperature: 0.4,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to find labs. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: input,
+    config: {
+      systemInstruction: LAB_SCOUT_SYSTEM_INSTRUCTION,
+      temperature: 0.4,
+      tools: [{ googleSearch: {} }]
+    },
+  });
+  return { content: response.text, sources: extractGroundingSources(response) };
 };
 
-export const troubleshootProtocol = async (input: string): Promise<string> => {
+export const troubleshootProtocol = async (input: string): Promise<{ content: string }> => {
   const ai = getAIClient();
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: input,
-      config: {
-        systemInstruction: TROUBLESHOOTER_SYSTEM_INSTRUCTION,
-        temperature: 0.5,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to troubleshoot protocol. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    contents: input,
+    config: {
+      systemInstruction: TROUBLESHOOTER_SYSTEM_INSTRUCTION,
+      temperature: 0.5,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
 };
 
-export const generateAcademicEmail = async (input: string): Promise<string> => {
+export const generateAcademicEmail = async (input: string): Promise<{ content: string }> => {
   const ai = getAIClient();
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: input,
-      config: {
-        systemInstruction: EMAIL_DRAFTER_SYSTEM_INSTRUCTION,
-        temperature: 0.4,
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to generate email draft. Please try again.");
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: input,
+    config: {
+      systemInstruction: EMAIL_DRAFTER_SYSTEM_INSTRUCTION,
+      temperature: 0.4,
+    },
+  });
+  return { content: response.text };
 };
 
-export const generateMLArchitecture = async (input: string): Promise<string> => {
+export const generateMLArchitecture = async (input: string): Promise<{ content: string }> => {
   const ai = getAIClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    contents: input,
+    config: {
+      systemInstruction: ML_ARCHITECT_SYSTEM_INSTRUCTION,
+      temperature: 0.3,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
+};
 
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: input,
-      config: {
-        systemInstruction: ML_ARCHITECT_SYSTEM_INSTRUCTION,
-        temperature: 0.3,
-      },
-    });
+export const generatePptOutline = async (input: string): Promise<{ content: string }> => {
+  const ai = getAIClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: input,
+    config: {
+      systemInstruction: PPT_ARCHITECT_SYSTEM_INSTRUCTION,
+      temperature: 0.3,
+    },
+  });
+  return { content: response.text };
+};
 
-    const text = response.text;
-    if (!text) throw new Error("No response generated from the model.");
-    
-    return text;
-
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to generate ML architecture. Please try again.");
-  }
+export const generatePrecisionSearch = async (params: string): Promise<{ content: string, sources?: any[] }> => {
+  const ai = getAIClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: params,
+    config: { 
+      systemInstruction: PRECISION_SEARCH_SYSTEM_INSTRUCTION, 
+      temperature: 0.2,
+      tools: [{ googleSearch: {} }]
+    },
+  });
+  return { content: response.text, sources: extractGroundingSources(response) };
 };

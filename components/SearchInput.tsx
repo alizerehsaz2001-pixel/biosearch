@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu } from 'lucide-react';
+import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu, Presentation, Crosshair } from 'lucide-react';
 import { QueryStatus, AppMode } from '../types';
 
 interface SearchInputProps {
@@ -24,11 +24,20 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
   const [criteria, setCriteria] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Precision Search specific states
+  const [precisionParams, setPrecisionParams] = useState({
+    mustInclude: '',
+    mustExclude: '',
+    dateRange: '',
+    studyType: '',
+    journal: ''
+  });
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const criteriaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Effect to update input when initialValue changes (Context Caching/Chaining)
   useEffect(() => {
     if (initialValue) {
       setInput(initialValue);
@@ -44,7 +53,6 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
     }
   }, [initialValue]);
 
-  // Reset filters/image when mode changes
   useEffect(() => {
     setSelectedFilters([]);
     if (mode !== 'IMAGE_ANALYZER') {
@@ -59,6 +67,9 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
     if (mode === 'IMAGE_ANALYZER') {
         if (!selectedImage) return; // Must have image
         onGenerate(input, undefined, undefined, selectedImage);
+    } else if (mode === 'PRECISION_SEARCH_COMMANDER') {
+        const fullPrompt = `Keywords: ${input}\nMust Include: ${precisionParams.mustInclude}\nMust Exclude: ${precisionParams.mustExclude}\nDate Range: ${precisionParams.dateRange}\nStudy Type: ${precisionParams.studyType}\nJournal Filter: ${precisionParams.journal}`;
+        onGenerate(fullPrompt);
     } else if (input.trim()) {
        onGenerate(input, criteria, selectedFilters);
     }
@@ -121,6 +132,12 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonLabel = 'Generate Query';
         buttonIcon = <Sparkles className="w-4 h-4" />;
         buttonColor = "bg-indigo-600 text-white hover:bg-indigo-700";
+        break;
+    case 'PRECISION_SEARCH_COMMANDER':
+        placeholder = "Enter Main Research Keywords (e.g., 'Injectable Hydrogels')...";
+        buttonLabel = 'Architect Search';
+        buttonIcon = <Crosshair className="w-4 h-4" />;
+        buttonColor = "bg-blue-600 text-white hover:bg-blue-700";
         break;
     case 'PICO_PROTOCOL':
         placeholder = "Enter your research question (e.g., 'Does the use of PLGA nanoparticles improve drug delivery efficacy in glioblastoma compared to free drug?')...";
@@ -200,6 +217,12 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonIcon = <Cpu className="w-4 h-4" />;
         buttonColor = "bg-fuchsia-600 text-white hover:bg-fuchsia-700";
         break;
+    case 'PPT_ARCHITECT':
+        placeholder = "Paste raw research data (CSV, Tables, or Text) to generate a structured scientific presentation...";
+        buttonLabel = 'Architect Slides';
+        buttonIcon = <Presentation className="w-4 h-4" />;
+        buttonColor = "bg-amber-600 text-white hover:bg-amber-700";
+        break;
   }
 
   const isButtonDisabled = isLoading || 
@@ -209,6 +232,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
   return (
     <div className={`w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300 focus-within:ring-2 focus-within:border-transparent ${
         mode === 'QUERY_BUILDER' ? 'focus-within:ring-indigo-500/20' : 
+        mode === 'PRECISION_SEARCH_COMMANDER' ? 'focus-within:ring-blue-500/20' :
         mode === 'PICO_PROTOCOL' ? 'focus-within:ring-teal-500/20' : 
         mode === 'ABSTRACT_SCREENER' ? 'focus-within:ring-rose-500/20' : 
         mode === 'DATA_EXTRACTOR' ? 'focus-within:ring-cyan-500/20' :
@@ -221,10 +245,49 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         mode === 'PROTOCOL_TROUBLESHOOTER' ? 'focus-within:ring-red-500/20' :
         mode === 'ACADEMIC_EMAIL_DRAFTER' ? 'focus-within:ring-purple-500/20' :
         mode === 'ML_DEEP_LEARNING_ARCHITECT' ? 'focus-within:ring-fuchsia-500/20' :
+        mode === 'PPT_ARCHITECT' ? 'focus-within:ring-amber-500/20' :
         'focus-within:ring-teal-500/20'
     }`}>
       <form onSubmit={handleSubmit} className="relative flex flex-col">
         
+        {/* Precision Search Inputs */}
+        {mode === 'PRECISION_SEARCH_COMMANDER' && (
+          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50/50 border-b border-slate-100 animate-in fade-in slide-in-from-top-1">
+            <input 
+              placeholder="Must Include (e.g., Chitosan)" 
+              className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-blue-400"
+              value={precisionParams.mustInclude}
+              onChange={e => setPrecisionParams({...precisionParams, mustInclude: e.target.value})}
+            />
+            <input 
+              placeholder="Must Exclude (e.g., Dental)" 
+              className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-red-400"
+              value={precisionParams.mustExclude}
+              onChange={e => setPrecisionParams({...precisionParams, mustExclude: e.target.value})}
+            />
+            <input 
+              placeholder="Date Range (e.g., 2020-2026)" 
+              className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-teal-400"
+              value={precisionParams.dateRange}
+              onChange={e => setPrecisionParams({...precisionParams, dateRange: e.target.value})}
+            />
+            <select 
+              className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-emerald-400"
+              value={precisionParams.studyType}
+              onChange={e => setPrecisionParams({...precisionParams, studyType: e.target.value})}
+            >
+              <option value="">Any Study Type</option>
+              {STUDY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+            <input 
+              placeholder="Journal Filter (e.g., Biomaterials)" 
+              className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-amber-400 sm:col-span-2"
+              value={precisionParams.journal}
+              onChange={e => setPrecisionParams({...precisionParams, journal: e.target.value})}
+            />
+          </div>
+        )}
+
         {/* Criteria Input for Screener Mode */}
         {mode === 'ABSTRACT_SCREENER' && (
              <div className="p-1 border-b border-slate-100 bg-slate-50/50">
@@ -280,7 +343,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className={`w-full p-4 min-h-[120px] text-lg text-slate-800 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent ${mode === 'ABSTRACT_SCREENER' || mode === 'CRITICAL_ANALYST' || mode === 'ISO_COMPLIANCE_AUDITOR' || mode === 'NOVELTY_GENERATOR' || mode === 'PROTOCOL_TROUBLESHOOTER' || mode === 'ACADEMIC_EMAIL_DRAFTER' || mode === 'ML_DEEP_LEARNING_ARCHITECT' ? 'min-h-[150px]' : ''}`}
+            className={`w-full p-4 min-h-[120px] text-lg text-slate-800 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent ${mode === 'ABSTRACT_SCREENER' || mode === 'CRITICAL_ANALYST' || mode === 'ISO_COMPLIANCE_AUDITOR' || mode === 'NOVELTY_GENERATOR' || mode === 'PROTOCOL_TROUBLESHOOTER' || mode === 'ACADEMIC_EMAIL_DRAFTER' || mode === 'ML_DEEP_LEARNING_ARCHITECT' || mode === 'PPT_ARCHITECT' ? 'min-h-[150px]' : ''}`}
             disabled={isLoading}
           />
         </div>
@@ -316,6 +379,8 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
           <div className="text-xs text-slate-400 font-medium">
              {mode === 'ABSTRACT_SCREENER' 
                 ? <span className="hidden sm:inline">Paste abstract and criteria. </span>
+                : mode === 'PRECISION_SEARCH_COMMANDER'
+                ? <span className="hidden sm:inline">Define manual filters for high-precision search. </span>
                 : mode === 'CRITICAL_ANALYST'
                 ? <span className="hidden sm:inline">Paste multiple study findings. </span>
                 : mode === 'ISO_COMPLIANCE_AUDITOR'
@@ -336,6 +401,8 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                 ? <span className="hidden sm:inline">Enter Recipient, Goal, and Context. </span>
                 : mode === 'ML_DEEP_LEARNING_ARCHITECT'
                 ? <span className="hidden sm:inline">Enter Data Type and Goal. </span>
+                : mode === 'PPT_ARCHITECT'
+                ? <span className="hidden sm:inline">Paste raw data or experimental results. </span>
                 : <span className="hidden sm:inline">Pro Tip: Be specific. </span>
              }
             <span className="inline-block bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-[10px] tracking-wide">⌘ + Enter</span> to submit

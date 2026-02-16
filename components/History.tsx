@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, ChevronRight, Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu } from 'lucide-react';
+import { Clock, ChevronRight, Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu, Presentation } from 'lucide-react';
 import { SearchResult, AppMode } from '../types';
 
 interface HistoryProps {
@@ -32,6 +32,7 @@ const History: React.FC<HistoryProps> = ({ history, onSelect }) => {
     { label: 'Troubleshoot', value: 'PROTOCOL_TROUBLESHOOTER' },
     { label: 'Email', value: 'ACADEMIC_EMAIL_DRAFTER' },
     { label: 'Bio-AI', value: 'ML_DEEP_LEARNING_ARCHITECT' },
+    { label: 'PPT Architect', value: 'PPT_ARCHITECT' },
   ];
 
   return (
@@ -89,6 +90,7 @@ const History: React.FC<HistoryProps> = ({ history, onSelect }) => {
                     item.type === 'PROTOCOL_TROUBLESHOOTER' ? 'bg-red-50 text-red-600' :
                     item.type === 'ACADEMIC_EMAIL_DRAFTER' ? 'bg-purple-50 text-purple-600' :
                     item.type === 'ML_DEEP_LEARNING_ARCHITECT' ? 'bg-fuchsia-50 text-fuchsia-600' :
+                    item.type === 'PPT_ARCHITECT' ? 'bg-amber-50 text-amber-600' :
                     'bg-slate-50 text-slate-600'
                 }`}>
                     {item.type === 'QUERY_BUILDER' && <Search className="w-4 h-4" />}
@@ -105,10 +107,11 @@ const History: React.FC<HistoryProps> = ({ history, onSelect }) => {
                     {item.type === 'PROTOCOL_TROUBLESHOOTER' && <Wrench className="w-4 h-4" />}
                     {item.type === 'ACADEMIC_EMAIL_DRAFTER' && <Mail className="w-4 h-4" />}
                     {item.type === 'ML_DEEP_LEARNING_ARCHITECT' && <Cpu className="w-4 h-4" />}
+                    {item.type === 'PPT_ARCHITECT' && <Presentation className="w-4 h-4" />}
                 </div>
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-800 truncate mb-1 group-hover:text-indigo-700 transition-colors">
-                        {item.originalQuery || (item.type === 'IMAGE_ANALYZER' ? 'Image Analysis' : item.type === 'OPEN_ACCESS_FINDER' ? 'Open Access Check' : item.type === 'LAB_SCOUT' ? 'Lab Scout' : item.type === 'PROTOCOL_TROUBLESHOOTER' ? 'Protocol Issue' : item.type === 'ACADEMIC_EMAIL_DRAFTER' ? 'Email Draft' : item.type === 'ML_DEEP_LEARNING_ARCHITECT' ? 'Bio-AI Architecture' : 'Query')}
+                        {item.originalQuery || (item.type === 'IMAGE_ANALYZER' ? 'Image Analysis' : item.type === 'OPEN_ACCESS_FINDER' ? 'Open Access Check' : item.type === 'LAB_SCOUT' ? 'Lab Scout' : item.type === 'PROTOCOL_TROUBLESHOOTER' ? 'Protocol Issue' : item.type === 'ACADEMIC_EMAIL_DRAFTER' ? 'Email Draft' : item.type === 'ML_DEEP_LEARNING_ARCHITECT' ? 'Bio-AI Architecture' : item.type === 'PPT_ARCHITECT' ? 'PPT Design' : 'Query')}
                     </p>
                     <p className="text-xs text-slate-500 font-mono truncate opacity-70">
                         {item.type === 'ABSTRACT_SCREENER' ? 'Screening Result...' : 
@@ -123,6 +126,7 @@ const History: React.FC<HistoryProps> = ({ history, onSelect }) => {
                         item.type === 'PROTOCOL_TROUBLESHOOTER' ? 'Troubleshooting Diagnosis...' :
                         item.type === 'ACADEMIC_EMAIL_DRAFTER' ? 'Generated Email...' :
                         item.type === 'ML_DEEP_LEARNING_ARCHITECT' ? 'Model Specification...' :
+                        item.type === 'PPT_ARCHITECT' ? 'Slide Outline & JSON...' :
                         item.content}
                     </p>
                 </div>

@@ -12,10 +12,19 @@ export interface SearchResult {
   type: AppMode;
   timestamp: number;
   sources?: GroundingSource[];
+  isSaved?: boolean;
 }
 
 export interface GenerationError {
   message: string;
+}
+
+export interface UserProfile {
+  email: string;
+  education: string;
+  institution: string;
+  level: string;
+  experience: string;
 }
 
 export enum QueryStatus {

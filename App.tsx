@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Header from './components/Header';
 import SearchInput from './components/SearchInput';
 import ResultCard from './components/ResultCard';
@@ -20,18 +20,59 @@ import PrecisionSearchResultCard from './components/PrecisionSearchResultCard';
 import History from './components/History';
 import ModeSwitcher from './components/ModeSwitcher';
 import WelcomeScreen from './components/WelcomeScreen';
+import OnboardingScreen from './components/OnboardingScreen';
 import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch } from './services/geminiService';
-import { QueryStatus, SearchResult, AppMode, GroundingSource } from './types';
-import { AlertCircle, Globe } from 'lucide-react';
+import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
+import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
 
 const App: React.FC = () => {
+  const [showOnboarding, setShowOnboarding] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [mode, setMode] = useState<AppMode>('QUERY_BUILDER');
   const [status, setStatus] = useState<QueryStatus>(QueryStatus.IDLE);
   const [currentResult, setCurrentResult] = useState<SearchResult | null>(null);
   const [history, setHistory] = useState<SearchResult[]>([]);
+  const [savedResults, setSavedResults] = useState<SearchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [inputVal, setInputVal] = useState<string>('');
+
+  // Load state from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('bio_search_saved');
+    const hist = localStorage.getItem('bio_search_history');
+    const profile = localStorage.getItem('bio_search_profile');
+
+    if (saved) {
+      try { setSavedResults(JSON.parse(saved)); } catch (e) {}
+    }
+    if (hist) {
+      try { setHistory(JSON.parse(hist)); } catch (e) {}
+    }
+    if (profile) {
+      try { 
+        setUserProfile(JSON.parse(profile));
+        setShowOnboarding(false); // Skip onboarding if profile exists
+      } catch (e) {}
+    }
+  }, []);
+
+  // Sync states to localStorage
+  useEffect(() => {
+    localStorage.setItem('bio_search_saved', JSON.stringify(savedResults));
+  }, [savedResults]);
+
+  useEffect(() => {
+    localStorage.setItem('bio_search_history', JSON.stringify(history));
+  }, [history]);
+
+  const handleOnboardingComplete = (profile: UserProfile) => {
+    setUserProfile(profile);
+    localStorage.setItem('bio_search_profile', JSON.stringify(profile));
+    setShowOnboarding(false);
+  };
+
+  const savedIds = useMemo(() => savedResults.map(r => r.id), [savedResults]);
 
   const handleGenerate = async (input: string, secondaryInput?: string, options?: string[], imageData?: string) => {
     setStatus(QueryStatus.LOADING);
@@ -84,11 +125,12 @@ const App: React.FC = () => {
         sources: resultData.sources,
         type: mode,
         timestamp: Date.now(),
+        isSaved: false,
       };
 
       setCurrentResult(newResult);
       setStatus(QueryStatus.SUCCESS);
-      setHistory(prev => [newResult, ...prev].slice(0, 10));
+      setHistory(prev => [newResult, ...prev].slice(0, 50));
 
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
@@ -96,7 +138,21 @@ const App: React.FC = () => {
     }
   };
 
-  const handleHistorySelect = (result: SearchResult) => {
+  const handleSaveToggle = (result: SearchResult) => {
+    const isCurrentlySaved = savedIds.includes(result.id);
+    if (isCurrentlySaved) {
+      setSavedResults(prev => prev.filter(r => r.id !== result.id));
+    } else {
+      setSavedResults(prev => [{ ...result, isSaved: true }, ...prev]);
+    }
+  };
+
+  const handleDeleteSaved = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSavedResults(prev => prev.filter(r => r.id !== id));
+  };
+
+  const handleArchiveSelect = (result: SearchResult) => {
     setMode(result.type);
     setCurrentResult(result);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -118,6 +174,8 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const isCurrentSaved = currentResult ? savedIds.includes(currentResult.id) : false;
+
   const getGradient = () => {
     switch(mode) {
       case 'QUERY_BUILDER': return 'from-indigo-600 to-teal-500';
@@ -127,95 +185,155 @@ const App: React.FC = () => {
       case 'DATA_EXTRACTOR': return 'from-cyan-600 to-blue-500';
       case 'CRITICAL_ANALYST': return 'from-violet-600 to-fuchsia-500';
       case 'ISO_COMPLIANCE_AUDITOR': return 'from-amber-600 to-yellow-500';
-      case 'NOVELTY_GENERATOR': return 'from-pink-600 to-rose-500';
-      case 'IMAGE_ANALYZER': return 'from-blue-600 to-indigo-500';
-      case 'RESOURCE_SCOUT': return 'from-emerald-600 to-teal-500';
-      case 'OPEN_ACCESS_FINDER': return 'from-teal-600 to-emerald-500';
-      case 'LAB_SCOUT': return 'from-orange-600 to-amber-500';
-      case 'PROTOCOL_TROUBLESHOOTER': return 'from-red-600 to-orange-500';
-      case 'ACADEMIC_EMAIL_DRAFTER': return 'from-purple-600 to-indigo-500';
-      case 'ML_DEEP_LEARNING_ARCHITECT': return 'from-fuchsia-600 to-purple-500';
-      case 'PPT_ARCHITECT': return 'from-amber-600 to-orange-500';
       default: return 'from-indigo-600 to-teal-500';
     }
   };
 
+  if (showOnboarding) return <OnboardingScreen onComplete={handleOnboardingComplete} />;
+  
   if (showWelcome) return <WelcomeScreen onEnter={() => setShowWelcome(false)} />;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Header />
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row min-h-[calc(100vh-4rem)]">
-        <aside className="hidden md:block w-72 shrink-0 border-r border-slate-200 bg-slate-50/50 p-6 overflow-y-auto max-h-[calc(100vh-4rem)] sticky top-16">
-           <div className="mb-6">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 px-1">Modules</h3>
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row flex-1 w-full">
+        {/* Sidebar */}
+        <aside className="hidden md:flex w-72 shrink-0 border-r border-slate-200 bg-white p-6 overflow-y-auto max-h-[calc(100vh-4rem)] sticky top-16 flex-col">
+           <div className="mb-8">
+              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 px-1">Specialized Modules</h3>
               <ModeSwitcher currentMode={mode} onModeChange={handleModeChange} disabled={status === QueryStatus.LOADING} orientation="vertical" />
            </div>
-           <div className="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100/50">
-              <h4 className="text-xs font-semibold text-indigo-900 mb-1">BioSearch Pro</h4>
-              <p className="text-[10px] text-indigo-700/70 leading-relaxed">
-                Unlock advanced features like Batch Processing and Team Collaboration.
-              </p>
+
+           {savedResults.length > 0 && (
+             <div className="mb-8">
+                <div className="flex items-center justify-between mb-4 px-1">
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Saved Architectures</h3>
+                  <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{savedResults.length}</span>
+                </div>
+                <div className="space-y-1.5">
+                  {savedResults.slice(0, 8).map(saved => (
+                    <button
+                      key={saved.id}
+                      onClick={() => handleArchiveSelect(saved)}
+                      className="w-full text-left group p-2 rounded-xl border border-transparent hover:border-amber-100 hover:bg-amber-50/30 transition-all flex items-start gap-3"
+                    >
+                      <div className="mt-1 shrink-0">
+                        <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-slate-700 truncate group-hover:text-amber-800">
+                          {saved.originalQuery || 'Research Node'}
+                        </p>
+                        <p className="text-[9px] text-slate-400 truncate font-bold uppercase tracking-wider mt-0.5">{saved.type.replace(/_/g, ' ')}</p>
+                      </div>
+                      <button 
+                        onClick={(e) => handleDeleteSaved(saved.id, e)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition-all"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </button>
+                  ))}
+                  {savedResults.length > 8 && (
+                    <p className="text-[10px] text-slate-400 italic text-center pt-2">Plus {savedResults.length - 8} more in archive...</p>
+                  )}
+                </div>
+             </div>
+           )}
+
+           <div className="mt-auto p-4 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl shadow-lg shadow-indigo-200">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-white/20 rounded-lg">
+                  <FolderHeart className="w-4 h-4 text-white" />
+                </div>
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Cloud Storage</h4>
+              </div>
+              {userProfile ? (
+                 <div>
+                    <p className="text-[10px] text-indigo-100/80 leading-relaxed font-medium">
+                      Welcome, <span className="text-white font-bold">{userProfile.email}</span>.
+                    </p>
+                    <p className="text-[9px] text-indigo-200 mt-1 uppercase tracking-wide">{userProfile.level}</p>
+                 </div>
+              ) : (
+                <p className="text-[10px] text-indigo-100/80 leading-relaxed font-medium">
+                  Sign in to sync your research architectures across all your devices.
+                </p>
+              )}
+           </div>
+
+           <div className="mt-4 text-center pb-2">
+             <p className="text-[10px] text-slate-400 font-medium">
+               Designed & Developed by <span className="text-slate-600 font-bold block">Ali Zerehsaz</span>
+             </p>
            </div>
         </aside>
+
+        {/* Main Content */}
         <main className="flex-1 w-full min-w-0">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-10 py-12">
             <div className="md:hidden mb-8">
               <ModeSwitcher currentMode={mode} onModeChange={handleModeChange} disabled={status === QueryStatus.LOADING} orientation="horizontal" />
             </div>
-            <div className="text-center mb-8 space-y-3">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-                Biomaterials <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getGradient()}`}>Research Architect</span>
+
+            <div className="text-center mb-10 space-y-4">
+              <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
+                Research <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getGradient()}`}>Architect</span>
               </h2>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                {mode === 'QUERY_BUILDER' && 'MeSH-enabled boolean strings for PubMed & Scopus.'}
-                {mode === 'PRECISION_SEARCH_COMMANDER' && 'Highly specific search queries with manual filters and direct links.'}
-                {mode === 'PICO_PROTOCOL' && 'Structured PICOS frameworks and criteria for systematic reviews.'}
-                {mode === 'ABSTRACT_SCREENER' && 'AI exclusion criteria for screening abstracts.'}
-                {mode === 'DATA_EXTRACTOR' && 'Extract quantitative outcomes from methods and results.'}
-                {mode === 'CRITICAL_ANALYST' && 'Identify material trends and research gaps.'}
-                {mode === 'ISO_COMPLIANCE_AUDITOR' && 'Regulatory compliance audit for ISO 10993/ASTM.'}
-                {mode === 'NOVELTY_GENERATOR' && 'Synthesize high-impact research hypotheses.'}
-                {mode === 'IMAGE_ANALYZER' && 'Extract text and insights from scientific figures.'}
-                {mode === 'RESOURCE_SCOUT' && 'Find the best databases for your niche.'}
-                {mode === 'OPEN_ACCESS_FINDER' && 'Scan for legal open access PDFs.'}
-                {mode === 'LAB_SCOUT' && 'Find active labs with 2024-2026 publications.'}
-                {mode === 'PROTOCOL_TROUBLESHOOTER' && 'Expert diagnosis for failed experiments.'}
-                {mode === 'ACADEMIC_EMAIL_DRAFTER' && 'Personalized cold emails for PhDs/Collabs.'}
-                {mode === 'ML_DEEP_LEARNING_ARCHITECT' && 'ML pipelines for biomedical data.'}
-                {mode === 'PPT_ARCHITECT' && 'Experimental data to structured slide outlines.'}
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
+                Empowering biomaterials researchers with expert query engineering and protocol definition agents.
               </p>
             </div>
-            <div className="mb-10">
+
+            <div className="mb-12">
               <SearchInput onGenerate={handleGenerate} status={status} mode={mode} initialValue={inputVal} />
             </div>
+
             {status === QueryStatus.ERROR && error && (
-              <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-red-700">
+              <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 text-red-700 shadow-sm animate-in fade-in slide-in-from-top-2">
                 <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                <div><p className="font-semibold">Generation Failed</p><p className="text-sm opacity-90">{error}</p></div>
+                <div><p className="font-bold">System Error</p><p className="text-sm font-medium opacity-90">{error}</p></div>
               </div>
             )}
+
             {currentResult && (
-              <div className="mb-12">
-                {currentResult.type === 'QUERY_BUILDER' && <ResultCard result={currentResult} onContinue={handleContinue} />}
-                {currentResult.type === 'PRECISION_SEARCH_COMMANDER' && <PrecisionSearchResultCard result={currentResult} />}
-                {currentResult.type === 'PICO_PROTOCOL' && <ProtocolCard result={currentResult} />}
-                {currentResult.type === 'ABSTRACT_SCREENER' && <ScreeningResultCard result={currentResult} onContinue={handleContinue} />}
-                {currentResult.type === 'DATA_EXTRACTOR' && <ExtractionResultCard result={currentResult} onContinue={handleContinue} />}
-                {currentResult.type === 'CRITICAL_ANALYST' && <AnalystResultCard result={currentResult} onContinue={handleContinue} />}
-                {currentResult.type === 'ISO_COMPLIANCE_AUDITOR' && <AuditorResultCard result={currentResult} />}
-                {currentResult.type === 'NOVELTY_GENERATOR' && <NoveltyResultCard result={currentResult} />}
-                {currentResult.type === 'IMAGE_ANALYZER' && <ImageResultCard result={currentResult} />}
-                {currentResult.type === 'RESOURCE_SCOUT' && <ResourceScoutCard result={currentResult} />}
-                {currentResult.type === 'OPEN_ACCESS_FINDER' && <OpenAccessResultCard result={currentResult} />}
-                {currentResult.type === 'LAB_SCOUT' && <LabScoutResultCard result={currentResult} />}
-                {currentResult.type === 'PROTOCOL_TROUBLESHOOTER' && <TroubleshooterResultCard result={currentResult} />}
-                {currentResult.type === 'ACADEMIC_EMAIL_DRAFTER' && <EmailResultCard result={currentResult} />}
-                {currentResult.type === 'ML_DEEP_LEARNING_ARCHITECT' && <MLResultCard result={currentResult} />}
-                {currentResult.type === 'PPT_ARCHITECT' && <PPTResultCard result={currentResult} />}
+              <div className="mb-16 relative">
+                {/* Save Toggle Overlay */}
+                <div className="absolute -top-14 right-0 z-10 flex items-center gap-2 animate-in fade-in slide-in-from-right-4">
+                   <button 
+                    onClick={() => handleSaveToggle(currentResult)}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full shadow-xl border transition-all font-bold text-xs uppercase tracking-widest
+                      ${isCurrentSaved 
+                        ? 'bg-amber-500 text-white border-amber-600 scale-105' 
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300 hover:text-amber-600 hover:bg-amber-50/30'}`}
+                  >
+                    <Star className={`w-4 h-4 ${isCurrentSaved ? 'fill-current' : ''}`} />
+                    <span>{isCurrentSaved ? 'In Favorites' : 'Bookmark Node'}</span>
+                  </button>
+                </div>
+
+                <div className="transition-all duration-500">
+                  {currentResult.type === 'QUERY_BUILDER' && <ResultCard result={currentResult} onContinue={handleContinue} onToggleSave={() => handleSaveToggle(currentResult)} isSaved={isCurrentSaved} />}
+                  {currentResult.type === 'PRECISION_SEARCH_COMMANDER' && <PrecisionSearchResultCard result={currentResult} />}
+                  {currentResult.type === 'PICO_PROTOCOL' && <ProtocolCard result={currentResult} />}
+                  {currentResult.type === 'ABSTRACT_SCREENER' && <ScreeningResultCard result={currentResult} onContinue={handleContinue} />}
+                  {currentResult.type === 'DATA_EXTRACTOR' && <ExtractionResultCard result={currentResult} onContinue={handleContinue} />}
+                  {currentResult.type === 'CRITICAL_ANALYST' && <AnalystResultCard result={currentResult} onContinue={handleContinue} />}
+                  {currentResult.type === 'ISO_COMPLIANCE_AUDITOR' && <AuditorResultCard result={currentResult} />}
+                  {currentResult.type === 'NOVELTY_GENERATOR' && <NoveltyResultCard result={currentResult} />}
+                  {currentResult.type === 'IMAGE_ANALYZER' && <ImageResultCard result={currentResult} />}
+                  {currentResult.type === 'RESOURCE_SCOUT' && <ResourceScoutCard result={currentResult} />}
+                  {currentResult.type === 'OPEN_ACCESS_FINDER' && <OpenAccessResultCard result={currentResult} />}
+                  {currentResult.type === 'LAB_SCOUT' && <LabScoutResultCard result={currentResult} />}
+                  {currentResult.type === 'PROTOCOL_TROUBLESHOOTER' && <TroubleshooterResultCard result={currentResult} />}
+                  {currentResult.type === 'ACADEMIC_EMAIL_DRAFTER' && <EmailResultCard result={currentResult} />}
+                  {currentResult.type === 'ML_DEEP_LEARNING_ARCHITECT' && <MLResultCard result={currentResult} />}
+                  {currentResult.type === 'PPT_ARCHITECT' && <PPTResultCard result={currentResult} />}
+                </div>
               </div>
             )}
-            <History history={history} onSelect={handleHistorySelect} />
+
+            <History history={history} savedResults={savedResults} onSelect={handleArchiveSelect} />
           </div>
         </main>
       </div>

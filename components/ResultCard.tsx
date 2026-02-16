@@ -1,13 +1,16 @@
+
 import React, { useState } from 'react';
-import { Copy, Check, Database, ExternalLink, ArrowRightCircle, Quote } from 'lucide-react';
+import { Copy, Check, Database, ExternalLink, ArrowRightCircle, Quote, Star } from 'lucide-react';
 import { SearchResult, AppMode } from '../types';
 
 interface ResultCardProps {
   result: SearchResult;
   onContinue?: (mode: AppMode, content: string) => void;
+  onToggleSave?: () => void;
+  isSaved?: boolean;
 }
 
-const ResultCard: React.FC<ResultCardProps> = ({ result, onContinue }) => {
+const ResultCard: React.FC<ResultCardProps> = ({ result, onContinue, onToggleSave, isSaved }) => {
   const [copied, setCopied] = useState(false);
   // Placeholder citation count for demonstration
   const citationCount = 142;
@@ -30,6 +33,19 @@ const ResultCard: React.FC<ResultCardProps> = ({ result, onContinue }) => {
             <h3 className="font-semibold text-slate-800">Generated Search String</h3>
         </div>
         <div className="flex items-center gap-2">
+            {onToggleSave && (
+              <button 
+                onClick={onToggleSave}
+                className={`p-1.5 rounded-lg border transition-all duration-200 ${
+                  isSaved 
+                    ? 'bg-amber-50 border-amber-200 text-amber-500 shadow-sm' 
+                    : 'bg-white border-transparent text-slate-300 hover:text-amber-500 hover:bg-amber-50'
+                }`}
+                title={isSaved ? "Remove from Bookmarks" : "Save to Bookmarks"}
+              >
+                <Star className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+              </button>
+            )}
             <div className="text-xs text-indigo-700 font-medium bg-white px-2 py-1 rounded border border-indigo-200 flex items-center gap-1 shadow-sm">
                 <Quote className="w-3 h-3" />
                 <span>{citationCount} Citations</span>

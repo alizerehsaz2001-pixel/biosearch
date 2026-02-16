@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Crosshair, Copy, Check, ExternalLink, Globe } from 'lucide-react';
 import { SearchResult } from '../types';

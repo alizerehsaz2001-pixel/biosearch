@@ -40,18 +40,22 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
         </div>
 
         {/* Enter Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent flex justify-center pointer-events-none">
+        <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent flex flex-col items-center justify-center pointer-events-none">
            <button
              onClick={onEnter}
-             className="pointer-events-auto flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold px-10 py-4 rounded-full shadow-2xl shadow-indigo-300 hover:shadow-indigo-400 hover:-translate-y-1 active:translate-y-0 transition-all duration-300"
+             className="pointer-events-auto flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold px-10 py-4 rounded-full shadow-2xl shadow-indigo-300 hover:shadow-indigo-400 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 mb-4"
            >
              <span>I Realized</span>
              <ArrowRight className="w-6 h-6" />
            </button>
+           
+           <p className="text-xs text-slate-400 font-medium pointer-events-auto">
+             Designed & Developed by <span className="text-slate-600 font-bold">Ali Zerehsaz</span>
+           </p>
         </div>
         
         {/* Spacer for fixed button */}
-        <div className="h-24"></div>
+        <div className="h-32"></div>
 
       </div>
     </div>

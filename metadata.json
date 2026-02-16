@@ -1,0 +1,5 @@
+{
+  "name": "BioSearch Architect",
+  "description": "An advanced tool for biomedical researchers to convert natural language topics into complex Boolean search strings for PubMed and Scopus using AI.",
+  "requestFramePermissions": []
+}

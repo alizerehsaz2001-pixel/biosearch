@@ -1,0 +1,81 @@
+import React, { useState } from 'react';
+import { Copy, Check, Database, ExternalLink } from 'lucide-react';
+import { SearchResult } from '../types';
+
+interface ResultCardProps {
+  result: SearchResult;
+}
+
+const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(result.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const pubMedLink = `https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(result.content)}`;
+
+  return (
+    <div className="w-full bg-white rounded-2xl shadow-lg border border-indigo-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="bg-gradient-to-r from-indigo-50 to-slate-50 px-6 py-4 border-b border-indigo-100 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+            <div className="bg-white p-1.5 rounded-md shadow-sm border border-indigo-100 text-indigo-600">
+                <Database className="w-4 h-4" />
+            </div>
+            <h3 className="font-semibold text-slate-800">Generated Search String</h3>
+        </div>
+        <div className="text-xs text-indigo-600/70 font-mono bg-indigo-50 px-2 py-1 rounded border border-indigo-100">
+            PubMed / Scopus Compatible
+        </div>
+      </div>
+      
+      <div className="p-6">
+        <div className="mb-4">
+            <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Original Topic</p>
+            <p className="text-slate-700 italic border-l-2 border-slate-200 pl-3 py-1">
+                "{result.originalQuery}"
+            </p>
+        </div>
+
+        <div className="relative group">
+          <pre className="bg-slate-900 text-slate-100 p-5 rounded-xl text-sm leading-relaxed whitespace-pre-wrap font-mono custom-scrollbar overflow-x-auto border border-slate-800 shadow-inner min-h-[100px]">
+            {result.content}
+          </pre>
+          
+          <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <button
+              onClick={handleCopy}
+              className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 rounded-lg border border-slate-700 transition-colors shadow-lg backdrop-blur-sm"
+              title="Copy to clipboard"
+            >
+              {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            <button 
+                onClick={handleCopy}
+                className="flex-1 flex items-center justify-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 py-2.5 rounded-lg font-medium transition-colors text-sm"
+            >
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? 'Copied to Clipboard' : 'Copy Query'}
+            </button>
+            <a 
+                href={pubMedLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 py-2.5 rounded-lg font-medium transition-colors text-sm"
+            >
+                <ExternalLink className="w-4 h-4" />
+                Test in PubMed
+            </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ResultCard;

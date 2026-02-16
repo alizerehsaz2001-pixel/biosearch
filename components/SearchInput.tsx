@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench } from 'lucide-react';
+import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu } from 'lucide-react';
 import { QueryStatus, AppMode } from '../types';
 
 interface SearchInputProps {
@@ -188,10 +188,21 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonIcon = <Wrench className="w-4 h-4" />;
         buttonColor = "bg-red-600 text-white hover:bg-red-700";
         break;
+    case 'ACADEMIC_EMAIL_DRAFTER':
+        placeholder = "Recipient: [Name/Uni], Goal: [PhD/Collab/Question], Context: [My background/work]...";
+        buttonLabel = 'Draft Email';
+        buttonIcon = <Mail className="w-4 h-4" />;
+        buttonColor = "bg-purple-600 text-white hover:bg-purple-700";
+        break;
+    case 'ML_DEEP_LEARNING_ARCHITECT':
+        placeholder = "Describe your data and goal (e.g., 'Classify H&E stained histology images for cancer grading')...";
+        buttonLabel = 'Design AI Model';
+        buttonIcon = <Cpu className="w-4 h-4" />;
+        buttonColor = "bg-fuchsia-600 text-white hover:bg-fuchsia-700";
+        break;
   }
 
   const isButtonDisabled = isLoading || 
-    (mode === 'ABSTRACT_SCREENER' && !criteria.trim()) ||
     (mode === 'IMAGE_ANALYZER' && !selectedImage) ||
     (mode !== 'IMAGE_ANALYZER' && !input.trim());
 
@@ -208,6 +219,8 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         mode === 'RESOURCE_SCOUT' ? 'focus-within:ring-emerald-500/20' :
         mode === 'LAB_SCOUT' ? 'focus-within:ring-orange-500/20' :
         mode === 'PROTOCOL_TROUBLESHOOTER' ? 'focus-within:ring-red-500/20' :
+        mode === 'ACADEMIC_EMAIL_DRAFTER' ? 'focus-within:ring-purple-500/20' :
+        mode === 'ML_DEEP_LEARNING_ARCHITECT' ? 'focus-within:ring-fuchsia-500/20' :
         'focus-within:ring-teal-500/20'
     }`}>
       <form onSubmit={handleSubmit} className="relative flex flex-col">
@@ -219,7 +232,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                     ref={criteriaRef}
                     value={criteria}
                     onChange={(e) => setCriteria(e.target.value)}
-                    placeholder="Define Inclusion/Exclusion Criteria (e.g., 'Include only in vivo studies, exclude reviews')..."
+                    placeholder="Define Inclusion/Exclusion Criteria (Optional, e.g., 'Include only in vivo studies')..."
                     className="w-full p-4 min-h-[80px] text-sm text-slate-700 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent"
                     disabled={isLoading}
                 />
@@ -267,7 +280,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className={`w-full p-4 min-h-[120px] text-lg text-slate-800 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent ${mode === 'ABSTRACT_SCREENER' || mode === 'CRITICAL_ANALYST' || mode === 'ISO_COMPLIANCE_AUDITOR' || mode === 'NOVELTY_GENERATOR' || mode === 'PROTOCOL_TROUBLESHOOTER' ? 'min-h-[150px]' : ''}`}
+            className={`w-full p-4 min-h-[120px] text-lg text-slate-800 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent ${mode === 'ABSTRACT_SCREENER' || mode === 'CRITICAL_ANALYST' || mode === 'ISO_COMPLIANCE_AUDITOR' || mode === 'NOVELTY_GENERATOR' || mode === 'PROTOCOL_TROUBLESHOOTER' || mode === 'ACADEMIC_EMAIL_DRAFTER' || mode === 'ML_DEEP_LEARNING_ARCHITECT' ? 'min-h-[150px]' : ''}`}
             disabled={isLoading}
           />
         </div>
@@ -319,6 +332,10 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                 ? <span className="hidden sm:inline">Enter topic and target region. </span>
                 : mode === 'PROTOCOL_TROUBLESHOOTER'
                 ? <span className="hidden sm:inline">Describe failed experiment details. </span>
+                : mode === 'ACADEMIC_EMAIL_DRAFTER'
+                ? <span className="hidden sm:inline">Enter Recipient, Goal, and Context. </span>
+                : mode === 'ML_DEEP_LEARNING_ARCHITECT'
+                ? <span className="hidden sm:inline">Enter Data Type and Goal. </span>
                 : <span className="hidden sm:inline">Pro Tip: Be specific. </span>
              }
             <span className="inline-block bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-[10px] tracking-wide">⌘ + Enter</span> to submit

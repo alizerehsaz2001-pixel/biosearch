@@ -13,13 +13,17 @@ import ResourceScoutCard from './components/ResourceScoutCard';
 import OpenAccessResultCard from './components/OpenAccessResultCard';
 import LabScoutResultCard from './components/LabScoutResultCard';
 import TroubleshooterResultCard from './components/TroubleshooterResultCard';
+import EmailResultCard from './components/EmailResultCard';
+import MLResultCard from './components/MLResultCard';
 import History from './components/History';
 import ModeSwitcher from './components/ModeSwitcher';
-import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol } from './services/geminiService';
+import WelcomeScreen from './components/WelcomeScreen';
+import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode } from './types';
 import { AlertCircle } from 'lucide-react';
 
 const App: React.FC = () => {
+  const [showWelcome, setShowWelcome] = useState(true);
   const [mode, setMode] = useState<AppMode>('QUERY_BUILDER');
   const [status, setStatus] = useState<QueryStatus>(QueryStatus.IDLE);
   const [currentResult, setCurrentResult] = useState<SearchResult | null>(null);
@@ -39,8 +43,8 @@ const App: React.FC = () => {
       } else if (mode === 'PICO_PROTOCOL') {
         content = await generatePicoProtocol(input);
       } else if (mode === 'ABSTRACT_SCREENER') {
-        if (!secondaryInput) throw new Error("Criteria is required for screening.");
-        content = await screenAbstract(input, secondaryInput);
+        const criteria = secondaryInput || "Scientific validity and relevance to the topic.";
+        content = await screenAbstract(input, criteria);
       } else if (mode === 'DATA_EXTRACTOR') {
         content = await extractTechnicalData(input);
       } else if (mode === 'CRITICAL_ANALYST') {
@@ -60,6 +64,10 @@ const App: React.FC = () => {
         content = await findLabs(input);
       } else if (mode === 'PROTOCOL_TROUBLESHOOTER') {
         content = await troubleshootProtocol(input);
+      } else if (mode === 'ACADEMIC_EMAIL_DRAFTER') {
+        content = await generateAcademicEmail(input);
+      } else if (mode === 'ML_DEEP_LEARNING_ARCHITECT') {
+        content = await generateMLArchitecture(input);
       }
       
       const newResult: SearchResult = {
@@ -122,8 +130,14 @@ const App: React.FC = () => {
           case 'OPEN_ACCESS_FINDER': return 'from-teal-600 to-emerald-500';
           case 'LAB_SCOUT': return 'from-orange-600 to-amber-500';
           case 'PROTOCOL_TROUBLESHOOTER': return 'from-red-600 to-orange-500';
+          case 'ACADEMIC_EMAIL_DRAFTER': return 'from-purple-600 to-indigo-500';
+          case 'ML_DEEP_LEARNING_ARCHITECT': return 'from-fuchsia-600 to-purple-500';
       }
   };
+
+  if (showWelcome) {
+    return <WelcomeScreen onEnter={() => setShowWelcome(false)} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -182,6 +196,8 @@ const App: React.FC = () => {
                 {mode === 'OPEN_ACCESS_FINDER' && 'Find free, legal PDF links for articles using DOI or Title via Unpaywall and Core.ac.uk.'}
                 {mode === 'LAB_SCOUT' && 'Find active research groups and professors in your niche with recent publications (2024-2026).'}
                 {mode === 'PROTOCOL_TROUBLESHOOTER' && 'Diagnose experimental failures with senior lab manager insights and step-by-step fixes.'}
+                {mode === 'ACADEMIC_EMAIL_DRAFTER' && 'Draft personalized, high-impact cold emails to professors for PhDs and collaborations.'}
+                {mode === 'ML_DEEP_LEARNING_ARCHITECT' && 'Design custom Machine Learning and Deep Learning pipelines for biomedical data analysis.'}
               </p>
             </div>
 
@@ -221,6 +237,8 @@ const App: React.FC = () => {
                 {currentResult.type === 'OPEN_ACCESS_FINDER' && <OpenAccessResultCard result={currentResult} />}
                 {currentResult.type === 'LAB_SCOUT' && <LabScoutResultCard result={currentResult} />}
                 {currentResult.type === 'PROTOCOL_TROUBLESHOOTER' && <TroubleshooterResultCard result={currentResult} />}
+                {currentResult.type === 'ACADEMIC_EMAIL_DRAFTER' && <EmailResultCard result={currentResult} />}
+                {currentResult.type === 'ML_DEEP_LEARNING_ARCHITECT' && <MLResultCard result={currentResult} />}
               </div>
             )}
 

@@ -218,6 +218,52 @@ Please use Markdown with clear headers.
 
 (Repeat for 3 diagnoses)`;
 
+const EMAIL_DRAFTER_SYSTEM_INSTRUCTION = `You are a Senior Academic Communication Coach. Your goal is to write highly effective, personalized emails to professors or researchers.
+
+Input variables from user:
+1. Recipient (Name, Uni, Paper)
+2. My Context (Student level, current work)
+3. Goal (PhD Application, Project Supervision/Collab, Technical Question)
+
+Strategy:
+- If "PhD Application": Focus on recent work, bridge to skills, ask for positions.
+- If "Project Supervision/Collab": Position as capable student seeking guidance.
+- If "Technical Question": Be specific and engagement-focused.
+
+Tone: Professional, concise (max 150-200 words), humble yet confident.
+
+Output Structure (Strictly follow this):
+**Subject:** [Subject Line]
+
+**Body:**
+[Full Email Body]`;
+
+const ML_ARCHITECT_SYSTEM_INSTRUCTION = `You are a Lead AI Research Scientist specializing in Computational Biology and Medical Imaging.
+Your task is to design a complete Machine Learning or Deep Learning pipeline for a specific biomedical research problem provided by the user.
+
+Input: User describes their data type (e.g., MRI images, Genomic sequences, Tabular clinical data) and prediction goal.
+
+Task:
+1. **Architecture Selection:** Recommend the most suitable state-of-the-art model (e.g., 3D U-Net for volumetric segmentation, Graph Neural Networks for molecular structures, Transformer for sequences).
+2. **Data Strategy:** Suggest preprocessing steps (normalization, data augmentation specific to the domain).
+3. **Configuration:** Define Loss Functions and Evaluation Metrics relevant to the medical context (e.g., Dice Score for segmentation, Concordance Index for survival analysis).
+4. **Implementation:** Provide a Python code scaffolding using PyTorch or Keras/TensorFlow.
+
+Output Format (Markdown):
+### 🧠 Model Architecture: [Name]
+**Reasoning:** [Why this specific architecture fits the data/problem]
+
+### 🛠️ Pipeline Strategy
+- **Preprocessing:** [Techniques]
+- **Loss Function:** [Function Name]
+- **Metrics:** [List of metrics]
+
+### 💻 Implementation (Python)
+\`\`\`python
+[Code Snippet]
+\`\`\`
+`;
+
 const getAIClient = () => {
   if (!process.env.API_KEY) {
     throw new Error("API Key is missing. Please check your environment variables.");
@@ -537,5 +583,53 @@ export const troubleshootProtocol = async (input: string): Promise<string> => {
   } catch (error) {
     console.error("Gemini API Error:", error);
     throw new Error("Failed to troubleshoot protocol. Please try again.");
+  }
+};
+
+export const generateAcademicEmail = async (input: string): Promise<string> => {
+  const ai = getAIClient();
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: input,
+      config: {
+        systemInstruction: EMAIL_DRAFTER_SYSTEM_INSTRUCTION,
+        temperature: 0.4,
+      },
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("No response generated from the model.");
+    
+    return text;
+
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    throw new Error("Failed to generate email draft. Please try again.");
+  }
+};
+
+export const generateMLArchitecture = async (input: string): Promise<string> => {
+  const ai = getAIClient();
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: input,
+      config: {
+        systemInstruction: ML_ARCHITECT_SYSTEM_INSTRUCTION,
+        temperature: 0.3,
+      },
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("No response generated from the model.");
+    
+    return text;
+
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    throw new Error("Failed to generate ML architecture. Please try again.");
   }
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench } from 'lucide-react';
+import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench, Mail, Cpu } from 'lucide-react';
 import { AppMode } from '../types';
 
 interface ModeSwitcherProps {
@@ -9,7 +9,7 @@ interface ModeSwitcherProps {
   orientation?: 'horizontal' | 'vertical';
 }
 
-const MODES: { id: AppMode; label: string; icon: React.ElementType; desc: string; color: string; bg: string }[] = [
+export const MODES: { id: AppMode; label: string; icon: React.ElementType; desc: string; color: string; bg: string }[] = [
   { id: 'QUERY_BUILDER', label: 'Query Builder', icon: Search, desc: 'Generate Boolean strings', color: 'text-indigo-600', bg: 'bg-indigo-50' },
   { id: 'PICO_PROTOCOL', label: 'Protocol Definer', icon: FileText, desc: 'PICO frameworks', color: 'text-teal-600', bg: 'bg-teal-50' },
   { id: 'ABSTRACT_SCREENER', label: 'Abstract Screener', icon: Filter, desc: 'AI exclusion criteria', color: 'text-rose-600', bg: 'bg-rose-50' },
@@ -22,6 +22,8 @@ const MODES: { id: AppMode; label: string; icon: React.ElementType; desc: string
   { id: 'OPEN_ACCESS_FINDER', label: 'Open Access', icon: Unlock, desc: 'Find legal PDFs', color: 'text-teal-600', bg: 'bg-teal-50' },
   { id: 'LAB_SCOUT', label: 'Lab Scout', icon: GraduationCap, desc: 'Find professors & labs', color: 'text-orange-600', bg: 'bg-orange-50' },
   { id: 'PROTOCOL_TROUBLESHOOTER', label: 'Troubleshooter', icon: Wrench, desc: 'Diagnose failed experiments', color: 'text-red-600', bg: 'bg-red-50' },
+  { id: 'ACADEMIC_EMAIL_DRAFTER', label: 'Email Strategist', icon: Mail, desc: 'Write cold emails', color: 'text-purple-600', bg: 'bg-purple-50' },
+  { id: 'ML_DEEP_LEARNING_ARCHITECT', label: 'Bio-AI Architect', icon: Cpu, desc: 'Design ML/DL models', color: 'text-fuchsia-600', bg: 'bg-fuchsia-50' },
 ];
 
 const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, disabled, orientation = 'horizontal' }) => {

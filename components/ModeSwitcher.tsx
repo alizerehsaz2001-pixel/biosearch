@@ -1,122 +1,91 @@
 import React from 'react';
-import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb } from 'lucide-react';
+import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench } from 'lucide-react';
 import { AppMode } from '../types';
 
 interface ModeSwitcherProps {
   currentMode: AppMode;
   onModeChange: (mode: AppMode) => void;
   disabled: boolean;
+  orientation?: 'horizontal' | 'vertical';
 }
 
-const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, disabled }) => {
+const MODES: { id: AppMode; label: string; icon: React.ElementType; desc: string; color: string; bg: string }[] = [
+  { id: 'QUERY_BUILDER', label: 'Query Builder', icon: Search, desc: 'Generate Boolean strings', color: 'text-indigo-600', bg: 'bg-indigo-50' },
+  { id: 'PICO_PROTOCOL', label: 'Protocol Definer', icon: FileText, desc: 'PICO frameworks', color: 'text-teal-600', bg: 'bg-teal-50' },
+  { id: 'ABSTRACT_SCREENER', label: 'Abstract Screener', icon: Filter, desc: 'AI exclusion criteria', color: 'text-rose-600', bg: 'bg-rose-50' },
+  { id: 'DATA_EXTRACTOR', label: 'Data Extractor', icon: FlaskConical, desc: 'Parse quantitative data', color: 'text-cyan-600', bg: 'bg-cyan-50' },
+  { id: 'CRITICAL_ANALYST', label: 'Critical Analyst', icon: BrainCircuit, desc: 'Identify trends & gaps', color: 'text-violet-600', bg: 'bg-violet-50' },
+  { id: 'ISO_COMPLIANCE_AUDITOR', label: 'ISO Auditor', icon: ShieldCheck, desc: 'Regulatory compliance', color: 'text-amber-600', bg: 'bg-amber-50' },
+  { id: 'NOVELTY_GENERATOR', label: 'Novelty Gen', icon: Lightbulb, desc: 'Generate hypotheses', color: 'text-pink-600', bg: 'bg-pink-50' },
+  { id: 'IMAGE_ANALYZER', label: 'Image Analyst', icon: Scan, desc: 'Insights from figures', color: 'text-blue-600', bg: 'bg-blue-50' },
+  { id: 'RESOURCE_SCOUT', label: 'Resource Scout', icon: Compass, desc: 'Find databases', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  { id: 'OPEN_ACCESS_FINDER', label: 'Open Access', icon: Unlock, desc: 'Find legal PDFs', color: 'text-teal-600', bg: 'bg-teal-50' },
+  { id: 'LAB_SCOUT', label: 'Lab Scout', icon: GraduationCap, desc: 'Find professors & labs', color: 'text-orange-600', bg: 'bg-orange-50' },
+  { id: 'PROTOCOL_TROUBLESHOOTER', label: 'Troubleshooter', icon: Wrench, desc: 'Diagnose failed experiments', color: 'text-red-600', bg: 'bg-red-50' },
+];
+
+const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, disabled, orientation = 'horizontal' }) => {
+  
+  if (orientation === 'vertical') {
+    return (
+      <div className="flex flex-col gap-2 w-full">
+        {MODES.map((mode) => {
+          const isActive = currentMode === mode.id;
+          return (
+            <button
+              key={mode.id}
+              onClick={() => onModeChange(mode.id)}
+              disabled={disabled}
+              className={`
+                group flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left w-full border
+                ${isActive 
+                  ? `bg-white border-slate-200 shadow-md ring-1 ring-black/5` 
+                  : 'bg-transparent border-transparent hover:bg-slate-100/80 text-slate-500'}
+                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+            >
+              <div className={`p-2 rounded-lg transition-colors ${isActive ? mode.bg + ' ' + mode.color : 'bg-slate-100 text-slate-400 group-hover:bg-white group-hover:text-slate-600'}`}>
+                <mode.icon className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-semibold truncate ${isActive ? 'text-slate-800' : 'text-slate-600'}`}>
+                  {mode.label}
+                </p>
+                <p className={`text-xs truncate ${isActive ? 'text-slate-500' : 'text-slate-400'}`}>
+                  {mode.desc}
+                </p>
+              </div>
+              {isActive && <ChevronRight className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Horizontal Layout (Mobile)
   return (
-    <div className="flex justify-center mb-8 px-2 overflow-x-auto">
-      <div className="bg-slate-200/60 p-1 rounded-xl flex items-center shadow-inner min-w-max">
-        <button
-          onClick={() => onModeChange('QUERY_BUILDER')}
-          disabled={disabled}
-          className={`
-            flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
-            ${currentMode === 'QUERY_BUILDER' 
-              ? 'bg-white text-indigo-700 shadow-sm' 
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}
-            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
-        >
-          <Search className="w-4 h-4" />
-          <span className="hidden sm:inline">Query Builder</span>
-          <span className="sm:hidden">Query</span>
-        </button>
-        <button
-          onClick={() => onModeChange('PICO_PROTOCOL')}
-          disabled={disabled}
-          className={`
-            flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
-            ${currentMode === 'PICO_PROTOCOL' 
-              ? 'bg-white text-teal-700 shadow-sm' 
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}
-            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
-        >
-          <FileText className="w-4 h-4" />
-          <span className="hidden sm:inline">Protocol Definer</span>
-          <span className="sm:hidden">Protocol</span>
-        </button>
-        <button
-          onClick={() => onModeChange('ABSTRACT_SCREENER')}
-          disabled={disabled}
-          className={`
-            flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
-            ${currentMode === 'ABSTRACT_SCREENER' 
-              ? 'bg-white text-rose-700 shadow-sm' 
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}
-            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
-        >
-          <Filter className="w-4 h-4" />
-          <span className="hidden sm:inline">Abstract Screener</span>
-          <span className="sm:hidden">Screen</span>
-        </button>
-        <button
-          onClick={() => onModeChange('DATA_EXTRACTOR')}
-          disabled={disabled}
-          className={`
-            flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
-            ${currentMode === 'DATA_EXTRACTOR' 
-              ? 'bg-white text-cyan-700 shadow-sm' 
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}
-            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
-        >
-          <FlaskConical className="w-4 h-4" />
-          <span className="hidden sm:inline">Data Extractor</span>
-          <span className="sm:hidden">Extract</span>
-        </button>
-        <button
-          onClick={() => onModeChange('CRITICAL_ANALYST')}
-          disabled={disabled}
-          className={`
-            flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
-            ${currentMode === 'CRITICAL_ANALYST' 
-              ? 'bg-white text-violet-700 shadow-sm' 
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}
-            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
-        >
-          <BrainCircuit className="w-4 h-4" />
-          <span className="hidden sm:inline">Critical Analyst</span>
-          <span className="sm:hidden">Analyze</span>
-        </button>
-        <button
-          onClick={() => onModeChange('ISO_COMPLIANCE_AUDITOR')}
-          disabled={disabled}
-          className={`
-            flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
-            ${currentMode === 'ISO_COMPLIANCE_AUDITOR' 
-              ? 'bg-white text-amber-700 shadow-sm' 
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}
-            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
-        >
-          <ShieldCheck className="w-4 h-4" />
-          <span className="hidden sm:inline">ISO Auditor</span>
-          <span className="sm:hidden">Audit</span>
-        </button>
-        <button
-          onClick={() => onModeChange('NOVELTY_GENERATOR')}
-          disabled={disabled}
-          className={`
-            flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
-            ${currentMode === 'NOVELTY_GENERATOR' 
-              ? 'bg-white text-pink-700 shadow-sm' 
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}
-            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
-        >
-          <Lightbulb className="w-4 h-4" />
-          <span className="hidden sm:inline">Novelty Gen</span>
-          <span className="sm:hidden">Ideas</span>
-        </button>
+    <div className="w-full mb-8 overflow-x-auto no-scrollbar">
+      <div className="flex justify-start min-w-full px-1">
+        <div className="bg-slate-200/60 p-1 rounded-xl flex items-center shadow-inner min-w-max">
+            {MODES.map((mode) => (
+                <button
+                    key={mode.id}
+                    onClick={() => onModeChange(mode.id)}
+                    disabled={disabled}
+                    className={`
+                        flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
+                        ${currentMode === mode.id 
+                        ? 'bg-white text-slate-800 shadow-sm' 
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}
+                        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+                    `}
+                >
+                    <mode.icon className={`w-4 h-4 ${currentMode === mode.id ? mode.color : 'text-slate-400'}`} />
+                    <span>{mode.label}</span>
+                </button>
+            ))}
+        </div>
       </div>
     </div>
   );

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Filter, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { SearchResult } from '../types';
+import { Filter, CheckCircle, XCircle, AlertCircle, ArrowRightCircle } from 'lucide-react';
+import { SearchResult, AppMode } from '../types';
 
 interface ScreeningResultCardProps {
   result: SearchResult;
+  onContinue?: (mode: AppMode, content: string) => void;
 }
 
 interface ScreeningData {
@@ -12,7 +13,7 @@ interface ScreeningData {
   confidence_score: string | number;
 }
 
-const ScreeningResultCard: React.FC<ScreeningResultCardProps> = ({ result }) => {
+const ScreeningResultCard: React.FC<ScreeningResultCardProps> = ({ result, onContinue }) => {
   let data: ScreeningData | null = null;
   
   try {
@@ -77,6 +78,18 @@ const ScreeningResultCard: React.FC<ScreeningResultCardProps> = ({ result }) => 
                  "{result.originalQuery}"
              </p>
         </div>
+
+        {isIncluded && onContinue && (
+          <div className="mt-6 pt-4 border-t border-slate-100">
+             <button
+               onClick={() => onContinue('DATA_EXTRACTOR', result.originalQuery)}
+               className="w-full flex items-center justify-center gap-2 text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50 border border-rose-200 py-3 rounded-lg transition-all font-semibold shadow-sm"
+             >
+               <span>Extract Data from this Abstract</span>
+               <ArrowRightCircle className="w-5 h-5" />
+             </button>
+          </div>
+        )}
       </div>
     </div>
   );

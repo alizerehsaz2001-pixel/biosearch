@@ -1,9 +1,10 @@
 import React from 'react';
-import { FlaskConical, AlertCircle, Layers, Settings, Activity } from 'lucide-react';
-import { SearchResult } from '../types';
+import { FlaskConical, AlertCircle, Layers, Settings, Activity, ArrowRightCircle } from 'lucide-react';
+import { SearchResult, AppMode } from '../types';
 
 interface ExtractionResultCardProps {
   result: SearchResult;
+  onContinue?: (mode: AppMode, content: string) => void;
 }
 
 interface QuantitativeProperties {
@@ -20,7 +21,7 @@ interface ExtractionData {
   biological_result: string;
 }
 
-const ExtractionResultCard: React.FC<ExtractionResultCardProps> = ({ result }) => {
+const ExtractionResultCard: React.FC<ExtractionResultCardProps> = ({ result, onContinue }) => {
   let data: ExtractionData | null = null;
   
   try {
@@ -114,6 +115,18 @@ const ExtractionResultCard: React.FC<ExtractionResultCardProps> = ({ result }) =
                 {renderValue(data.biological_result)}
             </p>
         </div>
+
+        {onContinue && (
+          <div className="mt-2 pt-4 border-t border-slate-100">
+             <button
+               onClick={() => onContinue('CRITICAL_ANALYST', result.content)}
+               className="w-full flex items-center justify-center gap-2 text-cyan-600 hover:text-white hover:bg-cyan-600 bg-cyan-50 border border-cyan-200 py-3 rounded-lg transition-all font-semibold shadow-sm"
+             >
+               <span>Analyze these Findings</span>
+               <ArrowRightCircle className="w-5 h-5" />
+             </button>
+          </div>
+        )}
 
       </div>
     </div>

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { BrainCircuit, Copy, Check, TrendingUp, AlertTriangle, Lightbulb, Scale } from 'lucide-react';
-import { SearchResult } from '../types';
+import { BrainCircuit, Copy, Check, TrendingUp, AlertTriangle, Lightbulb, Scale, ArrowRightCircle } from 'lucide-react';
+import { SearchResult, AppMode } from '../types';
 
 interface AnalystResultCardProps {
   result: SearchResult;
+  onContinue?: (mode: AppMode, content: string) => void;
 }
 
-const AnalystResultCard: React.FC<AnalystResultCardProps> = ({ result }) => {
+const AnalystResultCard: React.FC<AnalystResultCardProps> = ({ result, onContinue }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -92,7 +93,7 @@ const AnalystResultCard: React.FC<AnalystResultCardProps> = ({ result }) => {
             {renderContent(result.content)}
         </div>
 
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 flex justify-between items-center">
             <button 
                 onClick={handleCopy}
                 className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 px-4 py-2 rounded-lg font-medium transition-colors text-sm"
@@ -100,6 +101,16 @@ const AnalystResultCard: React.FC<AnalystResultCardProps> = ({ result }) => {
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {copied ? 'Copied' : 'Copy Analysis'}
             </button>
+            
+            {onContinue && (
+                <button
+                    onClick={() => onContinue('NOVELTY_GENERATOR', result.content)}
+                    className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-5 py-2 rounded-lg font-medium transition-colors text-sm shadow-md"
+                >
+                    <Lightbulb className="w-4 h-4" />
+                    Generate Novel Ideas
+                </button>
+            )}
         </div>
       </div>
     </div>

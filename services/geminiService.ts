@@ -88,6 +88,20 @@ Output Table:
 
 Provide the response strictly as a Markdown table followed by a brief textual summary of critical compliance gaps if any.`;
 
+const NOVELTY_SYSTEM_INSTRUCTION = `You are a Principal Investigator (PI) in Biomaterials. Based on the summaries of the analyzed papers, propose 3 novel research ideas.
+
+Criteria for Novelty:
+- Combine materials or methods from different papers (e.g., "Use the fabrication method from Paper A with the polymer from Paper B").
+- Address a specific limitation identified in the analysis.
+
+Output Format:
+### Idea 1: [Title]
+- **Hypothesis:** [If we combine X and Y...]
+- **Innovation:** [Why is this new?]
+- **Feasibility:** [Low/Medium/High based on standard lab equipment]
+
+Repeat for 3 ideas. Use Markdown formatting.`;
+
 const getAIClient = () => {
   if (!process.env.API_KEY) {
     throw new Error("API Key is missing. Please check your environment variables.");
@@ -239,5 +253,29 @@ export const generateIsoComplianceReview = async (methodsSection: string): Promi
   } catch (error) {
     console.error("Gemini API Error:", error);
     throw new Error("Failed to generate ISO compliance review. Please try again.");
+  }
+};
+
+export const generateNoveltyIdeas = async (summaryInput: string): Promise<string> => {
+  const ai = getAIClient();
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: summaryInput,
+      config: {
+        systemInstruction: NOVELTY_SYSTEM_INSTRUCTION,
+        temperature: 0.7, // Higher temperature for creativity
+      },
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("No response generated from the model.");
+    
+    return text;
+
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    throw new Error("Failed to generate novel research ideas. Please try again.");
   }
 };

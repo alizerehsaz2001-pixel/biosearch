@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, ChevronRight, Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck } from 'lucide-react';
+import { Clock, ChevronRight, Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb } from 'lucide-react';
 import { SearchResult } from '../types';
 
 interface HistoryProps {
@@ -30,7 +30,8 @@ const History: React.FC<HistoryProps> = ({ history, onSelect }) => {
                 item.type === 'ABSTRACT_SCREENER' ? 'bg-rose-50 text-rose-600' :
                 item.type === 'DATA_EXTRACTOR' ? 'bg-cyan-50 text-cyan-600' :
                 item.type === 'CRITICAL_ANALYST' ? 'bg-violet-50 text-violet-600' :
-                'bg-amber-50 text-amber-600'
+                item.type === 'ISO_COMPLIANCE_AUDITOR' ? 'bg-amber-50 text-amber-600' :
+                'bg-pink-50 text-pink-600'
             }`}>
                 {item.type === 'QUERY_BUILDER' && <Search className="w-4 h-4" />}
                 {item.type === 'PICO_PROTOCOL' && <FileText className="w-4 h-4" />}
@@ -38,6 +39,7 @@ const History: React.FC<HistoryProps> = ({ history, onSelect }) => {
                 {item.type === 'DATA_EXTRACTOR' && <FlaskConical className="w-4 h-4" />}
                 {item.type === 'CRITICAL_ANALYST' && <BrainCircuit className="w-4 h-4" />}
                 {item.type === 'ISO_COMPLIANCE_AUDITOR' && <ShieldCheck className="w-4 h-4" />}
+                {item.type === 'NOVELTY_GENERATOR' && <Lightbulb className="w-4 h-4" />}
             </div>
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-800 truncate mb-1 group-hover:text-indigo-700 transition-colors">
@@ -48,6 +50,7 @@ const History: React.FC<HistoryProps> = ({ history, onSelect }) => {
                      item.type === 'DATA_EXTRACTOR' ? 'Extracted Data...' :
                      item.type === 'CRITICAL_ANALYST' ? 'Critical Analysis...' :
                      item.type === 'ISO_COMPLIANCE_AUDITOR' ? 'ISO Compliance Audit...' :
+                     item.type === 'NOVELTY_GENERATOR' ? 'Novel Ideas...' :
                      item.content}
                 </p>
             </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck } from 'lucide-react';
+import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb } from 'lucide-react';
 import { AppMode } from '../types';
 
 interface ModeSwitcherProps {
@@ -101,6 +101,21 @@ const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, 
           <ShieldCheck className="w-4 h-4" />
           <span className="hidden sm:inline">ISO Auditor</span>
           <span className="sm:hidden">Audit</span>
+        </button>
+        <button
+          onClick={() => onModeChange('NOVELTY_GENERATOR')}
+          disabled={disabled}
+          className={`
+            flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
+            ${currentMode === 'NOVELTY_GENERATOR' 
+              ? 'bg-white text-pink-700 shadow-sm' 
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}
+            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+          `}
+        >
+          <Lightbulb className="w-4 h-4" />
+          <span className="hidden sm:inline">Novelty Gen</span>
+          <span className="sm:hidden">Ideas</span>
         </button>
       </div>
     </div>

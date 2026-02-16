@@ -7,9 +7,10 @@ import ScreeningResultCard from './components/ScreeningResultCard';
 import ExtractionResultCard from './components/ExtractionResultCard';
 import AnalystResultCard from './components/AnalystResultCard';
 import AuditorResultCard from './components/AuditorResultCard';
+import NoveltyResultCard from './components/NoveltyResultCard';
 import History from './components/History';
 import ModeSwitcher from './components/ModeSwitcher';
-import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview } from './services/geminiService';
+import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode } from './types';
 import { AlertCircle } from 'lucide-react';
 
@@ -40,6 +41,8 @@ const App: React.FC = () => {
         content = await generateCriticalAnalysis(input);
       } else if (mode === 'ISO_COMPLIANCE_AUDITOR') {
         content = await generateIsoComplianceReview(input);
+      } else if (mode === 'NOVELTY_GENERATOR') {
+        content = await generateNoveltyIdeas(input);
       }
       
       const newResult: SearchResult = {
@@ -87,6 +90,7 @@ const App: React.FC = () => {
           case 'DATA_EXTRACTOR': return 'from-cyan-600 to-blue-500';
           case 'CRITICAL_ANALYST': return 'from-violet-600 to-fuchsia-500';
           case 'ISO_COMPLIANCE_AUDITOR': return 'from-amber-600 to-yellow-500';
+          case 'NOVELTY_GENERATOR': return 'from-pink-600 to-rose-500';
       }
   };
 
@@ -108,6 +112,7 @@ const App: React.FC = () => {
             {mode === 'DATA_EXTRACTOR' && 'Automatically extract key material properties, fabrication methods, and biological outcomes from text.'}
             {mode === 'CRITICAL_ANALYST' && 'Analyze data from multiple studies to identify material trends, performance gaps, and future directions.'}
             {mode === 'ISO_COMPLIANCE_AUDITOR' && 'Audit research methods against ISO 10993 and ASTM standards for regulatory compliance.'}
+            {mode === 'NOVELTY_GENERATOR' && 'Synthesize findings to propose novel, high-impact research hypotheses and innovations.'}
           </p>
         </div>
 
@@ -143,6 +148,7 @@ const App: React.FC = () => {
              {currentResult.type === 'DATA_EXTRACTOR' && <ExtractionResultCard result={currentResult} />}
              {currentResult.type === 'CRITICAL_ANALYST' && <AnalystResultCard result={currentResult} />}
              {currentResult.type === 'ISO_COMPLIANCE_AUDITOR' && <AuditorResultCard result={currentResult} />}
+             {currentResult.type === 'NOVELTY_GENERATOR' && <NoveltyResultCard result={currentResult} />}
            </>
         )}
 

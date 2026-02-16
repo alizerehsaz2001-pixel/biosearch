@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck } from 'lucide-react';
+import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb } from 'lucide-react';
 import { QueryStatus, AppMode } from '../types';
 
 interface SearchInputProps {
@@ -86,6 +86,12 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode }) =
         buttonIcon = <ShieldCheck className="w-4 h-4" />;
         buttonColor = "bg-amber-600 text-white hover:bg-amber-700";
         break;
+    case 'NOVELTY_GENERATOR':
+        placeholder = "Paste summaries of analyzed papers to generate novel research hypotheses...";
+        buttonLabel = 'Generate Ideas';
+        buttonIcon = <Lightbulb className="w-4 h-4" />;
+        buttonColor = "bg-pink-600 text-white hover:bg-pink-700";
+        break;
   }
 
   return (
@@ -95,7 +101,8 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode }) =
         mode === 'ABSTRACT_SCREENER' ? 'focus-within:ring-rose-500/20' : 
         mode === 'DATA_EXTRACTOR' ? 'focus-within:ring-cyan-500/20' :
         mode === 'CRITICAL_ANALYST' ? 'focus-within:ring-violet-500/20' :
-        'focus-within:ring-amber-500/20'
+        mode === 'ISO_COMPLIANCE_AUDITOR' ? 'focus-within:ring-amber-500/20' :
+        'focus-within:ring-pink-500/20'
     }`}>
       <form onSubmit={handleSubmit} className="relative flex flex-col">
         
@@ -120,7 +127,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode }) =
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className={`w-full p-4 min-h-[120px] text-lg text-slate-800 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent ${mode === 'ABSTRACT_SCREENER' || mode === 'CRITICAL_ANALYST' || mode === 'ISO_COMPLIANCE_AUDITOR' ? 'min-h-[150px]' : ''}`}
+            className={`w-full p-4 min-h-[120px] text-lg text-slate-800 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent ${mode === 'ABSTRACT_SCREENER' || mode === 'CRITICAL_ANALYST' || mode === 'ISO_COMPLIANCE_AUDITOR' || mode === 'NOVELTY_GENERATOR' ? 'min-h-[150px]' : ''}`}
             disabled={isLoading}
           />
         </div>
@@ -133,6 +140,8 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode }) =
                 ? <span className="hidden sm:inline">Paste multiple study findings. </span>
                 : mode === 'ISO_COMPLIANCE_AUDITOR'
                 ? <span className="hidden sm:inline">Paste Methods section. </span>
+                : mode === 'NOVELTY_GENERATOR'
+                ? <span className="hidden sm:inline">Paste paper summaries. </span>
                 : <span className="hidden sm:inline">Pro Tip: Be specific. </span>
              }
             <span className="inline-block bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-[10px] tracking-wide">⌘ + Enter</span> to submit

@@ -57,6 +57,8 @@ export const translations: Record<Language, Dictionary> = {
     "mode.ML_DEEP_LEARNING_ARCHITECT.desc": "Design ML/DL models",
     "mode.PPT_ARCHITECT.label": "PPT Architect",
     "mode.PPT_ARCHITECT.desc": "Data to Slides",
+    "mode.WORD_ARCHITECT.label": "Word Architect",
+    "mode.WORD_ARCHITECT.desc": "Manuscript Preparer",
     "hero.title_start": "Research",
     "hero.title_end": "Architect",
     "hero.subtitle": "Empowering biomaterials researchers with expert query engineering and protocol definition agents."
@@ -113,6 +115,8 @@ export const translations: Record<Language, Dictionary> = {
     "mode.ML_DEEP_LEARNING_ARCHITECT.desc": "Concevoir modèles ML/DL",
     "mode.PPT_ARCHITECT.label": "Architecte PPT",
     "mode.PPT_ARCHITECT.desc": "Données vers Diapositives",
+    "mode.WORD_ARCHITECT.label": "Architecte Word",
+    "mode.WORD_ARCHITECT.desc": "Préparateur de Manuscrit",
     "hero.title_start": "Architecte de",
     "hero.title_end": "Recherche",
     "hero.subtitle": "Donner aux chercheurs en biomatériaux les moyens d'agir grâce à des agents experts."
@@ -169,6 +173,8 @@ export const translations: Record<Language, Dictionary> = {
     "mode.ML_DEEP_LEARNING_ARCHITECT.desc": "Diseñar modelos ML/DL",
     "mode.PPT_ARCHITECT.label": "Arquitecto PPT",
     "mode.PPT_ARCHITECT.desc": "Datos a Diapositivas",
+    "mode.WORD_ARCHITECT.label": "Arquitecto Word",
+    "mode.WORD_ARCHITECT.desc": "Preparador de Manuscritos",
     "hero.title_start": "Arquitecto de",
     "hero.title_end": "Investigación",
     "hero.subtitle": "Potenciando a los investigadores de biomateriales con ingeniería de consultas experta."
@@ -225,6 +231,8 @@ export const translations: Record<Language, Dictionary> = {
     "mode.ML_DEEP_LEARNING_ARCHITECT.desc": "Projetar modelos ML/DL",
     "mode.PPT_ARCHITECT.label": "Arquiteto PPT",
     "mode.PPT_ARCHITECT.desc": "Dados para Slides",
+    "mode.WORD_ARCHITECT.label": "Arquiteto Word",
+    "mode.WORD_ARCHITECT.desc": "Preparador de Manuscritos",
     "hero.title_start": "Arquiteto de",
     "hero.title_end": "Pesquisa",
     "hero.subtitle": "Capacitando pesquisadores de biomateriais com engenharia de consultas especializada."
@@ -281,6 +289,8 @@ export const translations: Record<Language, Dictionary> = {
     "mode.ML_DEEP_LEARNING_ARCHITECT.desc": "ML/DL-Modelle entwerfen",
     "mode.PPT_ARCHITECT.label": "PPT-Architekt",
     "mode.PPT_ARCHITECT.desc": "Daten zu Folien",
+    "mode.WORD_ARCHITECT.label": "Word-Architekt",
+    "mode.WORD_ARCHITECT.desc": "Manuskript-Vorbereiter",
     "hero.title_start": "Forschungs",
     "hero.title_end": "Architekt",
     "hero.subtitle": "Stärkung von Biomaterialforschern durch Experten-Abfrage-Engineering."
@@ -314,7 +324,7 @@ export const translations: Record<Language, Dictionary> = {
     "mode.ABSTRACT_SCREENER.label": "Screener di Abstract",
     "mode.ABSTRACT_SCREENER.desc": "Criteri di esclusione IA",
     "mode.DATA_EXTRACTOR.label": "Estrattore di Dati",
-    "mode.DATA_EXTRACTOR.desc": "Analizzare dati quantitativi",
+    "mode.DATA_EXTRACTOR.desc": "Analizzare dati quantitativos",
     "mode.CRITICAL_ANALYST.label": "Analista Critico",
     "mode.CRITICAL_ANALYST.desc": "Identificare tendenze e lacune",
     "mode.ISO_COMPLIANCE_AUDITOR.label": "Auditor ISO",
@@ -337,6 +347,8 @@ export const translations: Record<Language, Dictionary> = {
     "mode.ML_DEEP_LEARNING_ARCHITECT.desc": "Progettare modelli ML/DL",
     "mode.PPT_ARCHITECT.label": "Architetto PPT",
     "mode.PPT_ARCHITECT.desc": "Dati in Diapositive",
+    "mode.WORD_ARCHITECT.label": "Architetto Word",
+    "mode.WORD_ARCHITECT.desc": "Preparatore di Manoscritti",
     "hero.title_start": "Architetto di",
     "hero.title_end": "Ricerca",
     "hero.subtitle": "Potenziare i ricercatori di biomateriali con l'ingegneria delle query esperta."

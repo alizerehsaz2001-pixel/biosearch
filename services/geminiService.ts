@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 
 const SEARCH_SYSTEM_INSTRUCTION = `You are an expert Information Specialist and Biomaterials Engineer. Your task is to translate natural language research topics into advanced boolean search strings suitable for PubMed and Scopus.
@@ -356,6 +357,17 @@ Provide a raw JSON block at the end:
 }
 \`\`\``;
 
+const WORD_ARCHITECT_SYSTEM_INSTRUCTION = `You are a professional Scientific Technical Writer and Manuscript Preparer.
+Your task is to take research content (protocols, analysis, or raw notes) and format it into a professional, structured document layout suitable for Microsoft Word.
+
+**Rules:**
+1. Use clear hierarchical headings (Heading 1, Heading 2).
+2. Format tables clearly.
+3. Ensure professional academic tone.
+4. Structure sections logically (e.g., Abstract, Introduction, Materials, Methods, Results, Discussion).
+
+**Output:** Provide the content in structured Markdown that translates well to a research paper format.`;
+
 // Common config for thinking models
 const THINKING_CONFIG = {
   thinkingConfig: {
@@ -625,4 +637,18 @@ export const generatePrecisionSearch = async (params: string): Promise<{ content
     },
   });
   return { content: response.text, sources: extractGroundingSources(response) };
+};
+
+export const generateWordDocument = async (input: string): Promise<{ content: string }> => {
+  const ai = getAIClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview',
+    contents: input,
+    config: {
+      systemInstruction: WORD_ARCHITECT_SYSTEM_INSTRUCTION,
+      temperature: 0.3,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
 };

@@ -18,12 +18,13 @@ import EmailResultCard from './components/EmailResultCard';
 import MLResultCard from './components/MLResultCard';
 import PPTResultCard from './components/PPTResultCard';
 import PrecisionSearchResultCard from './components/PrecisionSearchResultCard';
+import WordResultCard from './components/WordResultCard';
 import History from './components/History';
 import ModeSwitcher from './components/ModeSwitcher';
 import WelcomeScreen from './components/WelcomeScreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import ProfileModal from './components/ProfileModal';
-import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch } from './services/geminiService';
+import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
 import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -140,6 +141,8 @@ const AppContent: React.FC = () => {
         resultData = await generateMLArchitecture(input);
       } else if (mode === 'PPT_ARCHITECT') {
         resultData = await generatePptOutline(input);
+      } else if (mode === 'WORD_ARCHITECT') {
+        resultData = await generateWordDocument(input);
       }
       
       const newResult: SearchResult = {
@@ -209,6 +212,7 @@ const AppContent: React.FC = () => {
       case 'DATA_EXTRACTOR': return 'from-cyan-600 to-blue-500';
       case 'CRITICAL_ANALYST': return 'from-violet-600 to-fuchsia-500';
       case 'ISO_COMPLIANCE_AUDITOR': return 'from-amber-600 to-yellow-500';
+      case 'WORD_ARCHITECT': return 'from-blue-600 to-indigo-600';
       default: return 'from-indigo-600 to-teal-500';
     }
   };
@@ -367,6 +371,7 @@ const AppContent: React.FC = () => {
                   {currentResult.type === 'ACADEMIC_EMAIL_DRAFTER' && <EmailResultCard result={currentResult} />}
                   {currentResult.type === 'ML_DEEP_LEARNING_ARCHITECT' && <MLResultCard result={currentResult} />}
                   {currentResult.type === 'PPT_ARCHITECT' && <PPTResultCard result={currentResult} />}
+                  {currentResult.type === 'WORD_ARCHITECT' && <WordResultCard result={currentResult} />}
                 </div>
               </div>
             )}

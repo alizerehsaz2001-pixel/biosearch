@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench, Mail, Cpu, Presentation, Crosshair } from 'lucide-react';
+import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench, Mail, Cpu, Presentation, Crosshair, FileOutput } from 'lucide-react';
 import { AppMode } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -28,6 +28,7 @@ export const MODES: { id: AppMode; icon: React.ElementType; color: string; bg: s
   { id: 'ACADEMIC_EMAIL_DRAFTER', icon: Mail, color: 'text-purple-600', bg: 'bg-purple-50' },
   { id: 'ML_DEEP_LEARNING_ARCHITECT', icon: Cpu, color: 'text-fuchsia-600', bg: 'bg-fuchsia-50' },
   { id: 'PPT_ARCHITECT', icon: Presentation, color: 'text-amber-600', bg: 'bg-amber-50' },
+  { id: 'WORD_ARCHITECT', icon: FileOutput, color: 'text-indigo-600', bg: 'bg-indigo-50' },
 ];
 
 const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, disabled, orientation = 'horizontal' }) => {

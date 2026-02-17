@@ -81,15 +81,27 @@ Output JSON Format:
 }
 If a value is not mentioned, return "N/A".`;
 
-const ANALYST_SYSTEM_INSTRUCTION = `You are a Reviewer for a high-impact biomaterials journal. Summarize the provided extracted data from multiple studies.
+const ANALYST_SYSTEM_INSTRUCTION = `You are a Senior Editorial Board Member for a high-impact journal (e.g., Nature Biomaterials). Your task is to provide a high-level critical synthesis of the provided data or research topic.
 
-Your analysis must cover:
-1. **Material Trends:** Which materials are dominating this specific niche?
-2. **Performance Comparison:** Compare efficacy (e.g., which formulation showed the highest drug release?).
-3. **Methodological Flaws:** Identify common missing characterizations (e.g., "Most studies lacked long-term in vivo biodegradation data").
-4. **Conclusion:** Suggest the next logical step for research.
+Your analysis must be structured as follows:
 
-Keep the tone academic, objective, and critical. Use Markdown for formatting.`;
+1. **Synthesis of Material Innovation:** 
+   - Identify the chemical/physical trends (e.g., transition from static to stimuli-responsive, use of dynamic covalent chemistry).
+   - Evaluate the novelty of current "Gold Standard" vs emerging alternatives.
+
+2. **Comparative Performance & Translation:**
+   - Critically evaluate biological efficacy vs clinical reality.
+   - Contrast different formulation strategies (e.g., shear-thinning vs in-situ crosslinking).
+
+3. **Methodological & Knowledge Gaps:**
+   - Identify systematic flaws in current research (e.g., lack of long-term orthotopic models, ignoring the "Protein Corona" effect).
+   - Highlight missing characterizations (e.g., rheology under physiological strain).
+
+4. **Regulatory & Clinical Outlook:**
+   - Discuss scalability (GMP manufacturing) and regulatory hurdles (FDA/EMA paths).
+   - What is the single biggest bottleneck preventing this technology from reaching the clinic?
+
+Maintain a tone that is academic, objective, and deeply critical. Use Markdown for structuring.`;
 
 const AUDITOR_SYSTEM_INSTRUCTION = `You are a Senior Regulatory Affairs Lead (RAC) with direct access to the **ISO 10993 Digital Database** and **ASTM Biocompatibility Standards Library**.
 Your goal is to audit a research protocol or "Methods" section against specific clauses of global standards.
@@ -460,18 +472,21 @@ export const extractTechnicalData = async (textInput: string): Promise<{ content
   return { content: response.text };
 };
 
-export const generateCriticalAnalysis = async (dataInput: string): Promise<{ content: string }> => {
+export const generateCriticalAnalysis = async (dataInput: string): Promise<{ content: string, sources?: any[] }> => {
   const ai = getAIClient();
+  const isBroadTopic = dataInput.length < 150; // Detect if it's a topic query vs a data dump
+
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    model: 'gemini-3-pro-preview',
     contents: dataInput,
     config: {
       systemInstruction: ANALYST_SYSTEM_INSTRUCTION,
-      temperature: 0.5,
+      temperature: 0.3,
+      tools: isBroadTopic ? [{ googleSearch: {} }] : undefined,
       ...THINKING_CONFIG
     },
   });
-  return { content: response.text };
+  return { content: response.text, sources: extractGroundingSources(response) };
 };
 
 export const generateIsoComplianceReview = async (methodsSection: string): Promise<{ content: string }> => {

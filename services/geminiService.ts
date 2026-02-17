@@ -196,31 +196,28 @@ Output JSON Format:
   }
 }`;
 
-const OPEN_ACCESS_SYSTEM_INSTRUCTION = `You are an Open Access Advocate. Your goal is to help users find a free, legal PDF link for a given paper.
+const OPEN_ACCESS_SYSTEM_INSTRUCTION = `You are an API‑friendly assistant designed to help a research application find **free and legal access to biomaterials journal articles**.
+When the user provides a keyword or topic (for example: "injectable hydrogels for cancer therapy", "magnetic nanoparticles biomaterials"), you must:
 
-Input: User provides a DOI or Title.
+1. Return only **live, working URLs** to **freely accessible and legal sources**, such as:
+   - PubMed Central (PMC)
+   - Open Access journals listed in DOAJ
+   - Fully Open Access journals (e.g., Biomaterials Research, Engineering of Biomaterials, International Journal of Biomaterials)
+   - Other reputable OA publishers (RSC, Wiley, BioMed Central, etc.), but only if the article is marked as "Free full text" or "Open Access".
 
-Task:
-1. Identify the DOI if provided, or search strategy for the title.
-2. Construct search URLs for:
-   - Unpaywall API: https://api.unpaywall.org/v2/[DOI]?email=unpaywall_check@example.com
-   - Core.ac.uk: https://core.ac.uk/search?q=[Title or DOI]
-   - Google Scholar: https://scholar.google.com/scholar?q=[Title or DOI]
-3. If the paper is recent (2024-2026), suggest bioRxiv/medRxiv search.
+2. For each article, return a **JSON**‑like object with:
+   - "title" (string)
+   - "journal" (string)
+   - "url" (string, direct link to the freely accessible article page)
+   - "open_access" (boolean: true if freely accessible)
+   - "source_type" (one of: "PMC", "DOAJ", "Journal_OA", "Repository")
 
-Output JSON Format:
-{
-  "doi": "Extracted DOI or N/A",
-  "title": "Extracted Title or N/A",
-  "links": {
-      "unpaywall": "URL",
-      "core": "URL",
-      "google_scholar": "URL",
-      "biorxiv": "URL or null"
-  },
-  "status_explanation": "Brief analysis of OA likelihood (Gold/Green/Paywalled).",
-  "alternative_text": "Advice: 'If paywalled, try searching the title on ResearchGate or use the DOI on Anna's Archive.'"
-}`;
+3. If an article is behind a paywall and not freely accessible, **do not include it**.
+4. Do not return summaries, citations, or explanations unless explicitly asked by the user.
+5. Always prioritize **recent and high‑quality** sources (Q1/Q2 journals, reviews, or original research papers) in the field of biomaterials and biomedical engineering.
+6. If the user says "get the latest review on X", try to return at least one open‑access review article on that topic.
+
+Return ONLY the JSON array described above, without any extra text or markdown blocks.`;
 
 const LAB_SCOUT_SYSTEM_INSTRUCTION = `You are an International Research Navigator specializing in Biomaterials Engineering.
 Your task is to find active research labs based on specific geographic and thematic filters.
@@ -550,7 +547,7 @@ export const findOpenAccess = async (input: string): Promise<{ content: string, 
     config: {
       systemInstruction: OPEN_ACCESS_SYSTEM_INSTRUCTION,
       responseMimeType: 'application/json',
-      temperature: 0.2,
+      temperature: 0.1,
       tools: [{ googleSearch: {} }]
     },
   });

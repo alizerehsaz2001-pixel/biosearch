@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Copy, Check, Database, ExternalLink, ArrowRightCircle, Quote, Star } from 'lucide-react';
+import { Copy, Check, Database, ExternalLink, ArrowRightCircle, Quote, Star, Search } from 'lucide-react';
 import { SearchResult, AppMode } from '../types';
 
 interface ResultCardProps {
@@ -22,6 +22,8 @@ const ResultCard: React.FC<ResultCardProps> = ({ result, onContinue, onToggleSav
   };
 
   const pubMedLink = `https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(result.content)}`;
+  // Scopus standard search result URL pattern
+  const scopusLink = `https://www.scopus.com/results/results.uri?s=${encodeURIComponent(result.content)}&src=s&sot=b`;
 
   return (
     <div className="w-full bg-white rounded-2xl shadow-lg border border-indigo-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -80,22 +82,34 @@ const ResultCard: React.FC<ResultCardProps> = ({ result, onContinue, onToggleSav
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col sm:flex-row gap-3">
+        {/* Action Buttons Grid */}
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button 
                 onClick={handleCopy}
-                className="flex-1 flex items-center justify-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 py-2.5 rounded-lg font-medium transition-colors text-sm"
+                className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg font-semibold transition-all text-sm shadow-md shadow-indigo-100"
             >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? 'Copied to Clipboard' : 'Copy Query'}
+                {copied ? 'Copied!' : 'Copy Query'}
             </button>
             <a 
                 href={pubMedLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 py-2.5 rounded-lg font-medium transition-colors text-sm"
+                className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-2.5 rounded-lg font-medium transition-colors text-sm shadow-sm"
             >
-                <ExternalLink className="w-4 h-4" />
+                <Search className="w-4 h-4 text-indigo-500" />
                 Test in PubMed
+                <ExternalLink className="w-3 h-3 opacity-40" />
+            </a>
+            <a 
+                href={scopusLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-2.5 rounded-lg font-medium transition-colors text-sm shadow-sm"
+            >
+                <Database className="w-4 h-4 text-orange-500" />
+                Test in Scopus
+                <ExternalLink className="w-3 h-3 opacity-40" />
             </a>
         </div>
         

@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu, Presentation, Crosshair, AudioWaveform } from 'lucide-react';
+import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu, Presentation, Crosshair, AudioWaveform, Info } from 'lucide-react';
 import { QueryStatus, AppMode } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -22,11 +21,13 @@ const STUDY_TYPES = [
 ];
 
 const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, initialValue }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [input, setInput] = useState('');
   const [criteria, setCriteria] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const isRTL = language === 'he' || language === 'fa';
 
   // Precision Search specific states
   const [precisionParams, setPrecisionParams] = useState({
@@ -121,6 +122,8 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
   }, [input, criteria, mode]);
 
   const isLoading = status === QueryStatus.LOADING;
+  // Define isButtonDisabled based on mode requirements
+  const isButtonDisabled = isLoading || (mode === 'IMAGE_ANALYZER' ? !selectedImage : !input.trim());
 
   let placeholder = '';
   let buttonLabel = '';
@@ -230,11 +233,13 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonIcon = <Presentation className="w-4 h-4" />;
         buttonColor = "bg-amber-600 text-white hover:bg-amber-700";
         break;
+    case 'WORD_ARCHITECT':
+        placeholder = "Paste your research protocols or analysis notes to structure into a manuscript...";
+        buttonLabel = 'Draft Manuscript';
+        buttonIcon = <FileText className="w-4 h-4" />;
+        buttonColor = "bg-indigo-600 text-white hover:bg-indigo-700";
+        break;
   }
-
-  const isButtonDisabled = isLoading || 
-    (mode === 'IMAGE_ANALYZER' && !selectedImage) ||
-    (mode !== 'IMAGE_ANALYZER' && !input.trim());
 
   return (
     <div className={`w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300 focus-within:ring-2 focus-within:border-transparent ${
@@ -255,15 +260,30 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         mode === 'ML_DEEP_LEARNING_ARCHITECT' ? 'focus-within:ring-fuchsia-500/20' :
         mode === 'PPT_ARCHITECT' ? 'focus-within:ring-amber-500/20' :
         'focus-within:ring-teal-500/20'
-    }`}>
+    }`} dir={isRTL ? 'rtl' : 'ltr'}>
       <form onSubmit={handleSubmit} className="relative flex flex-col">
         
+        {/* Module Orientation Header */}
+        <div className="bg-slate-50/80 px-6 py-4 border-b border-slate-100 flex items-start gap-4">
+            <div className={`p-2 rounded-lg bg-white shadow-sm border border-slate-200 mt-1 shrink-0 ${isRTL ? 'ml-0' : 'mr-0'}`}>
+                <Info className="w-4 h-4 text-slate-400" />
+            </div>
+            <div>
+                <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                    {t(`mode.${mode}.label`)} Orientation
+                </h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-medium mt-0.5">
+                    {t(`mode.${mode}.intro`)}
+                </p>
+            </div>
+        </div>
+
         {/* Precision Search Inputs */}
         {mode === 'PRECISION_SEARCH_COMMANDER' && (
-          <div className="p-4 bg-slate-50/50 border-b border-slate-100 animate-in fade-in slide-in-from-top-1">
+          <div className="p-4 bg-slate-50/30 border-b border-slate-100 animate-in fade-in slide-in-from-top-1">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block ml-1">{t('precision.include')}</label>
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('precision.include')}</label>
                     <input 
                         placeholder="e.g. Chitosan, Alginate" 
                         className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-blue-400"
@@ -272,7 +292,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-red-500 uppercase tracking-wider block ml-1">{t('precision.exclude')}</label>
+                    <label className={`text-[10px] font-bold text-red-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('precision.exclude')}</label>
                     <input 
                         placeholder="e.g. Dental, Clinical" 
                         className="w-full px-3 py-2 text-sm bg-white border border-red-200 rounded-lg outline-none focus:ring-1 focus:ring-red-400"
@@ -281,7 +301,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block ml-1">{t('precision.date')}</label>
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('precision.date')}</label>
                     <input 
                         placeholder="e.g. 2020:2026" 
                         className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-teal-400"
@@ -290,7 +310,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block ml-1">Study Type</label>
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Study Type</label>
                     <select 
                         className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-emerald-400"
                         value={precisionParams.studyType}
@@ -301,7 +321,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                     </select>
                 </div>
                 <div className="space-y-1 sm:col-span-2">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block ml-1">{t('precision.journal')}</label>
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('precision.journal')}</label>
                     <input 
                         placeholder="e.g. Nature Biomaterials, Acta Biomaterialia" 
                         className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-amber-400"
@@ -345,7 +365,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                         <button 
                             type="button"
                             onClick={handleRemoveImage}
-                            className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md border border-slate-200 text-slate-500 hover:text-red-500"
+                            className={`absolute -top-2 bg-white rounded-full p-1 shadow-md border border-slate-200 text-slate-500 hover:text-red-500 ${isRTL ? '-left-2' : '-right-2'}`}
                         >
                             <X className="w-4 h-4" />
                         </button>
@@ -368,7 +388,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className={`w-full p-4 min-h-[120px] text-lg text-slate-800 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent ${mode === 'ABSTRACT_SCREENER' || mode === 'CRITICAL_ANALYST' || mode === 'ISO_COMPLIANCE_AUDITOR' || mode === 'NOVELTY_GENERATOR' || mode === 'PROTOCOL_TROUBLESHOOTER' || mode === 'ACADEMIC_EMAIL_DRAFTER' || mode === 'ML_DEEP_LEARNING_ARCHITECT' || mode === 'PPT_ARCHITECT' || mode === 'VOICE_ASSISTANT' ? 'min-h-[150px]' : ''}`}
+            className={`w-full p-4 min-h-[120px] text-lg text-slate-800 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent ${mode === 'ABSTRACT_SCREENER' || mode === 'CRITICAL_ANALYST' || mode === 'ISO_COMPLIANCE_AUDITOR' || mode === 'NOVELTY_GENERATOR' || mode === 'PROTOCOL_TROUBLESHOOTER' || mode === 'ACADEMIC_EMAIL_DRAFTER' || mode === 'ML_DEEP_LEARNING_ARCHITECT' || mode === 'PPT_ARCHITECT' || mode === 'VOICE_ASSISTANT' || mode === 'WORD_ARCHITECT' ? 'min-h-[150px]' : ''}`}
             disabled={isLoading}
           />
         </div>
@@ -376,7 +396,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         {/* Filters for Query Builder */}
         {mode === 'QUERY_BUILDER' && (
           <div className="px-4 pb-2 flex flex-wrap gap-2 items-center border-t border-slate-50 pt-3">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1">Study Types:</span>
+            <span className={`text-xs font-semibold text-slate-400 uppercase tracking-wider ${isRTL ? 'ml-1' : 'mr-1'}`}>Study Types:</span>
             {STUDY_TYPES.map(type => {
               const isActive = selectedFilters.includes(type);
               return (
@@ -400,39 +420,9 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
           </div>
         )}
         
-        <div className="flex items-center justify-between px-4 pb-4 pt-4 bg-gradient-to-t from-white via-white to-transparent">
+        <div className={`flex items-center justify-between px-4 pb-4 pt-4 bg-gradient-to-t from-white via-white to-transparent ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
           <div className="text-xs text-slate-400 font-medium">
-             {mode === 'ABSTRACT_SCREENER' 
-                ? <span className="hidden sm:inline">Paste abstract and criteria. </span>
-                : mode === 'PRECISION_SEARCH_COMMANDER'
-                ? <span className="hidden sm:inline">Define manual filters for high-precision search. </span>
-                : mode === 'CRITICAL_ANALYST'
-                ? <span className="hidden sm:inline">Paste multiple study findings. </span>
-                : mode === 'ISO_COMPLIANCE_AUDITOR'
-                ? <span className="hidden sm:inline">Paste Methods section. </span>
-                : mode === 'NOVELTY_GENERATOR'
-                ? <span className="hidden sm:inline">Paste paper summaries. </span>
-                : mode === 'IMAGE_ANALYZER'
-                ? <span className="hidden sm:inline">Upload image and describe context. </span>
-                : mode === 'RESOURCE_SCOUT'
-                ? <span className="hidden sm:inline">Describe your topic to find databases. </span>
-                : mode === 'OPEN_ACCESS_FINDER'
-                ? <span className="hidden sm:inline">Enter DOI to find legal PDF. </span>
-                : mode === 'LAB_SCOUT'
-                ? <span className="hidden sm:inline">Enter topic and target region. </span>
-                : mode === 'PROTOCOL_TROUBLESHOOTER'
-                ? <span className="hidden sm:inline">Describe failed experiment details. </span>
-                : mode === 'ACADEMIC_EMAIL_DRAFTER'
-                ? <span className="hidden sm:inline">Enter Recipient, Goal, and Context. </span>
-                : mode === 'ML_DEEP_LEARNING_ARCHITECT'
-                ? <span className="hidden sm:inline">Enter Data Type and Goal. </span>
-                : mode === 'PPT_ARCHITECT'
-                ? <span className="hidden sm:inline">Paste raw data or experimental results. </span>
-                : mode === 'VOICE_ASSISTANT'
-                ? <span className="hidden sm:inline">AI will summarize and narrate the research. </span>
-                : <span className="hidden sm:inline">Pro Tip: Be specific. </span>
-             }
-            <span className="inline-block bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-[10px] tracking-wide">⌘ + Enter</span> to submit
+             <span className="hidden sm:inline">Use <span className="bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-[10px] tracking-wide font-bold">⌘ + Enter</span> to submit rapidly.</span>
           </div>
           
           <button
@@ -443,6 +433,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
               ${isButtonDisabled
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
                 : `${buttonColor} hover:shadow-md active:transform active:scale-95`}
+              ${isRTL ? 'flex-row-reverse' : 'flex-row'}
             `}
           >
             {isLoading ? (
@@ -454,7 +445,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
               <>
                 {buttonIcon}
                 <span>{buttonLabel}</span>
-                <ArrowRight className="w-4 h-4 opacity-60" />
+                <ArrowRight className={`w-4 h-4 opacity-60 ${isRTL ? 'rotate-180' : ''}`} />
               </>
             )}
           </button>

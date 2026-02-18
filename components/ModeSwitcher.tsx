@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench, Mail, Cpu, Presentation, Crosshair, FileOutput } from 'lucide-react';
+import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench, Mail, Cpu, Presentation, Crosshair, FileOutput, AudioWaveform } from 'lucide-react';
 import { AppMode } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -21,6 +21,7 @@ export const MODES: { id: AppMode; icon: React.ElementType; color: string; bg: s
   { id: 'ISO_COMPLIANCE_AUDITOR', icon: ShieldCheck, color: 'text-amber-600', bg: 'bg-amber-50' },
   { id: 'NOVELTY_GENERATOR', icon: Lightbulb, color: 'text-pink-600', bg: 'bg-pink-50' },
   { id: 'IMAGE_ANALYZER', icon: Scan, color: 'text-blue-600', bg: 'bg-blue-50' },
+  { id: 'VOICE_ASSISTANT', icon: AudioWaveform, color: 'text-indigo-600', bg: 'bg-indigo-50' },
   { id: 'RESOURCE_SCOUT', icon: Compass, color: 'text-emerald-600', bg: 'bg-emerald-50' },
   { id: 'OPEN_ACCESS_FINDER', icon: Unlock, color: 'text-teal-600', bg: 'bg-teal-50' },
   { id: 'LAB_SCOUT', icon: GraduationCap, color: 'text-orange-600', bg: 'bg-orange-50' },

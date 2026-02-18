@@ -176,7 +176,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
                         {t('settings.language_select')}
                      </h3>
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {(['en', 'fr', 'es', 'pt', 'de', 'it'] as Language[]).map((lang) => (
+                        {(['en', 'fr', 'es', 'pt', 'de', 'it', 'he', 'fa'] as Language[]).map((lang) => (
                              <button
                                 key={lang}
                                 onClick={() => setLanguage(lang)}
@@ -191,7 +191,9 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
                                      lang === 'fr' ? 'Français' : 
                                      lang === 'es' ? 'Español' : 
                                      lang === 'pt' ? 'Português' : 
-                                     lang === 'de' ? 'Deutsch' : 'Italiano'}
+                                     lang === 'de' ? 'Deutsch' : 
+                                     lang === 'it' ? 'Italiano' : 
+                                     lang === 'he' ? 'עברית' : 'فارسی'}
                                 </span>
                                 {language === lang && <Check className="w-4 h-4" />}
                              </button>

@@ -1,7 +1,6 @@
+export type AppMode = 'QUERY_BUILDER' | 'PICO_PROTOCOL' | 'ABSTRACT_SCREENER' | 'DATA_EXTRACTOR' | 'CRITICAL_ANALYST' | 'ISO_COMPLIANCE_AUDITOR' | 'NOVELTY_GENERATOR' | 'IMAGE_ANALYZER' | 'RESOURCE_SCOUT' | 'OPEN_ACCESS_FINDER' | 'LAB_SCOUT' | 'PROTOCOL_TROUBLESHOOTER' | 'ACADEMIC_EMAIL_DRAFTER' | 'ML_DEEP_LEARNING_ARCHITECT' | 'PPT_ARCHITECT' | 'PRECISION_SEARCH_COMMANDER' | 'WORD_ARCHITECT' | 'VOICE_ASSISTANT';
 
-export type AppMode = 'QUERY_BUILDER' | 'PICO_PROTOCOL' | 'ABSTRACT_SCREENER' | 'DATA_EXTRACTOR' | 'CRITICAL_ANALYST' | 'ISO_COMPLIANCE_AUDITOR' | 'NOVELTY_GENERATOR' | 'IMAGE_ANALYZER' | 'RESOURCE_SCOUT' | 'OPEN_ACCESS_FINDER' | 'LAB_SCOUT' | 'PROTOCOL_TROUBLESHOOTER' | 'ACADEMIC_EMAIL_DRAFTER' | 'ML_DEEP_LEARNING_ARCHITECT' | 'PPT_ARCHITECT' | 'PRECISION_SEARCH_COMMANDER' | 'WORD_ARCHITECT';
-
-export type Language = 'en' | 'fr' | 'es' | 'pt' | 'de' | 'it';
+export type Language = 'en' | 'fr' | 'es' | 'pt' | 'de' | 'it' | 'he' | 'fa';
 
 export interface GroundingSource {
   title: string;
@@ -16,6 +15,7 @@ export interface SearchResult {
   timestamp: number;
   sources?: GroundingSource[];
   isSaved?: boolean;
+  audioData?: string; // Base64 encoded PCM audio
 }
 
 export interface GenerationError {

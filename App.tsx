@@ -19,12 +19,13 @@ import MLResultCard from './components/MLResultCard';
 import PPTResultCard from './components/PPTResultCard';
 import PrecisionSearchResultCard from './components/PrecisionSearchResultCard';
 import WordResultCard from './components/WordResultCard';
+import VoiceAssistantCard from './components/VoiceAssistantCard';
 import History from './components/History';
 import ModeSwitcher from './components/ModeSwitcher';
 import WelcomeScreen from './components/WelcomeScreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import ProfileModal from './components/ProfileModal';
-import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument } from './services/geminiService';
+import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
 import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -105,7 +106,7 @@ const AppContent: React.FC = () => {
     setCurrentResult(null);
 
     try {
-      let resultData: { content: string, sources?: GroundingSource[] } = { content: '' };
+      let resultData: { content: string, sources?: GroundingSource[], audioData?: string } = { content: '' };
       
       if (mode === 'QUERY_BUILDER') {
         resultData = await generateSearchString(input, options);
@@ -127,6 +128,9 @@ const AppContent: React.FC = () => {
       } else if (mode === 'IMAGE_ANALYZER') {
         if (!imageData) throw new Error("No image data provided.");
         resultData = await analyzeImage(imageData, input);
+      } else if (mode === 'VOICE_ASSISTANT') {
+        const speechRes = await generateSpeech(input);
+        resultData = { content: speechRes.textSummary, audioData: speechRes.audioData };
       } else if (mode === 'RESOURCE_SCOUT') {
         resultData = await generateResourceSuggestions(input);
       } else if (mode === 'OPEN_ACCESS_FINDER') {
@@ -150,6 +154,7 @@ const AppContent: React.FC = () => {
         originalQuery: input,
         content: resultData.content,
         sources: resultData.sources,
+        audioData: resultData.audioData,
         type: mode,
         timestamp: Date.now(),
         isSaved: false,
@@ -213,6 +218,7 @@ const AppContent: React.FC = () => {
       case 'CRITICAL_ANALYST': return 'from-violet-600 to-fuchsia-500';
       case 'ISO_COMPLIANCE_AUDITOR': return 'from-amber-600 to-yellow-500';
       case 'WORD_ARCHITECT': return 'from-blue-600 to-indigo-600';
+      case 'VOICE_ASSISTANT': return 'from-indigo-600 to-blue-600';
       default: return 'from-indigo-600 to-teal-500';
     }
   };
@@ -364,6 +370,7 @@ const AppContent: React.FC = () => {
                   {currentResult.type === 'ISO_COMPLIANCE_AUDITOR' && <AuditorResultCard result={currentResult} />}
                   {currentResult.type === 'NOVELTY_GENERATOR' && <NoveltyResultCard result={currentResult} />}
                   {currentResult.type === 'IMAGE_ANALYZER' && <ImageResultCard result={currentResult} />}
+                  {currentResult.type === 'VOICE_ASSISTANT' && <VoiceAssistantCard result={currentResult} />}
                   {currentResult.type === 'RESOURCE_SCOUT' && <ResourceScoutCard result={currentResult} />}
                   {currentResult.type === 'OPEN_ACCESS_FINDER' && <OpenAccessResultCard result={currentResult} />}
                   {currentResult.type === 'LAB_SCOUT' && <LabScoutResultCard result={currentResult} />}

@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu, Presentation, Crosshair } from 'lucide-react';
+import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu, Presentation, Crosshair, AudioWaveform } from 'lucide-react';
 import { QueryStatus, AppMode } from '../types';
 
 interface SearchInputProps {
@@ -181,6 +182,12 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonIcon = <Scan className="w-4 h-4" />;
         buttonColor = "bg-blue-600 text-white hover:bg-blue-700";
         break;
+    case 'VOICE_ASSISTANT':
+        placeholder = "Paste an abstract or research finding to hear a professional scientific briefing...";
+        buttonLabel = 'Listen to Briefing';
+        buttonIcon = <AudioWaveform className="w-4 h-4" />;
+        buttonColor = "bg-indigo-600 text-white hover:bg-indigo-700";
+        break;
     case 'RESOURCE_SCOUT':
         placeholder = "Enter your research topic to find the best databases (e.g., 'Biodegradation kinetics of PLA scaffolds')...";
         buttonLabel = 'Find Resources';
@@ -240,6 +247,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         mode === 'ISO_COMPLIANCE_AUDITOR' ? 'focus-within:ring-amber-500/20' :
         mode === 'NOVELTY_GENERATOR' ? 'focus-within:ring-pink-500/20' :
         mode === 'IMAGE_ANALYZER' ? 'focus-within:ring-blue-500/20' :
+        mode === 'VOICE_ASSISTANT' ? 'focus-within:ring-indigo-500/20' :
         mode === 'RESOURCE_SCOUT' ? 'focus-within:ring-emerald-500/20' :
         mode === 'LAB_SCOUT' ? 'focus-within:ring-orange-500/20' :
         mode === 'PROTOCOL_TROUBLESHOOTER' ? 'focus-within:ring-red-500/20' :
@@ -343,7 +351,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className={`w-full p-4 min-h-[120px] text-lg text-slate-800 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent ${mode === 'ABSTRACT_SCREENER' || mode === 'CRITICAL_ANALYST' || mode === 'ISO_COMPLIANCE_AUDITOR' || mode === 'NOVELTY_GENERATOR' || mode === 'PROTOCOL_TROUBLESHOOTER' || mode === 'ACADEMIC_EMAIL_DRAFTER' || mode === 'ML_DEEP_LEARNING_ARCHITECT' || mode === 'PPT_ARCHITECT' ? 'min-h-[150px]' : ''}`}
+            className={`w-full p-4 min-h-[120px] text-lg text-slate-800 placeholder:text-slate-400 border-none outline-none resize-none bg-transparent ${mode === 'ABSTRACT_SCREENER' || mode === 'CRITICAL_ANALYST' || mode === 'ISO_COMPLIANCE_AUDITOR' || mode === 'NOVELTY_GENERATOR' || mode === 'PROTOCOL_TROUBLESHOOTER' || mode === 'ACADEMIC_EMAIL_DRAFTER' || mode === 'ML_DEEP_LEARNING_ARCHITECT' || mode === 'PPT_ARCHITECT' || mode === 'VOICE_ASSISTANT' ? 'min-h-[150px]' : ''}`}
             disabled={isLoading}
           />
         </div>
@@ -403,6 +411,8 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                 ? <span className="hidden sm:inline">Enter Data Type and Goal. </span>
                 : mode === 'PPT_ARCHITECT'
                 ? <span className="hidden sm:inline">Paste raw data or experimental results. </span>
+                : mode === 'VOICE_ASSISTANT'
+                ? <span className="hidden sm:inline">AI will summarize and narrate the research. </span>
                 : <span className="hidden sm:inline">Pro Tip: Be specific. </span>
              }
             <span className="inline-block bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-[10px] tracking-wide">⌘ + Enter</span> to submit

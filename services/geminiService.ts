@@ -1,5 +1,5 @@
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 
 const SEARCH_SYSTEM_INSTRUCTION = `You are an expert Information Specialist and Biomaterials Engineer. Your task is to translate natural language research topics into advanced boolean search strings suitable for PubMed and Scopus.
 
@@ -377,6 +377,14 @@ Your task is to take research content (protocols, analysis, or raw notes) and fo
 
 **Output:** Provide the content in structured Markdown that translates well to a research paper format.`;
 
+const VOICE_ASSISTANT_INSTRUCTION = `You are the BioSearch AI Voice Assistant. Your goal is to provide a smooth, professional, and clear scientific narration of the biomaterials research findings or topics provided.
+When summarizing for speech:
+1. Speak in full, coherent sentences.
+2. Avoid reading complex boolean logic or raw code unless specifically asked.
+3. Highlight key technical outcomes and innovation points.
+4. Maintain a professional academic tone like a conference presenter.
+5. Keep it concise enough for a 1-minute briefing.`;
+
 // Common config for thinking models
 const THINKING_CONFIG = {
   thinkingConfig: {
@@ -405,6 +413,73 @@ const extractGroundingSources = (response: any) => {
     });
   }
   return sources.length > 0 ? sources : undefined;
+};
+
+// PCM Decoding Helpers
+export function decodeBase64(base64: string) {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+}
+
+export async function decodeAudioData(
+  data: Uint8Array,
+  ctx: AudioContext,
+  sampleRate: number,
+  numChannels: number,
+): Promise<AudioBuffer> {
+  const dataInt16 = new Int16Array(data.buffer);
+  const frameCount = dataInt16.length / numChannels;
+  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = buffer.getChannelData(channel);
+    for (let i = 0; i < frameCount; i++) {
+      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    }
+  }
+  return buffer;
+}
+
+export const generateSpeech = async (text: string): Promise<{ audioData: string, textSummary: string }> => {
+  const ai = getAIClient();
+  
+  // First, get a speech-optimized summary
+  const summaryResponse = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `Please summarize the following research content into a professional spoken briefing for a researcher:\n\n${text}`,
+    config: {
+      systemInstruction: VOICE_ASSISTANT_INSTRUCTION,
+      temperature: 0.3,
+    }
+  });
+
+  const textToSpeak = summaryResponse.text || text;
+
+  // Then, generate the actual TTS audio
+  const ttsResponse = await ai.models.generateContent({
+    model: "gemini-2.5-flash-preview-tts",
+    contents: [{ parts: [{ text: `Read this scientific summary professionally: ${textToSpeak}` }] }],
+    config: {
+      responseModalities: [Modality.AUDIO],
+      speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: 'Kore' },
+          },
+      },
+    },
+  });
+
+  const base64Audio = ttsResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || "";
+  
+  return { 
+    audioData: base64Audio,
+    textSummary: textToSpeak
+  };
 };
 
 export const generateSearchString = async (topic: string, studyTypes?: string[]): Promise<{ content: string }> => {

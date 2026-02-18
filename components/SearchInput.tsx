@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu, Presentation, Crosshair, AudioWaveform } from 'lucide-react';
 import { QueryStatus, AppMode } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SearchInputProps {
   onGenerate: (input: string, secondaryInput?: string, options?: string[], imageData?: string) => void;
@@ -21,6 +22,7 @@ const STUDY_TYPES = [
 ];
 
 const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, initialValue }) => {
+  const { t } = useLanguage();
   const [input, setInput] = useState('');
   const [criteria, setCriteria] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
@@ -42,7 +44,6 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
   useEffect(() => {
     if (initialValue) {
       setInput(initialValue);
-      // Reset height calculation
       if (textareaRef.current) {
          textareaRef.current.style.height = 'auto';
          setTimeout(() => {
@@ -66,7 +67,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
     if (status === QueryStatus.LOADING) return;
 
     if (mode === 'IMAGE_ANALYZER') {
-        if (!selectedImage) return; // Must have image
+        if (!selectedImage) return;
         onGenerate(input, undefined, undefined, selectedImage);
     } else if (mode === 'PRECISION_SEARCH_COMMANDER') {
         const fullPrompt = `Keywords: ${input}\nMust Include: ${precisionParams.mustInclude}\nMust Exclude: ${precisionParams.mustExclude}\nDate Range: ${precisionParams.dateRange}\nStudy Type: ${precisionParams.studyType}\nJournal Filter: ${precisionParams.journal}`;
@@ -108,7 +109,6 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
       }
   };
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -260,39 +260,56 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         
         {/* Precision Search Inputs */}
         {mode === 'PRECISION_SEARCH_COMMANDER' && (
-          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50/50 border-b border-slate-100 animate-in fade-in slide-in-from-top-1">
-            <input 
-              placeholder="Must Include (e.g., Chitosan)" 
-              className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-blue-400"
-              value={precisionParams.mustInclude}
-              onChange={e => setPrecisionParams({...precisionParams, mustInclude: e.target.value})}
-            />
-            <input 
-              placeholder="Must Exclude (e.g., Dental)" 
-              className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-red-400"
-              value={precisionParams.mustExclude}
-              onChange={e => setPrecisionParams({...precisionParams, mustExclude: e.target.value})}
-            />
-            <input 
-              placeholder="Date Range (e.g., 2020-2026)" 
-              className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-teal-400"
-              value={precisionParams.dateRange}
-              onChange={e => setPrecisionParams({...precisionParams, dateRange: e.target.value})}
-            />
-            <select 
-              className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-emerald-400"
-              value={precisionParams.studyType}
-              onChange={e => setPrecisionParams({...precisionParams, studyType: e.target.value})}
-            >
-              <option value="">Any Study Type</option>
-              {STUDY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-            <input 
-              placeholder="Journal Filter (e.g., Biomaterials)" 
-              className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-amber-400 sm:col-span-2"
-              value={precisionParams.journal}
-              onChange={e => setPrecisionParams({...precisionParams, journal: e.target.value})}
-            />
+          <div className="p-4 bg-slate-50/50 border-b border-slate-100 animate-in fade-in slide-in-from-top-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block ml-1">{t('precision.include')}</label>
+                    <input 
+                        placeholder="e.g. Chitosan, Alginate" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-blue-400"
+                        value={precisionParams.mustInclude}
+                        onChange={e => setPrecisionParams({...precisionParams, mustInclude: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-red-500 uppercase tracking-wider block ml-1">{t('precision.exclude')}</label>
+                    <input 
+                        placeholder="e.g. Dental, Clinical" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-red-200 rounded-lg outline-none focus:ring-1 focus:ring-red-400"
+                        value={precisionParams.mustExclude}
+                        onChange={e => setPrecisionParams({...precisionParams, mustExclude: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block ml-1">{t('precision.date')}</label>
+                    <input 
+                        placeholder="e.g. 2020:2026" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-teal-400"
+                        value={precisionParams.dateRange}
+                        onChange={e => setPrecisionParams({...precisionParams, dateRange: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block ml-1">Study Type</label>
+                    <select 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-emerald-400"
+                        value={precisionParams.studyType}
+                        onChange={e => setPrecisionParams({...precisionParams, studyType: e.target.value})}
+                    >
+                        <option value="">Any Study Type</option>
+                        {STUDY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block ml-1">{t('precision.journal')}</label>
+                    <input 
+                        placeholder="e.g. Nature Biomaterials, Acta Biomaterialia" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-amber-400"
+                        value={precisionParams.journal}
+                        onChange={e => setPrecisionParams({...precisionParams, journal: e.target.value})}
+                    />
+                </div>
+            </div>
           </div>
         )}
 

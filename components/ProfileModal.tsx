@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { UserProfile, Language } from '../types';
 import { BookOpen, GraduationCap, Building2, Briefcase, Mail, Check, X, User, Settings, Globe } from 'lucide-react';
@@ -32,12 +33,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
     }
   };
 
+  const isRTL = language === 'he' || language === 'fa';
+
   return (
     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] overflow-y-auto flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="max-w-xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className={`max-w-xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? 'rtl' : 'ltr'}>
         
         <div className="bg-indigo-600 px-6 py-4 flex justify-between items-center">
-            <div className="flex items-center gap-3 text-white">
+            <div className={`flex items-center gap-3 text-white ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
                 <div className="bg-white/20 p-2 rounded-lg">
                     {activeTab === 'PROFILE' ? <User className="w-5 h-5" /> : <Settings className="w-5 h-5" />}
                 </div>
@@ -73,7 +76,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
               
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <label className={`text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
                     <Mail className="w-3.5 h-3.5" /> Email Address
                   </label>
                   <input
@@ -87,7 +90,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                      <label className={`text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
                         <BookOpen className="w-3.5 h-3.5" /> Field of Study
                       </label>
                       <input
@@ -100,7 +103,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                      <label className={`text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
                         <Building2 className="w-3.5 h-3.5" /> Institution
                       </label>
                       <input
@@ -114,7 +117,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <label className={`text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
                     <GraduationCap className="w-3.5 h-3.5" /> Level of Education
                   </label>
                   <div className="relative">
@@ -132,14 +135,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
                       <option>Industry Researcher</option>
                       <option>Clinician / MD</option>
                     </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                    <div className={`absolute inset-y-0 flex items-center px-3 pointer-events-none text-slate-400 ${isRTL ? 'left-0' : 'right-0'}`}>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <label className={`text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
                     <Briefcase className="w-3.5 h-3.5" /> Research Interests
                   </label>
                   <textarea
@@ -151,7 +154,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-100 mt-6">
+              <div className={`flex items-center gap-3 pt-4 border-t border-slate-100 mt-6 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
                   <button
                       type="button"
                       onClick={onClose}
@@ -171,7 +174,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
           ) : (
              <div className="space-y-6">
                  <div className="space-y-4">
-                     <h3 className="font-bold text-slate-800 text-md flex items-center gap-2">
+                     <h3 className={`font-bold text-slate-800 text-md flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
                         <Globe className="w-4 h-4 text-slate-500" />
                         {t('settings.language_select')}
                      </h3>
@@ -180,7 +183,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
                              <button
                                 key={lang}
                                 onClick={() => setLanguage(lang)}
-                                className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all ${
+                                className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all ${isRTL ? 'flex-row-reverse' : 'flex-row'} ${
                                     language === lang 
                                     ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm' 
                                     : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
@@ -201,7 +204,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ currentProfile, onSave, onC
                      </div>
                  </div>
                  
-                 <div className="flex justify-end pt-4 border-t border-slate-100 mt-8">
+                 <div className={`flex pt-4 border-t border-slate-100 mt-8 ${isRTL ? 'justify-start' : 'justify-end'}`}>
                      <button
                         onClick={onClose}
                         className="py-2.5 px-6 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors"

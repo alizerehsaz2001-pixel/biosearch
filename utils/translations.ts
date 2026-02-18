@@ -1,3 +1,4 @@
+
 import { Language } from '../types';
 
 type TranslationKey = string;
@@ -62,7 +63,11 @@ export const translations: Record<Language, Dictionary> = {
     "mode.WORD_ARCHITECT.desc": "Manuscript Preparer",
     "hero.title_start": "Research",
     "hero.title_end": "Architect",
-    "hero.subtitle": "Empowering biomaterials researchers with expert query engineering and protocol definition agents."
+    "hero.subtitle": "Empowering biomaterials researchers with expert query engineering and protocol definition agents.",
+    "precision.include": "Include Keywords",
+    "precision.exclude": "Exclude Keywords",
+    "precision.date": "Date Range",
+    "precision.journal": "Journal Filter"
   },
   fr: {
     "app.title": "BioSearch Architect",
@@ -122,7 +127,11 @@ export const translations: Record<Language, Dictionary> = {
     "mode.WORD_ARCHITECT.desc": "Préparateur de Manuscrit",
     "hero.title_start": "Architecte de",
     "hero.title_end": "Recherche",
-    "hero.subtitle": "Donner aux chercheurs en biomatériaux les moyens d'agir grâce à des agents experts."
+    "hero.subtitle": "Donner aux chercheurs en biomatériaux les moyens d'agir grâce à des agents experts.",
+    "precision.include": "Inclure mots-clés",
+    "precision.exclude": "Exclure mots-clés",
+    "precision.date": "Plage de dates",
+    "precision.journal": "Filtre de journal"
   },
   es: {
     "app.title": "BioSearch Architect",
@@ -182,7 +191,11 @@ export const translations: Record<Language, Dictionary> = {
     "mode.WORD_ARCHITECT.desc": "Preparador de Manuscritos",
     "hero.title_start": "Investigación",
     "hero.title_end": "Arquitecto",
-    "hero.subtitle": "Empoderando a los investigadores de biomateriales con agentes expertos en ingeniería de consultas y definición de protocolos."
+    "hero.subtitle": "Empoderando a los investigadores de biomateriales con agentes expertos en ingeniería de consultas y definición de protocolos.",
+    "precision.include": "Incluir palabras clave",
+    "precision.exclude": "Excluir palabras clave",
+    "precision.date": "Rango de fechas",
+    "precision.journal": "Filtro de revista"
   },
   pt: {
     "app.title": "BioSearch Architect",
@@ -242,7 +255,11 @@ export const translations: Record<Language, Dictionary> = {
     "mode.WORD_ARCHITECT.desc": "Preparador de Manuscritos",
     "hero.title_start": "Pesquisa",
     "hero.title_end": "Arquiteto",
-    "hero.subtitle": "Capacitando pesquisadores de biomateriais com agentes especializados em engenharia de consultas e definição de protocolos."
+    "hero.subtitle": "Capacitando pesquisadores de biomateriais com agentes especializados em engenharia de consultas e definição de protocolos.",
+    "precision.include": "Incluir palavras-chave",
+    "precision.exclude": "Excluir palavras-chave",
+    "precision.date": "Intervalo de datas",
+    "precision.journal": "Filtro de revista"
   },
   de: {
     "app.title": "BioSearch Architect",
@@ -302,7 +319,11 @@ export const translations: Record<Language, Dictionary> = {
     "mode.WORD_ARCHITECT.desc": "Manuskript-Vorbereiter",
     "hero.title_start": "Forschungs-",
     "hero.title_end": "Architekt",
-    "hero.subtitle": "Unterstützung von Biomaterialforschern durch Experten für Abfrage-Engineering und Protokolldefinition."
+    "hero.subtitle": "Unterstützung von Biomaterialforschern durch Experten für Abfrage-Engineering und Protokolldefinition.",
+    "precision.include": "Stichwörter einschließen",
+    "precision.exclude": "Stichwörter ausschließen",
+    "precision.date": "Datumsbereich",
+    "precision.journal": "Zeitschriftenfilter"
   },
   it: {
     "app.title": "BioSearch Architect",
@@ -327,7 +348,7 @@ export const translations: Record<Language, Dictionary> = {
     "mode.QUERY_BUILDER.label": "Costruttore di Query",
     "mode.QUERY_BUILDER.desc": "Genera stringhe booleane",
     "mode.PRECISION_SEARCH_COMMANDER.label": "Ricerca di Precisione",
-    "mode.PRECISION_SEARCH_COMMANDER.desc": "Filtri manualι avanzati",
+    "mode.PRECISION_SEARCH_COMMANDER.desc": "Filtri manuali avanzati",
     "mode.PICO_PROTOCOL.label": "Definitore di Protocollo",
     "mode.PICO_PROTOCOL.desc": "Framework PICO",
     "mode.ABSTRACT_SCREENER.label": "Valutatore di Abstract",
@@ -362,7 +383,11 @@ export const translations: Record<Language, Dictionary> = {
     "mode.WORD_ARCHITECT.desc": "Preparatore di Manoscritti",
     "hero.title_start": "Ricerca",
     "hero.title_end": "Architetto",
-    "hero.subtitle": "Potenziare i ricercatori di biomateriali con agenti esperti nell'ingegneria delle query e nella definizione dei protocolli."
+    "hero.subtitle": "Potenziare i ricercatori di biomateriali con agenti esperti nell'ingegneria delle query e nella definizione dei protocolli.",
+    "precision.include": "Includi parole chiave",
+    "precision.exclude": "Escludi parole chiave",
+    "precision.date": "Intervallo di date",
+    "precision.journal": "Filtro rivista"
   },
   he: {
     "app.title": "BioSearch Architect",
@@ -422,7 +447,11 @@ export const translations: Record<Language, Dictionary> = {
     "mode.WORD_ARCHITECT.desc": "מכין כתבי יד",
     "hero.title_start": "אדריכל",
     "hero.title_end": "מחקר",
-    "hero.subtitle": "העצמת חוקרי ביו-חומרים עם סוכני מומחים להנדסת שאילתות והגדרת פרוטוקולים."
+    "hero.subtitle": "העצמת חוקרי ביו-חומרים עם סוכני מומחים להנדסת שאילתות והגדרת פרוטוקולים.",
+    "precision.include": "כלול מילות מפתח",
+    "precision.exclude": "החרג מילות מפתח",
+    "precision.date": "טווח תאריכים",
+    "precision.journal": "מסנן ז'ורנל"
   },
   fa: {
     "app.title": "BioSearch Architect",
@@ -482,6 +511,10 @@ export const translations: Record<Language, Dictionary> = {
     "mode.WORD_ARCHITECT.desc": "آماده‌ساز دست‌نوشته",
     "hero.title_start": "معمار",
     "hero.title_end": "پژوهش",
-    "hero.subtitle": "توانمندسازی پژوهشگران بیومتریال با عوامل متخصص برای مهندسی پرس‌وجو و تعیین پروتکل."
+    "hero.subtitle": "توانمندسازی پژوهشگران بیومتریال با عوامل متخصص برای مهندسی پرس‌وجو و تعیین پروتکل.",
+    "precision.include": "شامل کلمات کلیدی",
+    "precision.exclude": "حذف کلمات کلیدی",
+    "precision.date": "محدوده تاریخی",
+    "precision.journal": "فیلتر ژورنال"
   }
 };

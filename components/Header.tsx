@@ -1,6 +1,6 @@
 
 import React, { useRef } from 'react';
-import { Microscope, Upload, User, Settings } from 'lucide-react';
+import { Microscope, Upload, User, Settings, HelpCircle } from 'lucide-react';
 import { UserProfile } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -8,9 +8,10 @@ interface HeaderProps {
   userProfile: UserProfile | null;
   onUpload: (file: File) => void;
   onProfileClick: () => void;
+  onOpenGuide: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ userProfile, onUpload, onProfileClick }) => {
+const Header: React.FC<HeaderProps> = ({ userProfile, onUpload, onProfileClick, onOpenGuide }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
 
@@ -59,6 +60,14 @@ const Header: React.FC<HeaderProps> = ({ userProfile, onUpload, onProfileClick }
            >
              <Upload className="w-4 h-4" />
              <span className="hidden sm:inline">{t('header.upload')}</span>
+           </button>
+
+           <button
+             onClick={onOpenGuide}
+             className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+             title="How to use"
+           >
+             <HelpCircle className="w-5 h-5" />
            </button>
 
            {/* Divider */}

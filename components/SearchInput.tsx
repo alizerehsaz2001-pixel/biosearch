@@ -16,6 +16,9 @@ const STUDY_TYPES = [
   'Meta-Analysis',
   'Review',
   'Clinical Trial',
+  'Observational Study',
+  'Case Reports',
+  'Guidelines',
   'Animal Study',
   'In Vitro'
 ];

@@ -25,6 +25,7 @@ import ModeSwitcher from './components/ModeSwitcher';
 import WelcomeScreen from './components/WelcomeScreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import ProfileModal from './components/ProfileModal';
+import UserGuide from './components/UserGuide';
 import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
 import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
@@ -35,6 +36,7 @@ const AppContent: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [mode, setMode] = useState<AppMode>('QUERY_BUILDER');
   const [status, setStatus] = useState<QueryStatus>(QueryStatus.IDLE);
@@ -77,6 +79,7 @@ const AppContent: React.FC = () => {
     setUserProfile(profile);
     localStorage.setItem('bio_search_profile', JSON.stringify(profile));
     setShowOnboarding(false);
+    setShowGuide(true); // Show guide after onboarding
   };
 
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
@@ -230,11 +233,14 @@ const AppContent: React.FC = () => {
       <Header 
         userProfile={userProfile} 
         onUpload={handleUploadArticle} 
-        onProfileClick={() => setShowProfileModal(true)} 
+        onProfileClick={() => setShowProfileModal(true)}
+        onOpenGuide={() => setShowGuide(true)}
       />
       
       {showWelcome && <WelcomeScreen onEnter={handleWelcomeEnter} />}
       
+      {showGuide && <UserGuide onClose={() => setShowGuide(false)} />}
+
       {showProfileModal && userProfile && (
         <ProfileModal 
           currentProfile={userProfile} 

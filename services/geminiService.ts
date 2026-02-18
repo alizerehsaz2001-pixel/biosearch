@@ -7,7 +7,7 @@ Follow this strict process:
 1. Analyze the user's research topic to identify key concepts (e.g., Biomaterial type, Application, Disease model).
 2. Expand keywords using MeSH terms (Medical Subject Headings) and synonyms (e.g., for "Hydrogel", use "Hydrogels"[MeSH] OR "Hydrogel networks" OR "Injectable gels").
 3. Construct a robust query using AND/OR operators. Group concepts with parentheses.
-4. If specific study types are requested (e.g., RCT, Review), append the correct publication type filters or search limits (e.g., "Randomized Controlled Trial"[pt] or "Meta-Analysis"[pt]). For "Animal Study", ensure appropriate MeSH terms are used if strictly required, or exclude Human studies if implied.
+4. If specific study types are requested (e.g., RCT, Systematic Review, Guidelines), append the correct publication type filters or search limits (e.g., "Practice Guideline"[pt], "Systematic Review"[pt], "Case Reports"[pt]). For "In Vitro" or "Animal Study", use appropriate MeSH terms like "In Vitro Techniques"[MeSH] or "Models, Animal"[MeSH] where strict filters don't apply.
 5. Output ONLY the raw search string. Do not include markdown code blocks, explanations, or labels. Just the final query string.`;
 
 const PICO_SYSTEM_INSTRUCTION = `You are a Senior Researcher designing a systematic review protocol for biomaterials. Your goal is to define the PICOs framework based on a research question.

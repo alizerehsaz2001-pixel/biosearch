@@ -115,7 +115,7 @@ const AppContent: React.FC = () => {
       if (mode === 'QUERY_BUILDER') {
         resultData = await generateSearchString(input, options);
       } else if (mode === 'PRECISION_SEARCH_COMMANDER') {
-        resultData = await generatePrecisionSearch(input);
+        resultData = await generatePrecisionSearch(input, options);
       } else if (mode === 'PICO_PROTOCOL') {
         resultData = await generatePicoProtocol(input);
       } else if (mode === 'ABSTRACT_SCREENER') {

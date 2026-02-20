@@ -29,7 +29,8 @@ Your goal is to construct highly specific search queries based on user-defined f
 
 **Task:**
 1. **Construct Boolean Logic:** Create a complex search string using AND, OR, NOT, parentheses, and field tags (e.g., [Title/Abstract], [MeSH]).
-2. **Generate Direct Links:** Create clickable URLs for:
+2. **Handle Publisher Filters:** If a publisher is specified (e.g., Elsevier, Springer, Wiley, MDPI), use appropriate search operators or journal lists associated with that publisher.
+3. **Generate Direct Links:** Create clickable URLs for:
     - **PubMed:** Use advanced search syntax (e.g., (Hydrogels[MeSH] OR "Injectable Gel") AND ("Bone Regeneration"[Title/Abstract]) AND 2020:2026[dp] NOT Review[pt]).
     - **Google Scholar:** Use allintitle:, site:, filetype:pdf operators.
     - **ScienceDirect:** Use advanced search URL parameters.
@@ -745,11 +746,17 @@ export const generatePptOutline = async (input: string): Promise<{ content: stri
   return { content: response.text };
 };
 
-export const generatePrecisionSearch = async (params: string): Promise<{ content: string, sources?: any[] }> => {
+export const generatePrecisionSearch = async (params: string, options?: string[]): Promise<{ content: string, sources?: any[] }> => {
   const ai = getAIClient();
+  let prompt = params;
+  
+  if (options && options.length > 0) {
+    prompt += `\n\nExplicit Study Type Filters: ${options.join(', ')}`;
+  }
+
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
-    contents: params,
+    contents: prompt,
     config: { 
       systemInstruction: PRECISION_SEARCH_SYSTEM_INSTRUCTION, 
       temperature: 0.2,

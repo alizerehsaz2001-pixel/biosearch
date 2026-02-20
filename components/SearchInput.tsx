@@ -38,7 +38,8 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
     mustExclude: '',
     dateRange: '',
     studyType: '',
-    journal: ''
+    journal: '',
+    publisher: ''
   });
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -74,8 +75,9 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         if (!selectedImage) return;
         onGenerate(input, undefined, undefined, selectedImage);
     } else if (mode === 'PRECISION_SEARCH_COMMANDER') {
-        const fullPrompt = `Keywords: ${input}\nMust Include: ${precisionParams.mustInclude}\nMust Exclude: ${precisionParams.mustExclude}\nDate Range: ${precisionParams.dateRange}\nStudy Type: ${precisionParams.studyType}\nJournal Filter: ${precisionParams.journal}`;
-        onGenerate(fullPrompt);
+        const studyTypesStr = selectedFilters.length > 0 ? selectedFilters.join(', ') : 'Any';
+        const fullPrompt = `Keywords: ${input}\nMust Include: ${precisionParams.mustInclude}\nMust Exclude: ${precisionParams.mustExclude}\nDate Range: ${precisionParams.dateRange}\nStudy Type: ${studyTypesStr}\nJournal Filter: ${precisionParams.journal}\nPublisher Filter: ${precisionParams.publisher}`;
+        onGenerate(fullPrompt, undefined, selectedFilters);
     } else if (input.trim()) {
        onGenerate(input, criteria, selectedFilters);
     }
@@ -313,23 +315,38 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Study Type</label>
-                    <select 
-                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-emerald-400"
-                        value={precisionParams.studyType}
-                        onChange={e => setPrecisionParams({...precisionParams, studyType: e.target.value})}
-                    >
-                        <option value="">Any Study Type</option>
-                        {STUDY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Study Type Filter</label>
+                    <div className="flex flex-wrap gap-1.5 p-2 bg-white border border-slate-200 rounded-lg min-h-[42px]">
+                        {selectedFilters.length === 0 ? (
+                            <span className="text-xs text-slate-400 italic px-1 py-1">No filters selected (searching all types)</span>
+                        ) : (
+                            selectedFilters.map(f => (
+                                <span key={f} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-[10px] font-bold">
+                                    {f}
+                                    <button type="button" onClick={() => toggleFilter(f)} className="hover:text-blue-900">
+                                        <X className="w-2.5 h-2.5" />
+                                    </button>
+                                </span>
+                            ))
+                        )}
+                    </div>
                 </div>
-                <div className="space-y-1 sm:col-span-2">
+                <div className="space-y-1">
                     <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('precision.journal')}</label>
                     <input 
-                        placeholder="e.g. Nature Biomaterials, Acta Biomaterialia" 
+                        placeholder="e.g. Nature, Acta Biomaterialia" 
                         className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-amber-400"
                         value={precisionParams.journal}
                         onChange={e => setPrecisionParams({...precisionParams, journal: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Publisher Filter</label>
+                    <input 
+                        placeholder="e.g. Elsevier, Springer, Wiley" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-indigo-400"
+                        value={precisionParams.publisher}
+                        onChange={e => setPrecisionParams({...precisionParams, publisher: e.target.value})}
                     />
                 </div>
             </div>
@@ -396,30 +413,43 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
           />
         </div>
 
-        {/* Filters for Query Builder */}
-        {mode === 'QUERY_BUILDER' && (
+        {/* Filters for Query Builder & Precision Search */}
+        {(mode === 'QUERY_BUILDER' || mode === 'PRECISION_SEARCH_COMMANDER') && (
           <div className="px-4 pb-2 flex flex-wrap gap-2 items-center border-t border-slate-50 pt-3">
-            <span className={`text-xs font-semibold text-slate-400 uppercase tracking-wider ${isRTL ? 'ml-1' : 'mr-1'}`}>Study Types:</span>
-            {STUDY_TYPES.map(type => {
-              const isActive = selectedFilters.includes(type);
-              return (
-                <button 
-                  key={type}
-                  type="button"
-                  onClick={() => toggleFilter(type)}
-                  disabled={isLoading}
-                  className={`
-                    text-[11px] px-2.5 py-1 rounded-full border transition-all duration-200 flex items-center gap-1.5 font-medium
-                    ${isActive 
-                      ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm' 
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}
-                  `}
-                >
-                   {isActive && <Check className="w-3 h-3" />}
-                  {type}
-                </button>
-              );
-            })}
+            <div className="flex items-center justify-between w-full mb-2">
+                <span className={`text-xs font-bold text-slate-400 uppercase tracking-wider ${isRTL ? 'ml-1' : 'mr-1'}`}>Study Type Library:</span>
+                {selectedFilters.length > 0 && (
+                    <button 
+                        type="button" 
+                        onClick={() => setSelectedFilters([])}
+                        className="text-[10px] font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest transition-colors"
+                    >
+                        Clear All
+                    </button>
+                )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+                {STUDY_TYPES.map(type => {
+                const isActive = selectedFilters.includes(type);
+                return (
+                    <button 
+                    key={type}
+                    type="button"
+                    onClick={() => toggleFilter(type)}
+                    disabled={isLoading}
+                    className={`
+                        text-[11px] px-2.5 py-1 rounded-full border transition-all duration-200 flex items-center gap-1.5 font-medium
+                        ${isActive 
+                        ? (mode === 'QUERY_BUILDER' ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm' : 'bg-blue-50 border-blue-200 text-blue-700 shadow-sm')
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}
+                    `}
+                    >
+                    {isActive && <Check className="w-3 h-3" />}
+                    {type}
+                    </button>
+                );
+                })}
+            </div>
           </div>
         )}
         

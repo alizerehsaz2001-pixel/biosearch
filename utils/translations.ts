@@ -29,7 +29,7 @@ export const translations: Record<Language, Dictionary> = {
     "mode.QUERY_BUILDER.intro": "Standardize your literature search by converting natural language into validated MeSH and Boolean logic for PubMed and Scopus.",
     "mode.PRECISION_SEARCH_COMMANDER.label": "Precision Search",
     "mode.PRECISION_SEARCH_COMMANDER.desc": "Advanced manual filters",
-    "mode.PRECISION_SEARCH_COMMANDER.intro": "Execute high-granularity queries with granular control over inclusion/exclusion criteria and real-time grounding.",
+    "mode.PRECISION_SEARCH_COMMANDER.intro": "Execute high-granularity queries with granular control over inclusion/exclusion criteria, publisher filters (e.g., Elsevier, Springer), and real-time grounding.",
     "mode.PICO_PROTOCOL.label": "Protocol Definer",
     "mode.PICO_PROTOCOL.desc": "PICO frameworks",
     "mode.PICO_PROTOCOL.intro": "Structure your systematic review or experimental design using the standard PICO (Population, Intervention, Comparison, Outcome) framework.",

@@ -392,8 +392,8 @@ const AppContent: React.FC = () => {
             <History history={history} savedResults={savedResults} onSelect={handleArchiveSelect} />
           </div>
         </main>
-        )}
       </div>
+      )}
     </div>
   );
 };

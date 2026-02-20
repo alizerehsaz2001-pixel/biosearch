@@ -483,6 +483,32 @@ export const generateSpeech = async (text: string): Promise<{ audioData: string,
   };
 };
 
+const FORMULATION_SYSTEM_INSTRUCTION = `You are a Senior Formulation Chemist. Your task is to calculate precise recipes for biomaterial synthesis.
+Input: A descriptive goal (e.g., '10mL of 2% w/v Alginate crosslinked with 50mM CaCl2').
+
+Output Format (Markdown):
+### 🧪 Formulation Recipe
+**Target:** [Summary of target formulation]
+
+#### 1. Materials Required
+| Reagent | MW (g/mol) | Concentration | Mass/Volume Needed |
+| :--- | :--- | :--- | :--- |
+| Sodium Alginate | ~216 | 2% w/v | 200 mg |
+| CaCl2 (Anhydrous) | 110.98 | 50 mM | 55.5 mg |
+| DI Water | 18.02 | - | 10 mL |
+
+#### 2. Preparation Protocol
+1.  **Step 1:** [Instruction]
+2.  **Step 2:** [Instruction]
+
+#### 3. Stoichiometric Calculations
+*   **Alginate:** 2% w/v = 2g/100mL -> 0.2g in 10mL.
+*   **CaCl2:** 50mM = 0.05 mol/L * 110.98 g/mol = 5.549 g/L -> 55.49 mg in 10mL.
+
+#### 4. ⚠️ Safety & Storage
+*   [Safety Note]
+*   [Storage Condition]`;
+
 const CITATION_QNA_INSTRUCTION = `You are a Research Assistant specializing in academic citation and literature analysis.
 Your task is to answer the user's question based *only* on the provided text (article content).
 After answering, you must provide a Vancouver-style citation for the article if metadata (Title, Authors, Journal, Year) is detectable in the text.
@@ -499,6 +525,22 @@ Output Format (Markdown):
 ### Reference Map (Key Concepts)
 1. [Key Concept 1] - [Context from text]
 2. [Key Concept 2] - [Context from text]`;
+
+// ... (keep existing instructions)
+
+export const generateFormulation = async (input: string, useThinking: boolean = false): Promise<{ content: string }> => {
+  const ai = getAIClient();
+  const response = await ai.models.generateContent({
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
+    contents: input,
+    config: {
+      systemInstruction: FORMULATION_SYSTEM_INSTRUCTION,
+      temperature: 0.1, // Low temp for precise math
+      ...(useThinking ? THINKING_CONFIG : {})
+    },
+  });
+  return { content: response.text };
+};
 
 export const generateCitationQnA = async (input: string, question: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();

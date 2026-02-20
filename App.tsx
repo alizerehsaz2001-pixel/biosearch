@@ -27,7 +27,8 @@ import WelcomeScreen from './components/WelcomeScreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import ProfileModal from './components/ProfileModal';
 import UserGuide from './components/UserGuide';
-import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech, generateCitationQnA } from './services/geminiService';
+import FormulationResultCard from './components/FormulationResultCard';
+import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech, generateCitationQnA, generateFormulation } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
 import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -167,6 +168,8 @@ const AppContent: React.FC = () => {
         resultData = await generateWordDocument(input, useThinking);
       } else if (mode === 'CITATION_MANAGER') {
         resultData = await generateCitationQnA(input, secondaryInput || "Summarize the key findings.", useThinking);
+      } else if (mode === 'FORMULATION_CHEMIST') {
+        resultData = await generateFormulation(input, useThinking);
       }
       
       const newResult: SearchResult = {
@@ -244,6 +247,7 @@ const AppContent: React.FC = () => {
       case 'CRITICAL_ANALYST': return 'from-violet-600 to-fuchsia-500';
       case 'ISO_COMPLIANCE_AUDITOR': return 'from-amber-600 to-yellow-500';
       case 'WORD_ARCHITECT': return 'from-blue-600 to-indigo-600';
+      case 'FORMULATION_CHEMIST': return 'from-cyan-600 to-blue-500';
       case 'VOICE_ASSISTANT': return 'from-indigo-600 to-blue-600';
       default: return 'from-indigo-600 to-teal-500';
     }
@@ -411,6 +415,7 @@ const AppContent: React.FC = () => {
                   {currentResult.type === 'PPT_ARCHITECT' && <PPTResultCard result={currentResult} />}
                   {currentResult.type === 'WORD_ARCHITECT' && <WordResultCard result={currentResult} />}
                   {currentResult.type === 'CITATION_MANAGER' && <CitationResultCard result={currentResult} />}
+                  {currentResult.type === 'FORMULATION_CHEMIST' && <FormulationResultCard result={currentResult} onToggleSave={() => handleSaveToggle(currentResult)} isSaved={isCurrentSaved} />}
                 </div>
               </div>
             )}

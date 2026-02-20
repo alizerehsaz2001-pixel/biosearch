@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, Modality } from "@google/genai";
+import { GoogleGenAI, Modality, ThinkingLevel } from "@google/genai";
 
 const SEARCH_SYSTEM_INSTRUCTION = `You are an expert Information Specialist and Biomaterials Engineer. Your task is to translate natural language research topics into advanced boolean search strings suitable for PubMed and Scopus.
 
@@ -389,7 +389,7 @@ When summarizing for speech:
 // Common config for thinking models
 const THINKING_CONFIG = {
   thinkingConfig: {
-    thinkingBudget: 32768, 
+    thinkingLevel: ThinkingLevel.HIGH,
   }
 };
 
@@ -500,17 +500,17 @@ Output Format (Markdown):
 1. [Key Concept 1] - [Context from text]
 2. [Key Concept 2] - [Context from text]`;
 
-export const generateCitationQnA = async (input: string, question: string): Promise<{ content: string }> => {
+export const generateCitationQnA = async (input: string, question: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const prompt = `Article Text:\n${input}\n\nQuestion:\n${question}`;
   
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview',
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: prompt,
     config: {
       systemInstruction: CITATION_QNA_INSTRUCTION,
       temperature: 0.2,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text };
@@ -536,103 +536,103 @@ export const generateSearchString = async (topic: string, studyTypes?: string[])
   return { content: response.text.replace(/^```\w*\n?/, '').replace(/\n?```$/, '').trim() };
 };
 
-export const generatePicoProtocol = async (topic: string): Promise<{ content: string }> => {
+export const generatePicoProtocol = async (topic: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: topic,
     config: {
       systemInstruction: PICO_SYSTEM_INSTRUCTION,
       temperature: 0.4,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text };
 };
 
-export const screenAbstract = async (abstract: string, criteria: string): Promise<{ content: string }> => {
+export const screenAbstract = async (abstract: string, criteria: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const prompt = `Criteria:\n${criteria}\n\nAbstract:\n${abstract}`;
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: prompt,
     config: {
       systemInstruction: SCREENER_SYSTEM_INSTRUCTION,
       responseMimeType: 'application/json',
       temperature: 0.1,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text };
 };
 
-export const extractTechnicalData = async (textInput: string): Promise<{ content: string }> => {
+export const extractTechnicalData = async (textInput: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: textInput,
     config: {
       systemInstruction: EXTRACTOR_SYSTEM_INSTRUCTION,
       responseMimeType: 'application/json',
       temperature: 0.1,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text };
 };
 
-export const generateCriticalAnalysis = async (dataInput: string): Promise<{ content: string, sources?: any[] }> => {
+export const generateCriticalAnalysis = async (dataInput: string, useThinking: boolean = false): Promise<{ content: string, sources?: any[] }> => {
   const ai = getAIClient();
   const isBroadTopic = dataInput.length < 150; // Detect if it's a topic query vs a data dump
 
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview',
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: dataInput,
     config: {
       systemInstruction: ANALYST_SYSTEM_INSTRUCTION,
       temperature: 0.3,
       tools: isBroadTopic ? [{ googleSearch: {} }] : undefined,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text, sources: extractGroundingSources(response) };
 };
 
-export const generateIsoComplianceReview = async (methodsSection: string): Promise<{ content: string }> => {
+export const generateIsoComplianceReview = async (methodsSection: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: methodsSection,
     config: {
       systemInstruction: AUDITOR_SYSTEM_INSTRUCTION,
       temperature: 0.2,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text };
 };
 
-export const generateNoveltyIdeas = async (summaryInput: string): Promise<{ content: string }> => {
+export const generateNoveltyIdeas = async (summaryInput: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: summaryInput,
     config: {
       systemInstruction: NOVELTY_SYSTEM_INSTRUCTION,
       temperature: 0.7,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text };
 };
 
-export const analyzeImage = async (imageBase64: string, promptText: string): Promise<{ content: string }> => {
+export const analyzeImage = async (imageBase64: string, promptText: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
   const mimeType = imageBase64.match(/^data:(image\/\w+);base64,/) ? imageBase64.match(/^data:(image\/\w+);base64,/)?.[1] : 'image/png';
 
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', // Already Pro, adding Thinking
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: {
       parts: [
           { inlineData: { mimeType: mimeType || 'image/png', data: base64Data } },
@@ -642,7 +642,7 @@ export const analyzeImage = async (imageBase64: string, promptText: string): Pro
     config: {
       systemInstruction: IMAGE_SYSTEM_INSTRUCTION,
       temperature: 0.3,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text };
@@ -692,15 +692,15 @@ export const findLabs = async (input: string): Promise<{ content: string, source
   return { content: response.text, sources: extractGroundingSources(response) };
 };
 
-export const troubleshootProtocol = async (input: string): Promise<{ content: string }> => {
+export const troubleshootProtocol = async (input: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: input,
     config: {
       systemInstruction: TROUBLESHOOTER_SYSTEM_INSTRUCTION,
       temperature: 0.5,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text };
@@ -719,15 +719,15 @@ export const generateAcademicEmail = async (input: string): Promise<{ content: s
   return { content: response.text };
 };
 
-export const generateMLArchitecture = async (input: string): Promise<{ content: string }> => {
+export const generateMLArchitecture = async (input: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', // Upgraded to Pro with Thinking
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: input,
     config: {
       systemInstruction: ML_ARCHITECT_SYSTEM_INSTRUCTION,
       temperature: 0.3,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text };
@@ -766,15 +766,15 @@ export const generatePrecisionSearch = async (params: string, options?: string[]
   return { content: response.text, sources: extractGroundingSources(response) };
 };
 
-export const generateWordDocument = async (input: string): Promise<{ content: string }> => {
+export const generateWordDocument = async (input: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview',
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: input,
     config: {
       systemInstruction: WORD_ARCHITECT_SYSTEM_INSTRUCTION,
       temperature: 0.3,
-      ...THINKING_CONFIG
+      ...(useThinking ? THINKING_CONFIG : {})
     },
   });
   return { content: response.text };

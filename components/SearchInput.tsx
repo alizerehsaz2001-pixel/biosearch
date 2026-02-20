@@ -4,7 +4,7 @@ import { QueryStatus, AppMode } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface SearchInputProps {
-  onGenerate: (input: string, secondaryInput?: string, options?: string[], imageData?: string) => void;
+  onGenerate: (input: string, secondaryInput?: string, options?: string[], imageData?: string, useThinking?: boolean) => void;
   status: QueryStatus;
   mode: AppMode;
   initialValue?: string;
@@ -29,6 +29,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
   const [criteria, setCriteria] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [useThinking, setUseThinking] = useState(false);
 
   const isRTL = language === 'he' || language === 'fa';
 
@@ -73,13 +74,13 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
 
     if (mode === 'IMAGE_ANALYZER') {
         if (!selectedImage) return;
-        onGenerate(input, undefined, undefined, selectedImage);
+        onGenerate(input, undefined, undefined, selectedImage, useThinking);
     } else if (mode === 'PRECISION_SEARCH_COMMANDER') {
         const studyTypesStr = selectedFilters.length > 0 ? selectedFilters.join(', ') : 'Any';
         const fullPrompt = `Keywords: ${input}\nMust Include: ${precisionParams.mustInclude}\nMust Exclude: ${precisionParams.mustExclude}\nDate Range: ${precisionParams.dateRange}\nStudy Type: ${studyTypesStr}\nJournal Filter: ${precisionParams.journal}\nPublisher Filter: ${precisionParams.publisher}`;
-        onGenerate(fullPrompt, undefined, selectedFilters);
+        onGenerate(fullPrompt, undefined, selectedFilters, undefined, useThinking);
     } else if (input.trim()) {
-       onGenerate(input, criteria, selectedFilters);
+       onGenerate(input, criteria, selectedFilters, undefined, useThinking);
     }
   };
 
@@ -280,6 +281,17 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                 <p className="text-xs text-slate-500 leading-relaxed font-medium mt-0.5">
                     {t(`mode.${mode}.intro`)}
                 </p>
+            </div>
+            
+            <div className="ml-auto flex items-center gap-2">
+              <label className="relative inline-flex items-center cursor-pointer group">
+                <input type="checkbox" checked={useThinking} onChange={(e) => setUseThinking(e.target.checked)} className="sr-only peer" />
+                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                <span className="ml-2 text-xs font-bold text-slate-500 group-hover:text-indigo-600 transition-colors flex items-center gap-1">
+                  <BrainCircuit className={`w-3.5 h-3.5 ${useThinking ? 'text-indigo-600' : 'text-slate-400'}`} />
+                  <span className="hidden sm:inline">Deep Thinking</span>
+                </span>
+              </label>
             </div>
         </div>
 

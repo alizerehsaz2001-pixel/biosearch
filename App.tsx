@@ -31,13 +31,17 @@ import { generateSearchString, generatePicoProtocol, screenAbstract, extractTech
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
 import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { ToastProvider, useToast } from './contexts/ToastContext';
+import ShortcutsModal from './components/ShortcutsModal';
 
 const AppContent: React.FC = () => {
   const { t } = useLanguage();
+  const { showToast } = useToast();
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [mode, setMode] = useState<AppMode>('QUERY_BUILDER');
   const [status, setStatus] = useState<QueryStatus>(QueryStatus.IDLE);
@@ -76,6 +80,16 @@ const AppContent: React.FC = () => {
     localStorage.setItem('bio_search_history', JSON.stringify(history));
   }, [history]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey) {
+        setShowShortcuts(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleOnboardingComplete = (profile: UserProfile) => {
     setUserProfile(profile);
     localStorage.setItem('bio_search_profile', JSON.stringify(profile));
@@ -99,12 +113,12 @@ const AppContent: React.FC = () => {
 
   const handleUploadArticle = (file: File) => {
     // Simulating an upload process
-    alert(`Document "${file.name}" has been successfully uploaded to your private research workspace.`);
+    showToast(`Document "${file.name}" has been successfully uploaded.`, 'success');
   };
 
   const savedIds = useMemo(() => savedResults.map(r => r.id), [savedResults]);
 
-  const handleGenerate = async (input: string, secondaryInput?: string, options?: string[], imageData?: string) => {
+  const handleGenerate = async (input: string, secondaryInput?: string, options?: string[], imageData?: string, useThinking?: boolean) => {
     setStatus(QueryStatus.LOADING);
     setError(null);
     setCurrentResult(null);
@@ -117,21 +131,21 @@ const AppContent: React.FC = () => {
       } else if (mode === 'PRECISION_SEARCH_COMMANDER') {
         resultData = await generatePrecisionSearch(input, options);
       } else if (mode === 'PICO_PROTOCOL') {
-        resultData = await generatePicoProtocol(input);
+        resultData = await generatePicoProtocol(input, useThinking);
       } else if (mode === 'ABSTRACT_SCREENER') {
         const criteria = secondaryInput || "Scientific validity and relevance to the topic.";
-        resultData = await screenAbstract(input, criteria);
+        resultData = await screenAbstract(input, criteria, useThinking);
       } else if (mode === 'DATA_EXTRACTOR') {
-        resultData = await extractTechnicalData(input);
+        resultData = await extractTechnicalData(input, useThinking);
       } else if (mode === 'CRITICAL_ANALYST') {
-        resultData = await generateCriticalAnalysis(input);
+        resultData = await generateCriticalAnalysis(input, useThinking);
       } else if (mode === 'ISO_COMPLIANCE_AUDITOR') {
-        resultData = await generateIsoComplianceReview(input);
+        resultData = await generateIsoComplianceReview(input, useThinking);
       } else if (mode === 'NOVELTY_GENERATOR') {
-        resultData = await generateNoveltyIdeas(input);
+        resultData = await generateNoveltyIdeas(input, useThinking);
       } else if (mode === 'IMAGE_ANALYZER') {
         if (!imageData) throw new Error("No image data provided.");
-        resultData = await analyzeImage(imageData, input);
+        resultData = await analyzeImage(imageData, input, useThinking);
       } else if (mode === 'VOICE_ASSISTANT') {
         const speechRes = await generateSpeech(input);
         resultData = { content: speechRes.textSummary, audioData: speechRes.audioData };
@@ -142,17 +156,17 @@ const AppContent: React.FC = () => {
       } else if (mode === 'LAB_SCOUT') {
         resultData = await findLabs(input);
       } else if (mode === 'PROTOCOL_TROUBLESHOOTER') {
-        resultData = await troubleshootProtocol(input);
+        resultData = await troubleshootProtocol(input, useThinking);
       } else if (mode === 'ACADEMIC_EMAIL_DRAFTER') {
         resultData = await generateAcademicEmail(input);
       } else if (mode === 'ML_DEEP_LEARNING_ARCHITECT') {
-        resultData = await generateMLArchitecture(input);
+        resultData = await generateMLArchitecture(input, useThinking);
       } else if (mode === 'PPT_ARCHITECT') {
         resultData = await generatePptOutline(input);
       } else if (mode === 'WORD_ARCHITECT') {
-        resultData = await generateWordDocument(input);
+        resultData = await generateWordDocument(input, useThinking);
       } else if (mode === 'CITATION_MANAGER') {
-        resultData = await generateCitationQnA(input, secondaryInput || "Summarize the key findings.");
+        resultData = await generateCitationQnA(input, secondaryInput || "Summarize the key findings.", useThinking);
       }
       
       const newResult: SearchResult = {
@@ -169,10 +183,13 @@ const AppContent: React.FC = () => {
       setCurrentResult(newResult);
       setStatus(QueryStatus.SUCCESS);
       setHistory(prev => [newResult, ...prev].slice(0, 50));
+      showToast('Analysis generated successfully', 'success');
 
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+      const errorMessage = err.message || "An unexpected error occurred.";
+      setError(errorMessage);
       setStatus(QueryStatus.ERROR);
+      showToast(errorMessage, 'error');
     }
   };
 
@@ -180,14 +197,17 @@ const AppContent: React.FC = () => {
     const isCurrentlySaved = savedIds.includes(result.id);
     if (isCurrentlySaved) {
       setSavedResults(prev => prev.filter(r => r.id !== result.id));
+      showToast('Removed from favorites', 'info');
     } else {
       setSavedResults(prev => [{ ...result, isSaved: true }, ...prev]);
+      showToast('Saved to favorites', 'success');
     }
   };
 
   const handleDeleteSaved = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setSavedResults(prev => prev.filter(r => r.id !== id));
+    showToast('Removed from archive', 'info');
   };
 
   const handleArchiveSelect = (result: SearchResult) => {
@@ -243,6 +263,8 @@ const AppContent: React.FC = () => {
       {showWelcome && <WelcomeScreen onEnter={handleWelcomeEnter} />}
       
       {showGuide && <UserGuide onClose={() => setShowGuide(false)} />}
+      
+      <ShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
 
       {showProfileModal && userProfile && (
         <ProfileModal 
@@ -405,7 +427,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <LanguageProvider>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </LanguageProvider>
   );
 };

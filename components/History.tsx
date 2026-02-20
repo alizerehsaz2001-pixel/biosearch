@@ -7,9 +7,10 @@ interface HistoryProps {
   history: SearchResult[];
   savedResults: SearchResult[];
   onSelect: (result: SearchResult) => void;
+  onClearHistory: () => void;
 }
 
-const History: React.FC<HistoryProps> = ({ history, savedResults, onSelect }) => {
+const History: React.FC<HistoryProps> = ({ history, savedResults, onSelect, onClearHistory }) => {
   const [filter, setFilter] = useState<AppMode | 'ALL' | 'SAVED'>('ALL');
 
   const savedIds = savedResults.map(r => r.id);
@@ -47,6 +48,18 @@ const History: React.FC<HistoryProps> = ({ history, savedResults, onSelect }) =>
             <Clock className="w-5 h-5 text-slate-400" />
             <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">Research Archive</h3>
         </div>
+        {history.length > 0 && filter === 'ALL' && (
+          <button 
+            onClick={() => {
+              if (window.confirm('Are you sure you want to clear your research history? Bookmarked results will be kept.')) {
+                onClearHistory();
+              }
+            }}
+            className="text-[10px] font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest transition-colors"
+          >
+            Clear History
+          </button>
+        )}
       </div>
 
       {/* Filter Bar */}

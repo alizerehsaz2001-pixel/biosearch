@@ -83,9 +83,16 @@ const EmailResultCard: React.FC<EmailResultCardProps> = ({ result }) => {
             <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                 <div className="bg-slate-50 px-4 py-2 border-b border-slate-200 flex justify-between items-center">
                      <span className="text-xs font-semibold text-slate-500 uppercase">Subject Line</span>
-                     <button onClick={handleCopySubject} className="text-purple-600 hover:text-purple-800 text-xs font-medium flex items-center gap-1 transition-colors">
-                        {copiedSubject ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                        {copiedSubject ? 'Copied' : 'Copy'}
+                     <button 
+                        onClick={handleCopySubject} 
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all shadow-sm border ${
+                            copiedSubject 
+                            ? 'bg-green-50 border-green-200 text-green-700' 
+                            : 'bg-white border-slate-200 hover:border-purple-300 hover:bg-purple-50 text-slate-600 hover:text-purple-700'
+                        }`}
+                     >
+                        {copiedSubject ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedSubject ? 'Copied!' : 'Copy Subject'}
                      </button>
                 </div>
                 <div className="p-4 bg-white font-medium text-slate-800 text-sm">
@@ -97,9 +104,16 @@ const EmailResultCard: React.FC<EmailResultCardProps> = ({ result }) => {
             <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                 <div className="bg-slate-50 px-4 py-2 border-b border-slate-200 flex justify-between items-center">
                      <span className="text-xs font-semibold text-slate-500 uppercase">Email Body</span>
-                     <button onClick={handleCopyBody} className="text-purple-600 hover:text-purple-800 text-xs font-medium flex items-center gap-1 transition-colors">
-                        {copiedBody ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                        {copiedBody ? 'Copied' : 'Copy'}
+                     <button 
+                        onClick={handleCopyBody} 
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all shadow-sm border ${
+                            copiedBody 
+                            ? 'bg-green-50 border-green-200 text-green-700' 
+                            : 'bg-white border-slate-200 hover:border-purple-300 hover:bg-purple-50 text-slate-600 hover:text-purple-700'
+                        }`}
+                     >
+                        {copiedBody ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedBody ? 'Copied!' : 'Copy Body'}
                      </button>
                 </div>
                 <div className="p-4 bg-white text-slate-700 text-sm whitespace-pre-wrap leading-relaxed">
@@ -108,13 +122,17 @@ const EmailResultCard: React.FC<EmailResultCardProps> = ({ result }) => {
             </div>
         </div>
 
-        <div className="mt-8 flex justify-end">
+        <div className="mt-8 flex justify-end gap-3">
             <button 
-                onClick={handleCopyBody} // Default action copies body usually
-                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white border border-transparent px-5 py-2.5 rounded-lg font-medium transition-colors text-sm shadow-md"
+                onClick={handleCopyBody}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all text-sm shadow-md border ${
+                    copiedBody 
+                    ? 'bg-green-600 text-white border-green-700' 
+                    : 'bg-purple-600 hover:bg-purple-700 text-white border-transparent'
+                }`}
             >
-                <Send className="w-4 h-4" />
-                <span>Ready to Send</span>
+                {copiedBody ? <Check className="w-4 h-4" /> : <Send className="w-4 h-4" />}
+                <span>{copiedBody ? 'Body Copied' : 'Ready to Send'}</span>
             </button>
         </div>
       </div>

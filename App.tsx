@@ -20,13 +20,14 @@ import PPTResultCard from './components/PPTResultCard';
 import PrecisionSearchResultCard from './components/PrecisionSearchResultCard';
 import WordResultCard from './components/WordResultCard';
 import VoiceAssistantCard from './components/VoiceAssistantCard';
+import CitationResultCard from './components/CitationResultCard';
 import History from './components/History';
 import ModeSwitcher from './components/ModeSwitcher';
 import WelcomeScreen from './components/WelcomeScreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import ProfileModal from './components/ProfileModal';
 import UserGuide from './components/UserGuide';
-import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech } from './services/geminiService';
+import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech, generateCitationQnA } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
 import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -150,6 +151,8 @@ const AppContent: React.FC = () => {
         resultData = await generatePptOutline(input);
       } else if (mode === 'WORD_ARCHITECT') {
         resultData = await generateWordDocument(input);
+      } else if (mode === 'CITATION_MANAGER') {
+        resultData = await generateCitationQnA(input, secondaryInput || "Summarize the key findings.");
       }
       
       const newResult: SearchResult = {
@@ -385,6 +388,7 @@ const AppContent: React.FC = () => {
                   {currentResult.type === 'ML_DEEP_LEARNING_ARCHITECT' && <MLResultCard result={currentResult} />}
                   {currentResult.type === 'PPT_ARCHITECT' && <PPTResultCard result={currentResult} />}
                   {currentResult.type === 'WORD_ARCHITECT' && <WordResultCard result={currentResult} />}
+                  {currentResult.type === 'CITATION_MANAGER' && <CitationResultCard result={currentResult} />}
                 </div>
               </div>
             )}

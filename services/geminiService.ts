@@ -482,6 +482,39 @@ export const generateSpeech = async (text: string): Promise<{ audioData: string,
   };
 };
 
+const CITATION_QNA_INSTRUCTION = `You are a Research Assistant specializing in academic citation and literature analysis.
+Your task is to answer the user's question based *only* on the provided text (article content).
+After answering, you must provide a Vancouver-style citation for the article if metadata (Title, Authors, Journal, Year) is detectable in the text.
+
+If the text contains raw content but no clear metadata, format the answer with numbered references [1], [2] pointing to specific claims in your answer, and list them at the bottom as a "Reference Map" of the key points.
+
+Output Format (Markdown):
+### Answer
+[Your detailed answer to the question]
+
+### Vancouver Citation
+[1] Author AA, Author BB. Title of article. Abbreviated Journal Title. Year;Volume(Issue):Page numbers.
+
+### Reference Map (Key Concepts)
+1. [Key Concept 1] - [Context from text]
+2. [Key Concept 2] - [Context from text]`;
+
+export const generateCitationQnA = async (input: string, question: string): Promise<{ content: string }> => {
+  const ai = getAIClient();
+  const prompt = `Article Text:\n${input}\n\nQuestion:\n${question}`;
+  
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview',
+    contents: prompt,
+    config: {
+      systemInstruction: CITATION_QNA_INSTRUCTION,
+      temperature: 0.2,
+      ...THINKING_CONFIG
+    },
+  });
+  return { content: response.text };
+};
+
 export const generateSearchString = async (topic: string, studyTypes?: string[]): Promise<{ content: string }> => {
   const ai = getAIClient();
   let prompt = topic;

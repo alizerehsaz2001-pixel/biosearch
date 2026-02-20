@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Copy, Check, Database, ExternalLink, ArrowRightCircle, Quote, Star, Search } from 'lucide-react';
+import { Copy, Check, Database, ExternalLink, ArrowRightCircle, Quote, Star, Search, Save } from 'lucide-react';
 import { SearchResult, AppMode } from '../types';
 
 interface ResultCardProps {
@@ -83,7 +83,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ result, onContinue, onToggleSav
         </div>
 
         {/* Action Buttons Grid */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-4 gap-3">
             <button 
                 onClick={handleCopy}
                 className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg font-semibold transition-all text-sm shadow-md shadow-indigo-100"
@@ -91,6 +91,21 @@ const ResultCard: React.FC<ResultCardProps> = ({ result, onContinue, onToggleSav
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {copied ? 'Copied!' : 'Copy Query'}
             </button>
+            
+            {onToggleSave && (
+              <button 
+                  onClick={onToggleSave}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-lg font-medium transition-colors text-sm shadow-sm border ${
+                    isSaved 
+                      ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' 
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                  }`}
+              >
+                  <Save className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+                  {isSaved ? 'Saved' : 'Save String'}
+              </button>
+            )}
+
             <a 
                 href={pubMedLink}
                 target="_blank"

@@ -239,12 +239,6 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonIcon = <Presentation className="w-4 h-4" />;
         buttonColor = "bg-amber-600 text-white hover:bg-amber-700";
         break;
-    case 'FORMULATION_CHEMIST':
-        placeholder = "Describe your formulation goal (e.g., '10mL of 2% w/v Alginate crosslinked with 50mM CaCl2')...";
-        buttonLabel = 'Calculate Recipe';
-        buttonIcon = <FlaskConical className="w-4 h-4" />;
-        buttonColor = "bg-cyan-600 text-white hover:bg-cyan-700";
-        break;
     case 'WORD_ARCHITECT':
         placeholder = "Paste your research protocols or analysis notes to structure into a manuscript...";
         buttonLabel = 'Draft Manuscript';
@@ -271,7 +265,6 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         mode === 'ACADEMIC_EMAIL_DRAFTER' ? 'focus-within:ring-purple-500/20' :
         mode === 'ML_DEEP_LEARNING_ARCHITECT' ? 'focus-within:ring-fuchsia-500/20' :
         mode === 'PPT_ARCHITECT' ? 'focus-within:ring-amber-500/20' :
-        mode === 'FORMULATION_CHEMIST' ? 'focus-within:ring-cyan-500/20' :
         'focus-within:ring-teal-500/20'
     }`} dir={isRTL ? 'rtl' : 'ltr'}>
       <form onSubmit={handleSubmit} className="relative flex flex-col">

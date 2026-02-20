@@ -31,7 +31,6 @@ export const MODES: { id: AppMode; icon: React.ElementType; color: string; bg: s
   { id: 'ML_DEEP_LEARNING_ARCHITECT', icon: Cpu, color: 'text-fuchsia-600', bg: 'bg-fuchsia-50' },
   { id: 'PPT_ARCHITECT', icon: Presentation, color: 'text-amber-600', bg: 'bg-amber-50' },
   { id: 'WORD_ARCHITECT', icon: FileOutput, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-  { id: 'FORMULATION_CHEMIST', icon: FlaskConical, color: 'text-cyan-600', bg: 'bg-cyan-50' },
 ];
 
 const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, disabled, orientation = 'horizontal' }) => {

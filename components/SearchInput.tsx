@@ -211,7 +211,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonColor = "bg-teal-600 text-white hover:bg-teal-700";
         break;
     case 'LAB_SCOUT':
-        placeholder = "Topic: [e.g. Hydrogels], Country: [e.g. South Korea], City: [Optional], Tier: [Optional]...";
+        placeholder = "Topic: [e.g. Hydrogels], Country: [e.g. South Korea], University: [Optional], City: [Optional]...";
         buttonLabel = 'Find Labs';
         buttonIcon = <GraduationCap className="w-4 h-4" />;
         buttonColor = "bg-orange-600 text-white hover:bg-orange-700";

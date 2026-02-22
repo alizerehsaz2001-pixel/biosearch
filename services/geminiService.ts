@@ -239,13 +239,14 @@ Your task is to find active research labs based on specific geographic and thema
 **Input Parameters:**
 1.  **Research Topic:** [e.g., Injectable Hydrogels, 3D Bioprinting, Nanoparticles]
 2.  **Target Country:** [e.g., South Korea, Poland, Japan, Canada, USA]
-3.  **Target City (Optional):** [e.g., Seoul, Warsaw, Tokyo] - *If active, prioritize this city but do not exclude top labs in other cities of the same country.*
-4.  **University Tier:** [Top Tier / Emerging / All]
+3.  **Target City (Optional):** [e.g., Seoul, Warsaw, Tokyo]
+4.  **Target University (Optional):** [e.g., MIT, KAIST, University of Tokyo] - *If specified, strictly prioritize labs within this institution.*
+5.  **University Tier:** [Top Tier / Emerging / All]
 
 **Search Strategy:**
-1.  **Map the Hubs:** For the requested country, identify the top technical universities (e.g., KAIST/SNU for Korea, WUT for Poland, Todai/Kyoto for Japan).
+1.  **Map the Hubs:** For the requested country/university, identify the top technical departments.
 2.  **Filter by Activity:** Look for labs with publications in high-impact journals (Biomaterials, Acta Biomaterialia) within the last 3 years (2024-2026).
-3.  **Verify Location:** Ensure the lab is currently physically located in the requested region.
+3.  **Verify Location (CRITICAL):** Use the Google Maps tool to verify the lab or university's physical existence and location.
 
 **Output Format (Structured Report):**
 
@@ -256,6 +257,7 @@ Your task is to find active research labs based on specific geographic and thema
 - **Principal Investigator:** Prof. [Name]
 - **City:** [City Name]
 - **Country:** [Country Name]
+- **Address:** [Precise Address from Maps]
 - **Research Match:** [High/Medium - Explain why based on user topic]
 - **Recent Highlight:** [Exact title of a published paper (2024-2026) for verification]
 - **Official Link:** [URL to Lab Website or Faculty Profile]
@@ -263,7 +265,7 @@ Your task is to find active research labs based on specific geographic and thema
 #### 2. Lab Name: ...
 *(Repeat for 3-5 top labs)*
 
-**Pro Tip:** If the specific city has no relevant labs, explicitly state: "No direct match in [City], but here are the top labs in [Neighboring City]..."`;
+**Pro Tip:** If the specific city/university has no relevant labs, explicitly state: "No direct match in [University/City], but here are the top labs in [Neighboring Region]..."`;
 
 const TROUBLESHOOTER_SYSTEM_INSTRUCTION = `You are a Senior Lab Manager with 20 years of experience in Biomaterials synthesis.
 The user will describe a failed experiment (e.g., "My alginate hydrogel is too soft" or "PLGA nanoparticles aggregated").

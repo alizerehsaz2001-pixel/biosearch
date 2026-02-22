@@ -4,7 +4,7 @@ import { QueryStatus, AppMode } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface SearchInputProps {
-  onGenerate: (input: string, secondaryInput?: string, options?: string[], imageData?: string, useThinking?: boolean) => void;
+  onGenerate: (input: string, secondaryInput?: string, options?: string[], imageData?: string, useThinking?: boolean, extractFullText?: boolean) => void;
   status: QueryStatus;
   mode: AppMode;
   initialValue?: string;
@@ -30,6 +30,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [useThinking, setUseThinking] = useState(false);
+  const [extractFullText, setExtractFullText] = useState(false);
 
   const isRTL = language === 'he' || language === 'fa';
 
@@ -74,7 +75,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
 
     if (mode === 'IMAGE_ANALYZER') {
         if (!selectedImage) return;
-        onGenerate(input, undefined, undefined, selectedImage, useThinking);
+        onGenerate(input, undefined, undefined, selectedImage, useThinking, extractFullText);
     } else if (mode === 'PRECISION_SEARCH_COMMANDER') {
         const studyTypesStr = selectedFilters.length > 0 ? selectedFilters.join(', ') : 'Any';
         const fullPrompt = `Keywords: ${input}\nMust Include: ${precisionParams.mustInclude}\nMust Exclude: ${precisionParams.mustExclude}\nDate Range: ${precisionParams.dateRange}\nStudy Type: ${studyTypesStr}\nJournal Filter: ${precisionParams.journal}\nPublisher Filter: ${precisionParams.publisher}`;
@@ -410,6 +411,20 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                     accept="image/*" 
                     className="hidden" 
                 />
+                
+                <div className="mt-4 flex items-center gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                        <input 
+                            type="checkbox" 
+                            checked={extractFullText} 
+                            onChange={(e) => setExtractFullText(e.target.checked)} 
+                            className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                        />
+                        <span className="text-xs font-bold text-slate-500 group-hover:text-blue-600 transition-colors">
+                            Extract & Translate Full Text
+                        </span>
+                    </label>
+                </div>
             </div>
         )}
 

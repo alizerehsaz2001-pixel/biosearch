@@ -5,6 +5,7 @@ export type Language = 'en' | 'fr' | 'es' | 'pt' | 'de' | 'it' | 'he' | 'fa';
 export interface GroundingSource {
   title: string;
   uri: string;
+  type?: 'web' | 'map';
 }
 
 export interface SearchResult {

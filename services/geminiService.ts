@@ -164,6 +164,7 @@ const IMAGE_SYSTEM_INSTRUCTION = `You are a Scientific Image Analyst. Your task 
 If the image is text (e.g., a paper screenshot):
 - Transcribe the text accurately.
 - Summarize the key scientific findings.
+- If requested, translate the text into the specified target language.
 
 If the image is a figure/graph:
 - Describe the axes, data trends, and significant differences.
@@ -254,6 +255,7 @@ Your task is to find active research labs based on specific geographic and thema
 - **University:** [University Name]
 - **Principal Investigator:** Prof. [Name]
 - **City:** [City Name]
+- **Country:** [Country Name]
 - **Research Match:** [High/Medium - Explain why based on user topic]
 - **Recent Highlight:** [Exact title of a published paper (2024-2026) for verification]
 - **Official Link:** [URL to Lab Website or Faculty Profile]
@@ -401,7 +403,7 @@ const getAIClient = () => {
 };
 
 const extractGroundingSources = (response: any) => {
-  const sources: { title: string; uri: string }[] = [];
+  const sources: { title: string; uri: string; type?: 'web' | 'map' }[] = [];
   const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
   if (chunks) {
     chunks.forEach((chunk: any) => {
@@ -409,6 +411,13 @@ const extractGroundingSources = (response: any) => {
         sources.push({
           title: chunk.web.title,
           uri: chunk.web.uri,
+          type: 'web'
+        });
+      } else if (chunk.maps) {
+        sources.push({
+          title: chunk.maps.title || "Map Location",
+          uri: chunk.maps.googleMapsUri || chunk.maps.uri,
+          type: 'map'
         });
       }
     });
@@ -626,17 +635,27 @@ export const generateNoveltyIdeas = async (summaryInput: string, useThinking: bo
   return { content: response.text };
 };
 
-export const analyzeImage = async (imageBase64: string, promptText: string, useThinking: boolean = false): Promise<{ content: string }> => {
+export const analyzeImage = async (imageBase64: string, promptText: string, useThinking: boolean = false, targetLanguage?: string, extractFullText?: boolean): Promise<{ content: string }> => {
   const ai = getAIClient();
   const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
   const mimeType = imageBase64.match(/^data:(image\/\w+);base64,/) ? imageBase64.match(/^data:(image\/\w+);base64,/)?.[1] : 'image/png';
+
+  let finalPrompt = promptText || "Analyze this image in the context of biomaterials research. Extract text and explain figures.";
+
+  if (extractFullText) {
+     finalPrompt += "\n\nProvide a full, verbatim transcription of all text visible in the image.";
+  }
+
+  if (targetLanguage && targetLanguage !== 'en') {
+      finalPrompt += `\n\nIMPORTANT: Please transcribe the full text found in the image and translate it into the language code '${targetLanguage}'. Preserve the original formatting as much as possible. If the image contains a figure, explain it in '${targetLanguage}'.`;
+  }
 
   const response = await ai.models.generateContent({
     model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
     contents: {
       parts: [
           { inlineData: { mimeType: mimeType || 'image/png', data: base64Data } },
-          { text: promptText || "Analyze this image in the context of biomaterials research. Extract text and explain figures." }
+          { text: finalPrompt }
       ]
     },
     config: {
@@ -681,12 +700,12 @@ export const findOpenAccess = async (input: string): Promise<{ content: string, 
 export const findLabs = async (input: string): Promise<{ content: string, sources?: any[] }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-2.5-flash',
     contents: input,
     config: {
       systemInstruction: LAB_SCOUT_SYSTEM_INSTRUCTION,
       temperature: 0.4,
-      tools: [{ googleSearch: {} }]
+      tools: [{ googleMaps: {} }]
     },
   });
   return { content: response.text, sources: extractGroundingSources(response) };

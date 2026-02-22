@@ -35,7 +35,7 @@ import { ToastProvider, useToast } from './contexts/ToastContext';
 import ShortcutsModal from './components/ShortcutsModal';
 
 const AppContent: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { showToast } = useToast();
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
@@ -118,7 +118,7 @@ const AppContent: React.FC = () => {
 
   const savedIds = useMemo(() => savedResults.map(r => r.id), [savedResults]);
 
-  const handleGenerate = async (input: string, secondaryInput?: string, options?: string[], imageData?: string, useThinking?: boolean) => {
+  const handleGenerate = async (input: string, secondaryInput?: string, options?: string[], imageData?: string, useThinking?: boolean, extractFullText?: boolean) => {
     setStatus(QueryStatus.LOADING);
     setError(null);
     setCurrentResult(null);
@@ -145,7 +145,7 @@ const AppContent: React.FC = () => {
         resultData = await generateNoveltyIdeas(input, useThinking);
       } else if (mode === 'IMAGE_ANALYZER') {
         if (!imageData) throw new Error("No image data provided.");
-        resultData = await analyzeImage(imageData, input, useThinking);
+        resultData = await analyzeImage(imageData, input, useThinking, language, extractFullText);
       } else if (mode === 'VOICE_ASSISTANT') {
         const speechRes = await generateSpeech(input);
         resultData = { content: speechRes.textSummary, audioData: speechRes.audioData };
@@ -214,6 +214,12 @@ const AppContent: React.FC = () => {
     setMode(result.type);
     setCurrentResult(result);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleClearHistory = () => {
+    setHistory([]);
+    localStorage.removeItem('bio_search_history');
+    showToast('Research history cleared', 'info');
   };
 
   const handleModeChange = (newMode: AppMode) => {
@@ -415,7 +421,7 @@ const AppContent: React.FC = () => {
               </div>
             )}
 
-            <History history={history} savedResults={savedResults} onSelect={handleArchiveSelect} />
+            <History history={history} savedResults={savedResults} onSelect={handleArchiveSelect} onClearHistory={handleClearHistory} />
           </div>
         </main>
       </div>

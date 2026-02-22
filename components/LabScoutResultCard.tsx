@@ -42,6 +42,7 @@ const LabScoutResultCard: React.FC<LabScoutResultCardProps> = ({ result }) => {
                     const university = lines.find(l => l.includes('**University:**'))?.split('**University:**')[1]?.trim() || '';
                     const pi = lines.find(l => l.includes('**Principal Investigator:**'))?.split('**Principal Investigator:**')[1]?.trim() || '';
                     const city = lines.find(l => l.includes('**City:**'))?.split('**City:**')[1]?.trim() || '';
+                    const country = lines.find(l => l.includes('**Country:**'))?.split('**Country:**')[1]?.trim() || '';
                     const match = lines.find(l => l.includes('**Research Match:**'))?.split('**Research Match:**')[1]?.trim() || '';
                     const highlight = lines.find(l => l.includes('**Recent Highlight:**'))?.split('**Recent Highlight:**')[1]?.trim() || '';
                     const link = lines.find(l => l.includes('**Official Link:**'))?.split('**Official Link:**')[1]?.trim() || '';
@@ -53,6 +54,10 @@ const LabScoutResultCard: React.FC<LabScoutResultCardProps> = ({ result }) => {
                     const paperSearchUrl = highlight 
                         ? `https://scholar.google.com/scholar?q=${encodeURIComponent(highlight)}` 
                         : null;
+                    
+                    // Find map source if available
+                    const mapSource = result.sources?.find(s => s.type === 'map' && (s.title.includes(university) || s.title.includes(city)));
+                    const mapUrl = mapSource ? mapSource.uri : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${university} ${city} ${country}`)}`;
 
                     return (
                         <div key={index} className="bg-white rounded-xl border border-orange-100 p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -81,10 +86,19 @@ const LabScoutResultCard: React.FC<LabScoutResultCardProps> = ({ result }) => {
                                             <span className="font-medium">PI: {pi}</span>
                                         </div>
                                     )}
-                                    {city && (
+                                    {(city || country) && (
                                         <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100">
                                             <MapPin className="w-4 h-4 text-orange-400" />
-                                            <span>{city}</span>
+                                            <span>{[city, country].filter(Boolean).join(', ')}</span>
+                                            <a 
+                                                href={mapUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="ml-auto text-xs text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1"
+                                                title="View on Google Maps"
+                                            >
+                                                <ExternalLink className="w-3 h-3" /> Map
+                                            </a>
                                         </div>
                                     )}
                                 </div>

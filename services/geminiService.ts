@@ -325,6 +325,12 @@ Output Format (Markdown):
 ### 🧠 Model Architecture: [Name]
 **Reasoning:** [Why this specific architecture fits the data/problem]
 
+### 📊 Architecture Diagram
+\`\`\`mermaid
+graph TD;
+    [Mermaid Graph Definition]
+\`\`\`
+
 ### 🛠️ Pipeline Strategy
 - **Preprocessing:** [Techniques]
 - **Loss Function:** [Function Name]

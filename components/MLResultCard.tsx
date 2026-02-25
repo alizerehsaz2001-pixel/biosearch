@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Cpu, Copy, Check, Terminal, Layers, Settings, BrainCircuit } from 'lucide-react';
+import { Cpu, Copy, Check, Terminal, Layers, Settings, BrainCircuit, Activity } from 'lucide-react';
 import { SearchResult } from '../types';
+import MermaidDiagram from './MermaidDiagram';
 
 interface MLResultCardProps {
   result: SearchResult;
@@ -16,11 +17,20 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
   };
 
   const renderContent = (content: string) => {
-    const parts = content.split('```python');
-    const sections: React.ReactNode[] = [];
+    // Split content by mermaid blocks first to handle diagram
+    const mermaidRegex = /```mermaid([\s\S]*?)```/g;
+    const mermaidMatch = mermaidRegex.exec(content);
+    const mermaidChart = mermaidMatch ? mermaidMatch[1].trim() : null;
 
-    // Header and Strategy Section
+    // Remove mermaid block from content for text processing
+    const contentWithoutMermaid = content.replace(mermaidRegex, '');
+    
+    // Split by python code block
+    const parts = contentWithoutMermaid.split('```python');
     const textPart = parts[0];
+    const pythonCode = parts.length > 1 ? parts[1].split('```')[0].trim() : null;
+
+    const sections: React.ReactNode[] = [];
     const lines = textPart.split('\n');
     let currentBlock: React.ReactNode[] = [];
     
@@ -37,6 +47,18 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
                    {trimmed.replace(/###\s*[🧠]?/, '')}
                 </h3>
             );
+        } else if (trimmed.startsWith('### 📊') || trimmed.includes('Architecture Diagram')) {
+             if(currentBlock.length) sections.push(<div key={`b-${i}`} className="mb-4">{currentBlock}</div>);
+             currentBlock = [];
+             sections.push(
+                <h3 key={i} className="flex items-center gap-2 text-lg font-bold text-fuchsia-900 mt-6 mb-3 border-b border-fuchsia-100 pb-2">
+                   <Activity className="w-5 h-5 text-fuchsia-600" />
+                   Architecture Diagram
+                </h3>
+             );
+             if (mermaidChart) {
+                 sections.push(<MermaidDiagram key="mermaid" chart={mermaidChart} />);
+             }
         } else if (trimmed.startsWith('### 🛠️') || trimmed.includes('Pipeline Strategy')) {
              if(currentBlock.length) sections.push(<div key={`b-${i}`} className="mb-4">{currentBlock}</div>);
              currentBlock = [];
@@ -47,7 +69,7 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
                 </h3>
              );
         } else if (trimmed.startsWith('### 💻') || trimmed.includes('Implementation')) {
-             // Skip header, will be handled by code block logic
+             // Skip header
         } else if (trimmed.startsWith('**') && trimmed.includes(':')) {
              currentBlock.push(
                  <div key={i} className="mb-2 text-sm text-slate-700 bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
@@ -63,9 +85,7 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
     });
     if(currentBlock.length) sections.push(<div key="end-text" className="mb-4">{currentBlock}</div>);
 
-    // Code Block Section
-    if (parts.length > 1) {
-        const code = parts[1].split('```')[0];
+    if (pythonCode) {
         sections.push(
             <div key="code" className="mt-6">
                 <div className="flex items-center gap-2 mb-2 text-sm font-semibold text-slate-700">
@@ -74,7 +94,7 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
                 </div>
                 <div className="bg-slate-900 rounded-xl p-4 overflow-x-auto border border-slate-700 shadow-inner">
                     <pre className="text-slate-300 font-mono text-xs leading-relaxed">
-                        {code.trim()}
+                        {pythonCode}
                     </pre>
                 </div>
             </div>

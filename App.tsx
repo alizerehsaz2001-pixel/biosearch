@@ -21,13 +21,14 @@ import PrecisionSearchResultCard from './components/PrecisionSearchResultCard';
 import WordResultCard from './components/WordResultCard';
 import VoiceAssistantCard from './components/VoiceAssistantCard';
 import CitationResultCard from './components/CitationResultCard';
+import FormulationResultCard from './components/FormulationResultCard';
 import History from './components/History';
 import ModeSwitcher from './components/ModeSwitcher';
 import WelcomeScreen from './components/WelcomeScreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import ProfileModal from './components/ProfileModal';
 import UserGuide from './components/UserGuide';
-import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech, generateCitationQnA } from './services/geminiService';
+import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech, generateCitationQnA, generateFormulation } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
 import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -124,7 +125,7 @@ const AppContent: React.FC = () => {
     setCurrentResult(null);
 
     try {
-      let resultData: { content: string, sources?: GroundingSource[], audioData?: string } = { content: '' };
+      let resultData: { content: string, sources?: GroundingSource[], audioData?: string, explanation?: string } = { content: '' };
       
       if (mode === 'QUERY_BUILDER') {
         resultData = await generateSearchString(input, options);
@@ -167,6 +168,8 @@ const AppContent: React.FC = () => {
         resultData = await generateWordDocument(input, useThinking);
       } else if (mode === 'CITATION_MANAGER') {
         resultData = await generateCitationQnA(input, secondaryInput || "Summarize the key findings.", useThinking);
+      } else if (mode === 'FORMULATION_CHEMIST') {
+        resultData = await generateFormulation(input);
       }
       
       const newResult: SearchResult = {
@@ -175,6 +178,7 @@ const AppContent: React.FC = () => {
         content: resultData.content,
         sources: resultData.sources,
         audioData: resultData.audioData,
+        explanation: resultData.explanation,
         type: mode,
         timestamp: Date.now(),
         isSaved: false,
@@ -417,6 +421,7 @@ const AppContent: React.FC = () => {
                   {currentResult.type === 'PPT_ARCHITECT' && <PPTResultCard result={currentResult} />}
                   {currentResult.type === 'WORD_ARCHITECT' && <WordResultCard result={currentResult} />}
                   {currentResult.type === 'CITATION_MANAGER' && <CitationResultCard result={currentResult} />}
+                  {currentResult.type === 'FORMULATION_CHEMIST' && <FormulationResultCard result={currentResult} />}
                 </div>
               </div>
             )}

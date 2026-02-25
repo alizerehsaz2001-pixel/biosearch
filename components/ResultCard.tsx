@@ -82,6 +82,13 @@ const ResultCard: React.FC<ResultCardProps> = ({ result, onContinue, onToggleSav
           </div>
         </div>
 
+        {result.explanation && (
+            <div className="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-sm text-slate-700">
+                <p className="font-semibold text-indigo-900 mb-1">Strategy Explanation:</p>
+                <p>{result.explanation}</p>
+            </div>
+        )}
+
         {/* Action Buttons Grid */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-4 gap-3">
             <button 

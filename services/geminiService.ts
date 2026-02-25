@@ -8,7 +8,12 @@ Follow this strict process:
 2. Expand keywords using MeSH terms (Medical Subject Headings) and synonyms (e.g., for "Hydrogel", use "Hydrogels"[MeSH] OR "Hydrogel networks" OR "Injectable gels").
 3. Construct a robust query using AND/OR operators. Group concepts with parentheses.
 4. If specific study types are requested (e.g., RCT, Systematic Review, Guidelines), append the correct publication type filters or search limits (e.g., "Practice Guideline"[pt], "Systematic Review"[pt], "Case Reports"[pt]). For "In Vitro" or "Animal Study", use appropriate MeSH terms like "In Vitro Techniques"[MeSH] or "Models, Animal"[MeSH] where strict filters don't apply.
-5. Output ONLY the raw search string. Do not include markdown code blocks, explanations, or labels. Just the final query string.`;
+
+Output Format (JSON):
+{
+  "query": "The raw boolean search string",
+  "explanation": "A brief explanation of the search strategy, highlighting key MeSH terms and logic used."
+}`;
 
 const PICO_SYSTEM_INSTRUCTION = `You are a Senior Researcher designing a systematic review protocol for biomaterials. Your goal is to define the PICOs framework based on a research question.
 
@@ -527,7 +532,33 @@ export const generateCitationQnA = async (input: string, question: string, useTh
   return { content: response.text };
 };
 
-export const generateSearchString = async (topic: string, studyTypes?: string[]): Promise<{ content: string }> => {
+const FORMULATION_CHEMIST_SYSTEM_INSTRUCTION = `You are an expert Formulation Chemist. Your task is to convert descriptive formulation goals into precise laboratory recipes.
+
+Input: A description of a desired formulation (e.g., "I need a 2% alginate hydrogel crosslinked with calcium chloride for cell encapsulation").
+Output: A structured recipe including:
+1.  **Ingredients Table**: List each component with:
+    *   Concentration (Molarity, %, w/v)
+    *   Mass/Volume required for a standard batch (e.g., 10mL or 100mL)
+    *   MW (Molecular Weight) if relevant
+2.  **Preparation Protocol**: Step-by-step instructions for mixing, dissolving, and crosslinking.
+3.  **Notes**: Storage conditions, pH adjustments, or safety warnings.
+
+Format the output in clean Markdown.`;
+
+export const generateFormulation = async (input: string): Promise<{ content: string }> => {
+  const ai = getAIClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: input,
+    config: {
+      systemInstruction: FORMULATION_CHEMIST_SYSTEM_INSTRUCTION,
+      temperature: 0.3,
+    },
+  });
+  return { content: response.text };
+};
+
+export const generateSearchString = async (topic: string, studyTypes?: string[]): Promise<{ content: string, explanation?: string }> => {
   const ai = getAIClient();
   let prompt = topic;
 
@@ -540,11 +571,17 @@ export const generateSearchString = async (topic: string, studyTypes?: string[])
     contents: prompt,
     config: {
       systemInstruction: SEARCH_SYSTEM_INSTRUCTION,
+      responseMimeType: 'application/json',
       temperature: 0.2,
     },
   });
 
-  return { content: response.text.replace(/^```\w*\n?/, '').replace(/\n?```$/, '').trim() };
+  try {
+    const json = JSON.parse(response.text);
+    return { content: json.query, explanation: json.explanation };
+  } catch (e) {
+    return { content: response.text.replace(/^```\w*\n?/, '').replace(/\n?```$/, '').trim() };
+  }
 };
 
 export const generatePicoProtocol = async (topic: string, useThinking: boolean = false): Promise<{ content: string }> => {

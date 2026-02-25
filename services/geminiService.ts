@@ -133,22 +133,27 @@ Your goal is to audit a research protocol or "Methods" section against specific 
     *   *Example:* "User used 100mg per 10mL extraction." -> *Audit:* "Non-Compliant with ISO 10993-12 Clause 10.3 (Standard requires 0.2g/mL for polymers)."
 3.  **Gap Analysis:** Identify missing mandatory endpoints based on the categorization matrix.
 
-**Output Format (Markdown):**
-
-### 📋 Device Classification (ISO 10993-1)
-*   **Category:** [e.g., Implant Device, Tissue/Bone Contact]
-*   **Duration:** [e.g., Category C (>30 days)]
-*   **Biological Endpoints Required:** [List endpoints from ISO 10993-1 Matrix, e.g., Cytotoxicity, Sensitization, Implantation, Genotoxicity]
-
-### 🔍 Standards Compliance Audit
-| Test Method | Standard Clause | Status | Database Cross-Reference / Gaps |
-| :--- | :--- | :--- | :--- |
-| Cytotoxicity | ISO 10993-5 Cl. 8.5 | ✅ Compliant | Method matches MTT protocol. >70% viability threshold met. |
-| Extraction | ISO 10993-12 Cl. 10 | ⚠️ Deviation | User used 1g/20mL. Standard requires 0.2g/mL. |
-
-### ⚠️ Regulatory Risk Assessment
-*   **Critical Finding:** [Detail]
-    *   **Remediation:** [Specific protocol adjustment referencing the standard]`;
+**Output Format (JSON):**
+{
+  "device_classification": {
+    "category": "e.g., Implant Device, Tissue/Bone Contact",
+    "duration": "e.g., Category C (>30 days)",
+    "required_endpoints": ["Cytotoxicity", "Sensitization", "Implantation", "Genotoxicity"]
+  },
+  "compliance_audit": [
+    {
+      "test_method": "e.g., Cytotoxicity",
+      "standard_clause": "e.g., ISO 10993-5 Cl. 8.5",
+      "status": "Compliant / Non-Compliant / Deviation / Missing",
+      "finding": "Method matches MTT protocol. >70% viability threshold met."
+    }
+  ],
+  "risk_assessment": {
+    "critical_findings": ["Detail 1", "Detail 2"],
+    "remediation": ["Specific protocol adjustment referencing the standard"]
+  }
+}
+`;
 
 const NOVELTY_SYSTEM_INSTRUCTION = `You are a Principal Investigator (PI) in Biomaterials. Based on the summaries of the analyzed papers, propose 3 novel research ideas.
 
@@ -253,24 +258,27 @@ Your task is to find active research labs based on specific geographic and thema
 2.  **Filter by Activity:** Look for labs with publications in high-impact journals (Biomaterials, Acta Biomaterialia) within the last 3 years (2024-2026).
 3.  **Verify Location (CRITICAL):** Use the Google Maps tool to verify the lab or university's physical existence and location.
 
-**Output Format (Structured Report):**
+**Output Format (JSON):**
+{
+  "region": "Target Region (e.g., Seoul, South Korea)",
+  "labs": [
+    {
+      "name": "Lab Name",
+      "university": "University Name",
+      "pi": "Principal Investigator Name",
+      "city": "City Name",
+      "country": "Country Name",
+      "address": "Precise Address from Maps",
+      "match_score": "High/Medium/Low",
+      "match_reason": "Explanation of research fit",
+      "recent_paper": "Title of a recent paper (2024-2026)",
+      "website": "URL to Lab Website or Faculty Profile",
+      "keywords": ["Keyword 1", "Keyword 2"]
+    }
+  ]
+}
 
-### 🌍 Region: [Country] - [City]
-
-#### 1. Lab Name: [Name]
-- **University:** [University Name]
-- **Principal Investigator:** Prof. [Name]
-- **City:** [City Name]
-- **Country:** [Country Name]
-- **Address:** [Precise Address from Maps]
-- **Research Match:** [High/Medium - Explain why based on user topic]
-- **Recent Highlight:** [Exact title of a published paper (2024-2026) for verification]
-- **Official Link:** [URL to Lab Website or Faculty Profile]
-
-#### 2. Lab Name: ...
-*(Repeat for 3-5 top labs)*
-
-**Pro Tip:** If the specific city/university has no relevant labs, explicitly state: "No direct match in [University/City], but here are the top labs in [Neighboring Region]..."`;
+**Pro Tip:** If the specific city/university has no relevant labs, explicitly state: "No direct match in [University/City], but here are the top labs in [Neighboring Region]..." in the region field.`;
 
 const TROUBLESHOOTER_SYSTEM_INSTRUCTION = `You are a Senior Lab Manager with 20 years of experience in Biomaterials synthesis.
 The user will describe a failed experiment (e.g., "My alginate hydrogel is too soft" or "PLGA nanoparticles aggregated").
@@ -321,25 +329,33 @@ Task:
 3. **Configuration:** Define Loss Functions and Evaluation Metrics relevant to the medical context (e.g., Dice Score for segmentation, Concordance Index for survival analysis).
 4. **Implementation:** Provide a Python code scaffolding using PyTorch or Keras/TensorFlow.
 
-Output Format (Markdown):
-### 🧠 Model Architecture: [Name]
-**Reasoning:** [Why this specific architecture fits the data/problem]
-
-### 📊 Architecture Diagram
-\`\`\`mermaid
-graph TD;
-    [Mermaid Graph Definition]
-\`\`\`
-
-### 🛠️ Pipeline Strategy
-- **Preprocessing:** [Techniques]
-- **Loss Function:** [Function Name]
-- **Metrics:** [List of metrics]
-
-### 💻 Implementation (Python)
-\`\`\`python
-[Code Snippet]
-\`\`\`
+Output Format (JSON):
+{
+  "model_name": "Name of the Model (e.g., Multi-Modal Fusion Network)",
+  "reasoning": "Explanation of why this architecture is chosen.",
+  "architecture_components": [
+    {
+      "name": "Component Name (e.g., Tabular Branch)",
+      "type": "Model Type (e.g., MLP)",
+      "description": "What it does (e.g., Processes chemical parameters)",
+      "details": "Specifics (e.g., 3 layers, ReLU activation)"
+    }
+  ],
+  "mermaid_diagram": "graph TD; ... (Mermaid code string without markdown ticks)",
+  "pipeline_strategy": {
+    "preprocessing": ["Step 1", "Step 2"],
+    "loss_function": "Name of loss function",
+    "metrics": ["Metric 1", "Metric 2"]
+  },
+  "training_config": {
+    "batch_size": "e.g., 32",
+    "learning_rate": "e.g., 1e-4",
+    "optimizer": "e.g., AdamW",
+    "epochs": "e.g., 100"
+  },
+  "hardware_requirements": "e.g., NVIDIA GPU with 16GB VRAM recommended",
+  "implementation_code": "Python code string..."
+}
 `;
 
 const PPT_ARCHITECT_SYSTEM_INSTRUCTION = `You are a Data Visualization Specialist for Scientific Presentations.
@@ -674,6 +690,7 @@ export const generateIsoComplianceReview = async (methodsSection: string, useThi
     contents: methodsSection,
     config: {
       systemInstruction: AUDITOR_SYSTEM_INSTRUCTION,
+      responseMimeType: 'application/json',
       temperature: 0.2,
       ...(useThinking ? THINKING_CONFIG : {})
     },
@@ -764,6 +781,7 @@ export const findLabs = async (input: string): Promise<{ content: string, source
     contents: input,
     config: {
       systemInstruction: LAB_SCOUT_SYSTEM_INSTRUCTION,
+      responseMimeType: 'application/json',
       temperature: 0.4,
       tools: [{ googleMaps: {} }]
     },
@@ -805,6 +823,7 @@ export const generateMLArchitecture = async (input: string, useThinking: boolean
     contents: input,
     config: {
       systemInstruction: ML_ARCHITECT_SYSTEM_INSTRUCTION,
+      responseMimeType: 'application/json',
       temperature: 0.3,
       ...(useThinking ? THINKING_CONFIG : {})
     },

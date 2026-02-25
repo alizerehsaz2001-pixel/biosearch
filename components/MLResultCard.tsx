@@ -1,10 +1,41 @@
 import React, { useState } from 'react';
-import { Cpu, Copy, Check, Terminal, Layers, Settings, BrainCircuit, Activity } from 'lucide-react';
+import { Cpu, Copy, Check, Terminal, Layers, Settings, BrainCircuit, Activity, GitBranch, Database, BarChart, Download, Zap } from 'lucide-react';
 import { SearchResult } from '../types';
 import MermaidDiagram from './MermaidDiagram';
 
 interface MLResultCardProps {
   result: SearchResult;
+}
+
+interface ArchitectureComponent {
+  name: string;
+  type: string;
+  description: string;
+  details: string;
+}
+
+interface PipelineStrategy {
+  preprocessing: string[];
+  loss_function: string;
+  metrics: string[];
+}
+
+interface TrainingConfig {
+  batch_size: string;
+  learning_rate: string;
+  optimizer: string;
+  epochs: string;
+}
+
+interface MLArchitectureData {
+  model_name: string;
+  reasoning: string;
+  architecture_components: ArchitectureComponent[];
+  mermaid_diagram: string;
+  pipeline_strategy: PipelineStrategy;
+  training_config?: TrainingConfig;
+  hardware_requirements?: string;
+  implementation_code: string;
 }
 
 const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
@@ -16,7 +47,203 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const renderContent = (content: string) => {
+  const handleDownload = () => {
+      if (!isJson(result.content)) return;
+      const data = JSON.parse(result.content) as MLArchitectureData;
+      const blob = new Blob([data.implementation_code], { type: 'text/x-python' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${data.model_name.replace(/\s+/g, '_').toLowerCase()}.py`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+  };
+
+  const isJson = (str: string) => {
+    try {
+      JSON.parse(str);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const renderContent = () => {
+    if (!isJson(result.content)) {
+        // Fallback for legacy text format
+        return renderLegacyContent(result.content);
+    }
+
+    const data = JSON.parse(result.content) as MLArchitectureData;
+
+    return (
+        <div className="space-y-8">
+            {/* Model Header */}
+            <div className="bg-white p-6 rounded-xl border border-fuchsia-100 shadow-sm">
+                <h2 className="text-2xl font-bold text-fuchsia-900 mb-3 flex items-center gap-2">
+                    <BrainCircuit className="w-6 h-6 text-fuchsia-600" />
+                    {data.model_name}
+                </h2>
+                <p className="text-slate-700 leading-relaxed border-l-4 border-fuchsia-300 pl-4 italic">
+                    {data.reasoning}
+                </p>
+            </div>
+
+            {/* Architecture Diagram */}
+            {data.mermaid_diagram && (
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <Activity className="w-4 h-4" /> Architecture Diagram
+                    </h3>
+                    <MermaidDiagram chart={data.mermaid_diagram} />
+                </div>
+            )}
+
+            {/* Architecture Components Grid */}
+            <div>
+                <h3 className="text-lg font-bold text-fuchsia-900 mb-4 flex items-center gap-2">
+                    <GitBranch className="w-5 h-5 text-fuchsia-600" />
+                    Network Components
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {data.architecture_components.map((comp, idx) => (
+                        <div key={idx} className="bg-white p-5 rounded-xl border border-slate-200 hover:border-fuchsia-200 hover:shadow-md transition-all">
+                            <div className="flex justify-between items-start mb-2">
+                                <h4 className="font-bold text-slate-800">{comp.name}</h4>
+                                <span className="px-2 py-1 bg-fuchsia-50 text-fuchsia-700 text-xs font-mono rounded border border-fuchsia-100">
+                                    {comp.type}
+                                </span>
+                            </div>
+                            <p className="text-sm text-slate-600 mb-3">{comp.description}</p>
+                            <p className="text-xs text-slate-500 font-mono bg-slate-50 p-2 rounded border border-slate-100">
+                                {comp.details}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Pipeline Strategy */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Preprocessing */}
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <Database className="w-4 h-4" /> Data Strategy
+                    </h3>
+                    <ul className="space-y-2">
+                        {data.pipeline_strategy.preprocessing.map((step, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                                <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                                {step}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                {/* Configuration */}
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <Settings className="w-4 h-4" /> Configuration
+                    </h3>
+                    <div className="space-y-4">
+                        <div>
+                            <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Loss Function</span>
+                            <div className="bg-fuchsia-50 text-fuchsia-800 px-3 py-2 rounded-lg font-medium text-sm border border-fuchsia-100">
+                                {data.pipeline_strategy.loss_function}
+                            </div>
+                        </div>
+                        <div>
+                            <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Evaluation Metrics</span>
+                            <div className="flex flex-wrap gap-2">
+                                {data.pipeline_strategy.metrics.map((m, i) => (
+                                    <span key={i} className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-full border border-slate-200 flex items-center gap-1">
+                                        <BarChart className="w-3 h-3" /> {m}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Training & Hardware */}
+            {(data.training_config || data.hardware_requirements) && (
+                <div className="bg-slate-900 text-slate-300 p-5 rounded-xl border border-slate-700 shadow-sm">
+                    <h3 className="text-sm font-bold text-fuchsia-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <Zap className="w-4 h-4" /> Training Specs
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {data.training_config && (
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span className="block text-slate-500 text-xs uppercase">Batch Size</span>
+                                    <span className="font-mono text-white">{data.training_config.batch_size}</span>
+                                </div>
+                                <div>
+                                    <span className="block text-slate-500 text-xs uppercase">Learning Rate</span>
+                                    <span className="font-mono text-white">{data.training_config.learning_rate}</span>
+                                </div>
+                                <div>
+                                    <span className="block text-slate-500 text-xs uppercase">Optimizer</span>
+                                    <span className="font-mono text-white">{data.training_config.optimizer}</span>
+                                </div>
+                                <div>
+                                    <span className="block text-slate-500 text-xs uppercase">Epochs</span>
+                                    <span className="font-mono text-white">{data.training_config.epochs}</span>
+                                </div>
+                            </div>
+                        )}
+                        {data.hardware_requirements && (
+                            <div className="border-t md:border-t-0 md:border-l border-slate-700 pt-4 md:pt-0 md:pl-6">
+                                <span className="block text-slate-500 text-xs uppercase mb-1">Recommended Hardware</span>
+                                <p className="text-white font-medium">{data.hardware_requirements}</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Implementation Code */}
+            <div className="bg-slate-900 rounded-xl overflow-hidden shadow-lg border border-slate-700">
+                <div className="bg-slate-800 px-4 py-2 flex justify-between items-center border-b border-slate-700">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-300">
+                        <Terminal className="w-4 h-4 text-fuchsia-400" />
+                        Python Implementation
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button 
+                            onClick={handleDownload}
+                            className="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1 px-2 py-1 hover:bg-slate-700 rounded"
+                            title="Download .py file"
+                        >
+                            <Download className="w-3 h-3" /> Download
+                        </button>
+                        <button 
+                            onClick={() => {
+                                navigator.clipboard.writeText(data.implementation_code);
+                                setCopied(true);
+                                setTimeout(() => setCopied(false), 2000);
+                            }}
+                            className="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1 px-2 py-1 hover:bg-slate-700 rounded"
+                        >
+                            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                            {copied ? 'Copied' : 'Copy'}
+                        </button>
+                    </div>
+                </div>
+                <div className="p-4 overflow-x-auto">
+                    <pre className="text-slate-300 font-mono text-xs leading-relaxed">
+                        {data.implementation_code}
+                    </pre>
+                </div>
+            </div>
+        </div>
+    );
+  };
+
+  const renderLegacyContent = (content: string) => {
     // Split content by mermaid blocks first to handle diagram
     const mermaidRegex = /```mermaid([\s\S]*?)```/g;
     const mermaidMatch = mermaidRegex.exec(content);
@@ -129,7 +356,7 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
         </div>
 
         <div>
-            {renderContent(result.content)}
+            {renderContent()}
         </div>
 
         <div className="mt-8 flex justify-end">

@@ -79,34 +79,55 @@ ${data.safety_notes?.join('\n') || ''}
 
         {/* Ingredients Table */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="bg-slate-50 px-6 py-3 border-b border-slate-200 flex items-center gap-2">
-                <Beaker className="w-4 h-4 text-cyan-600" />
-                <h3 className="font-semibold text-slate-700">Ingredients List</h3>
+            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Beaker className="w-5 h-5 text-cyan-600" />
+                    <h3 className="font-bold text-slate-800">Ingredients List</h3>
+                </div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-2 py-1 rounded border border-slate-100">
+                    {data.ingredients.length} Components
+                </div>
             </div>
             <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                <table className="w-full text-sm text-left border-collapse">
+                    <thead className="bg-slate-50 text-slate-500 font-bold text-[10px] uppercase tracking-widest border-b border-slate-200">
                         <tr>
-                            <th className="px-6 py-3 w-1/3">Component</th>
-                            <th className="px-6 py-3">Concentration</th>
-                            <th className="px-6 py-3">Amount</th>
-                            <th className="px-6 py-3">Function</th>
+                            <th className="px-6 py-4">Component</th>
+                            <th className="px-6 py-4">Concentration</th>
+                            <th className="px-6 py-4">Amount</th>
+                            <th className="px-6 py-4">Function / Role</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         {data.ingredients.map((ing, idx) => (
-                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="px-6 py-4 font-medium text-slate-800">
-                                    {ing.name}
-                                    {ing.mw && <span className="block text-xs text-slate-400 font-normal mt-0.5">MW: {ing.mw}</span>}
+                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
+                                <td className="px-6 py-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-cyan-50 flex items-center justify-center text-cyan-600 font-bold text-xs border border-cyan-100 group-hover:bg-cyan-100 transition-colors">
+                                            {ing.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <span className="font-bold text-slate-800 block">{ing.name}</span>
+                                            {ing.mw && <span className="text-[10px] text-slate-400 font-mono">MW: {ing.mw} g/mol</span>}
+                                        </div>
+                                    </div>
                                 </td>
-                                <td className="px-6 py-4 text-slate-600 font-mono text-xs bg-slate-50/30">{ing.concentration}</td>
-                                <td className="px-6 py-4 text-slate-700 font-bold">{ing.amount}</td>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-5">
+                                    <span className="px-2 py-1 bg-slate-100 text-slate-600 font-mono text-[11px] rounded border border-slate-200">
+                                        {ing.concentration}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-5">
+                                    <span className="text-slate-900 font-bold text-base">{ing.amount}</span>
+                                </td>
+                                <td className="px-6 py-5">
                                     {ing.role && (
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-50 text-cyan-700 border border-cyan-100">
-                                            {ing.role}
-                                        </span>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                                            <span className="text-xs font-medium text-slate-600 italic">
+                                                {ing.role}
+                                            </span>
+                                        </div>
                                     )}
                                 </td>
                             </tr>

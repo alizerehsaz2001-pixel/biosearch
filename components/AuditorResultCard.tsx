@@ -39,17 +39,28 @@ const AuditorResultCard: React.FC<AuditorResultCardProps> = ({ result }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const isJson = (str: string) => {
+  const parseJson = (str: string) => {
     try {
-      JSON.parse(str);
-      return true;
+      // Try direct parse
+      return JSON.parse(str);
     } catch (e) {
-      return false;
+      // Try to extract JSON from markdown blocks
+      const jsonMatch = str.match(/```json\s*([\s\S]*?)\s*```/) || str.match(/```\s*([\s\S]*?)\s*```/);
+      if (jsonMatch && jsonMatch[1]) {
+        try {
+          return JSON.parse(jsonMatch[1]);
+        } catch (innerE) {
+          return null;
+        }
+      }
+      return null;
     }
   };
 
   const renderContent = () => {
-    if (!isJson(result.content)) {
+    const data = parseJson(result.content) as AuditorData | null;
+
+    if (!data) {
         // Fallback for legacy text format
         return (
             <div className="p-4 bg-slate-50 rounded-xl text-slate-700 whitespace-pre-wrap">
@@ -57,8 +68,6 @@ const AuditorResultCard: React.FC<AuditorResultCardProps> = ({ result }) => {
             </div>
         );
     }
-
-    const data = JSON.parse(result.content) as AuditorData;
 
     return (
         <div className="space-y-8">

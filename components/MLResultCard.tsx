@@ -48,8 +48,8 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
   };
 
   const handleDownload = () => {
-      if (!isJson(result.content)) return;
-      const data = JSON.parse(result.content) as MLArchitectureData;
+      const data = parseJson(result.content) as MLArchitectureData | null;
+      if (!data) return;
       const blob = new Blob([data.implementation_code], { type: 'text/x-python' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -61,22 +61,31 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
       URL.revokeObjectURL(url);
   };
 
-  const isJson = (str: string) => {
+  const parseJson = (str: string) => {
     try {
-      JSON.parse(str);
-      return true;
+      // Try direct parse
+      return JSON.parse(str);
     } catch (e) {
-      return false;
+      // Try to extract JSON from markdown blocks
+      const jsonMatch = str.match(/```json\s*([\s\S]*?)\s*```/) || str.match(/```\s*([\s\S]*?)\s*```/);
+      if (jsonMatch && jsonMatch[1]) {
+        try {
+          return JSON.parse(jsonMatch[1]);
+        } catch (innerE) {
+          return null;
+        }
+      }
+      return null;
     }
   };
 
   const renderContent = () => {
-    if (!isJson(result.content)) {
+    const data = parseJson(result.content) as MLArchitectureData | null;
+
+    if (!data) {
         // Fallback for legacy text format
         return renderLegacyContent(result.content);
     }
-
-    const data = JSON.parse(result.content) as MLArchitectureData;
 
     return (
         <div className="space-y-8">

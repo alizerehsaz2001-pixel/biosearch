@@ -781,7 +781,6 @@ export const findLabs = async (input: string): Promise<{ content: string, source
     contents: input,
     config: {
       systemInstruction: LAB_SCOUT_SYSTEM_INSTRUCTION,
-      responseMimeType: 'application/json',
       temperature: 0.4,
       tools: [{ googleMaps: {} }]
     },

@@ -85,22 +85,34 @@ const ExtractionResultCard: React.FC<ExtractionResultCardProps> = ({ result, onC
         </div>
 
         {/* Quantitative Properties */}
-        <div className="border border-slate-200 rounded-xl overflow-hidden">
-            <div className="bg-slate-50 px-4 py-2 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Quantitative Properties
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <div className="bg-slate-50 px-6 py-3 border-b border-slate-200 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-cyan-600" />
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Quantitative Properties</h3>
+                </div>
+                <div className="text-[10px] font-mono text-slate-400">
+                    NIST/ASTM Referenced
+                </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
-                <div className="p-4">
-                    <p className="text-xs text-slate-500 mb-1">Porosity</p>
-                    <p className="text-sm">{renderValue(data.quantitative_properties?.porosity)}</p>
+                <div className="p-6 hover:bg-slate-50 transition-colors group">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 group-hover:text-cyan-600 transition-colors">Porosity</p>
+                    <div className="flex items-baseline gap-1">
+                        <p className="text-xl font-bold text-slate-900">{renderValue(data.quantitative_properties?.porosity)}</p>
+                    </div>
                 </div>
-                <div className="p-4">
-                    <p className="text-xs text-slate-500 mb-1">Mechanical Strength</p>
-                    <p className="text-sm">{renderValue(data.quantitative_properties?.mechanical_strength)}</p>
+                <div className="p-6 hover:bg-slate-50 transition-colors group">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 group-hover:text-cyan-600 transition-colors">Mechanical Strength</p>
+                    <div className="flex items-baseline gap-1">
+                        <p className="text-xl font-bold text-slate-900">{renderValue(data.quantitative_properties?.mechanical_strength)}</p>
+                    </div>
                 </div>
-                <div className="p-4">
-                    <p className="text-xs text-slate-500 mb-1">Degradation Rate</p>
-                    <p className="text-sm">{renderValue(data.quantitative_properties?.degradation_rate)}</p>
+                <div className="p-6 hover:bg-slate-50 transition-colors group">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 group-hover:text-cyan-600 transition-colors">Degradation Rate</p>
+                    <div className="flex items-baseline gap-1">
+                        <p className="text-xl font-bold text-slate-900">{renderValue(data.quantitative_properties?.degradation_rate)}</p>
+                    </div>
                 </div>
             </div>
         </div>

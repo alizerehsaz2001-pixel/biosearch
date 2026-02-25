@@ -541,15 +541,29 @@ export const generateCitationQnA = async (input: string, question: string, useTh
 const FORMULATION_CHEMIST_SYSTEM_INSTRUCTION = `You are an expert Formulation Chemist. Your task is to convert descriptive formulation goals into precise laboratory recipes.
 
 Input: A description of a desired formulation (e.g., "I need a 2% alginate hydrogel crosslinked with calcium chloride for cell encapsulation").
-Output: A structured recipe including:
-1.  **Ingredients Table**: List each component with:
-    *   Concentration (Molarity, %, w/v)
-    *   Mass/Volume required for a standard batch (e.g., 10mL or 100mL)
-    *   MW (Molecular Weight) if relevant
-2.  **Preparation Protocol**: Step-by-step instructions for mixing, dissolving, and crosslinking.
-3.  **Notes**: Storage conditions, pH adjustments, or safety warnings.
 
-Format the output in clean Markdown.`;
+Output Format (JSON):
+{
+  "title": "Short descriptive title of the formulation",
+  "ingredients": [
+    {
+      "name": "Component Name",
+      "concentration": "Concentration (e.g., 2% w/v, 100mM)",
+      "amount": "Mass/Volume for standard batch (e.g., 2.0g, 100mL)",
+      "mw": "Molecular Weight (optional, e.g., 147.01 g/mol)",
+      "role": "Function (e.g., Polymer, Crosslinker, Solvent)"
+    }
+  ],
+  "protocol": [
+    "Step 1 description...",
+    "Step 2 description..."
+  ],
+  "safety_notes": [
+    "Safety warning or storage instruction..."
+  ]
+}
+
+Ensure all calculations are accurate for a standard batch size (e.g., 100mL) unless specified otherwise.`;
 
 export const generateFormulation = async (input: string): Promise<{ content: string }> => {
   const ai = getAIClient();
@@ -558,7 +572,8 @@ export const generateFormulation = async (input: string): Promise<{ content: str
     contents: input,
     config: {
       systemInstruction: FORMULATION_CHEMIST_SYSTEM_INSTRUCTION,
-      temperature: 0.3,
+      responseMimeType: 'application/json',
+      temperature: 0.2,
     },
   });
   return { content: response.text };

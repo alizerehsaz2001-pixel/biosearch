@@ -256,7 +256,8 @@ Your task is to find active research labs based on specific geographic and thema
 **Search Strategy:**
 1.  **Map the Hubs:** For the requested country/university, identify the top technical departments.
 2.  **Filter by Activity:** Look for labs with publications in high-impact journals (Biomaterials, Acta Biomaterialia) within the last 3 years (2024-2026).
-3.  **Verify Location (CRITICAL):** Use the Google Maps tool to verify the lab or university's physical existence and location.
+3.  **Quantity Requirement:** You MUST identify and return at least 5 distinct research labs or professors. If the specific university doesn't have 5, expand to the city or region to meet the quota.
+4.  **Verification:** Use available search tools to verify the lab or university's physical existence and recent activity.
 
 **Output Format (JSON):**
 {
@@ -268,7 +269,7 @@ Your task is to find active research labs based on specific geographic and thema
       "pi": "Principal Investigator Name",
       "city": "City Name",
       "country": "Country Name",
-      "address": "Precise Address from Maps",
+      "address": "Precise Address",
       "match_score": "High/Medium/Low",
       "match_reason": "Explanation of research fit",
       "recent_paper": "Title of a recent paper (2024-2026)",
@@ -278,7 +279,7 @@ Your task is to find active research labs based on specific geographic and thema
   ]
 }
 
-**Pro Tip:** If the specific city/university has no relevant labs, explicitly state: "No direct match in [University/City], but here are the top labs in [Neighboring Region]..." in the region field.`;
+**Pro Tip:** If the specific city/university has no relevant labs, explicitly state: "No direct match in [University/City], but here are the top labs in [Neighboring Region]..." in the region field. Always aim for 5+ results.`;
 
 const TROUBLESHOOTER_SYSTEM_INSTRUCTION = `You are a Senior Lab Manager with 20 years of experience in Biomaterials synthesis.
 The user will describe a failed experiment (e.g., "My alginate hydrogel is too soft" or "PLGA nanoparticles aggregated").
@@ -777,12 +778,12 @@ export const findOpenAccess = async (input: string): Promise<{ content: string, 
 export const findLabs = async (input: string): Promise<{ content: string, sources?: any[] }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3-flash-preview',
     contents: input,
     config: {
       systemInstruction: LAB_SCOUT_SYSTEM_INSTRUCTION,
       temperature: 0.4,
-      tools: [{ googleMaps: {} }]
+      tools: [{ googleSearch: {} }]
     },
   });
   return { content: response.text, sources: extractGroundingSources(response) };

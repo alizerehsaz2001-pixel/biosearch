@@ -745,6 +745,36 @@ export const analyzeImage = async (imageBase64: string, promptText: string, useT
   return { content: response.text };
 };
 
+const OPTIMAL_STACK_SYSTEM_INSTRUCTION = `You are a Research Database Strategy Expert. Based on the user's research focus, recommend the optimal stack of specialized databases.
+Do not just provide a generic list. Explain the "How to choose (this matters more than the list)" philosophy.
+For each database, explain what specific aspect of the user's research it addresses.
+
+Output Format (Markdown):
+### 🧠 How to choose (this matters more than the list)
+For your field ([Summarize User Field]), the optimal stack is:
+
+**[Specific Domain 1, e.g., Material discovery / sustainability]**:
+→ **[Database Name, e.g., Materiom]**
+
+**[Specific Domain 2]**:
+→ **[Database Name]**
+... (Provide 3 to 6 targeted databases)
+
+Be concise but highly targeted.`;
+
+export const generateOptimalStack = async (topic: string): Promise<{ content: string }> => {
+  const ai = getAIClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: topic,
+    config: {
+      systemInstruction: OPTIMAL_STACK_SYSTEM_INSTRUCTION,
+      temperature: 0.3,
+    },
+  });
+  return { content: response.text };
+};
+
 export const generateResourceSuggestions = async (topic: string): Promise<{ content: string, sources?: any[] }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({

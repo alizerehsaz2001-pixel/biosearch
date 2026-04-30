@@ -204,6 +204,12 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonIcon = <Compass className="w-4 h-4" />;
         buttonColor = "bg-emerald-600 text-white hover:bg-emerald-700";
         break;
+    case 'OPTIMAL_STACK_FINDER':
+        placeholder = "Enter your field (e.g., 'biomedical engineering + smart implants') to find your optimal stack...";
+        buttonLabel = 'Find Stack';
+        buttonIcon = <Compass className="w-4 h-4" />;
+        buttonColor = "bg-emerald-600 text-white hover:bg-emerald-700";
+        break;
     case 'OPEN_ACCESS_FINDER':
         placeholder = "Enter Article DOI (e.g., 10.1038/...) or Title to find legal PDF links...";
         buttonLabel = 'Find PDF';

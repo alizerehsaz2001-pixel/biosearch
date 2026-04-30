@@ -28,7 +28,7 @@ import WelcomeScreen from './components/WelcomeScreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import ProfileModal from './components/ProfileModal';
 import UserGuide from './components/UserGuide';
-import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech, generateCitationQnA, generateFormulation } from './services/geminiService';
+import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech, generateCitationQnA, generateFormulation, generateOptimalStack } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
 import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -170,6 +170,8 @@ const AppContent: React.FC = () => {
         resultData = await generateCitationQnA(input, secondaryInput || "Summarize the key findings.", useThinking);
       } else if (mode === 'FORMULATION_CHEMIST') {
         resultData = await generateFormulation(input);
+      } else if (mode === 'OPTIMAL_STACK_FINDER') {
+        resultData = await generateOptimalStack(input);
       }
       
       const newResult: SearchResult = {
@@ -422,6 +424,7 @@ const AppContent: React.FC = () => {
                   {currentResult.type === 'WORD_ARCHITECT' && <WordResultCard result={currentResult} />}
                   {currentResult.type === 'CITATION_MANAGER' && <CitationResultCard result={currentResult} />}
                   {currentResult.type === 'FORMULATION_CHEMIST' && <FormulationResultCard result={currentResult} />}
+                  {currentResult.type === 'OPTIMAL_STACK_FINDER' && <ResultCard result={currentResult} onSave={handleSave} />}
                 </div>
               </div>
             )}

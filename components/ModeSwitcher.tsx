@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench, Mail, Cpu, Presentation, Crosshair, FileOutput, AudioWaveform, BookOpen } from 'lucide-react';
+import { Search, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Scan, Compass, Unlock, GraduationCap, ChevronRight, Wrench, Mail, Cpu, Presentation, Crosshair, FileOutput, AudioWaveform, BookOpen, Database } from 'lucide-react';
 import { AppMode } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -24,6 +24,7 @@ export const MODES: { id: AppMode; icon: React.ElementType; color: string; bg: s
   { id: 'VOICE_ASSISTANT', icon: AudioWaveform, color: 'text-indigo-600', bg: 'bg-indigo-50' },
   { id: 'CITATION_MANAGER', icon: BookOpen, color: 'text-emerald-600', bg: 'bg-emerald-50' },
   { id: 'RESOURCE_SCOUT', icon: Compass, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  { id: 'OPTIMAL_STACK_FINDER', icon: Database, color: 'text-emerald-600', bg: 'bg-emerald-50' },
   { id: 'OPEN_ACCESS_FINDER', icon: Unlock, color: 'text-teal-600', bg: 'bg-teal-50' },
   { id: 'LAB_SCOUT', icon: GraduationCap, color: 'text-orange-600', bg: 'bg-orange-50' },
   { id: 'PROTOCOL_TROUBLESHOOTER', icon: Wrench, color: 'text-red-600', bg: 'bg-red-50' },

@@ -79,53 +79,6 @@ const ResourceScoutCard: React.FC<ResourceScoutCardProps> = ({ result }) => {
             </div>
         </div>
 
-        {/* Advanced: How to choose */}
-        <div className="mb-8 p-5 bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl shadow-inner border border-slate-700">
-            <div className="flex items-center gap-2 mb-4">
-                <div className="bg-emerald-500/20 p-1.5 rounded text-emerald-400">
-                    <Server className="w-4 h-4" />
-                </div>
-                <h4 className="text-sm font-bold text-emerald-300 tracking-wide uppercase">
-                    Advanced: How to Choose
-                </h4>
-            </div>
-            <p className="text-slate-300 text-sm mb-4 font-medium">
-                For your field (biomedical engineering + smart implants), the optimal stack is:
-            </p>
-            <div className="space-y-2.5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm py-2 border-b border-slate-700/50">
-                    <span className="text-slate-400">Material discovery / sustainability</span>
-                    <span className="font-mono text-emerald-400 font-semibold mt-1 sm:mt-0 flex items-center gap-2">
-                        <span className="text-emerald-500/50 hidden sm:inline">→</span> Materiom
-                    </span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm py-2 border-b border-slate-700/50">
-                    <span className="text-slate-400">Medical validation / regulatory relevance</span>
-                    <span className="font-mono text-emerald-400 font-semibold mt-1 sm:mt-0 flex items-center gap-2">
-                        <span className="text-emerald-500/50 hidden sm:inline">→</span> BIOMATDB
-                    </span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm py-2 border-b border-slate-700/50">
-                    <span className="text-slate-400">Cell–material interaction / tissue engineering</span>
-                    <span className="font-mono text-emerald-400 font-semibold mt-1 sm:mt-0 flex items-center gap-2">
-                        <span className="text-emerald-500/50 hidden sm:inline">→</span> cBiT
-                    </span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm py-2 border-b border-slate-700/50">
-                    <span className="text-slate-400">Chemistry + synthesis + polymers</span>
-                    <span className="font-mono text-emerald-400 font-semibold mt-1 sm:mt-0 flex items-center gap-2">
-                        <span className="text-emerald-500/50 hidden sm:inline">→</span> Reaxys
-                    </span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm py-2 border-b border-transparent">
-                    <span className="text-slate-400">Mechanical + structural properties</span>
-                    <span className="font-mono text-emerald-400 font-semibold mt-1 sm:mt-0 flex items-center gap-2">
-                        <span className="text-emerald-500/50 hidden sm:inline">→</span> SpringerMaterials / MATDAT
-                    </span>
-                </div>
-            </div>
-        </div>
-
         {/* Direct Action Links */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {data.links.pubmed && (

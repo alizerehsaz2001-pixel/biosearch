@@ -424,7 +424,7 @@ const AppContent: React.FC = () => {
                   {currentResult.type === 'WORD_ARCHITECT' && <WordResultCard result={currentResult} />}
                   {currentResult.type === 'CITATION_MANAGER' && <CitationResultCard result={currentResult} />}
                   {currentResult.type === 'FORMULATION_CHEMIST' && <FormulationResultCard result={currentResult} />}
-                  {currentResult.type === 'OPTIMAL_STACK_FINDER' && <ResultCard result={currentResult} onSave={handleSave} />}
+                  {currentResult.type === 'OPTIMAL_STACK_FINDER' && <ResultCard result={currentResult} />}
                 </div>
               </div>
             )}

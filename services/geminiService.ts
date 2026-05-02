@@ -40,15 +40,18 @@ Your goal is to construct highly specific search queries based on user-defined f
     - **Google Scholar:** Use allintitle:, site:, filetype:pdf operators.
     - **ScienceDirect:** Use advanced search URL parameters.
 
-**Output Format:**
-### 🔍 Precision Search Query
-**Generated Boolean String:**
-\`[Boolean String]\`
-
-### 🔗 Direct Search Links
-- **PubMed (Filtered):** [Click Here](URL)
-- **Google Scholar (Filtered):** [Click Here](URL)
-- **ScienceDirect (Journal Specific):** [Click Here](URL)`;
+**Output Format (JSON):**
+{
+  "query": "The generated boolean string",
+  "explanation": "A concise explanation of the terms, strategy, and syntax used",
+  "links": [
+    {
+      "platform": "Name of the platform (e.g., PubMed, Google Scholar)",
+      "url": "The fully qualified URL",
+      "type": "database | search | publisher"
+    }
+  ]
+}`;
 
 const SCREENER_SYSTEM_INSTRUCTION = `You are a stringent Research Assistant tasked with screening scientific abstracts based on predefined criteria.
 I will provide an abstract and the inclusion/exclusion criteria.
@@ -887,6 +890,7 @@ export const generatePrecisionSearch = async (params: string, options?: string[]
     contents: prompt,
     config: { 
       systemInstruction: PRECISION_SEARCH_SYSTEM_INSTRUCTION, 
+      responseMimeType: 'application/json',
       temperature: 0.2,
       tools: [{ googleSearch: {} }]
     },

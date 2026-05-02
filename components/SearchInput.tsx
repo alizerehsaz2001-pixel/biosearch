@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu, Presentation, Crosshair, AudioWaveform, Info } from 'lucide-react';
+import { Sparkles, ArrowRight, FileText, Filter, FlaskConical, BrainCircuit, ShieldCheck, Lightbulb, Check, Scan, Upload, X, Compass, Unlock, GraduationCap, Wrench, Mail, Cpu, Presentation, Crosshair, AudioWaveform, Info, ChevronDown } from 'lucide-react';
 import { QueryStatus, AppMode } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -31,6 +31,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [useThinking, setUseThinking] = useState(false);
   const [extractFullText, setExtractFullText] = useState(false);
+  const [isStudyTypeDropdownOpen, setIsStudyTypeDropdownOpen] = useState(false);
 
   const isRTL = language === 'he' || language === 'fa';
 
@@ -47,6 +48,20 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const criteriaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsStudyTypeDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (initialValue) {
@@ -334,23 +349,6 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Study Type Filter</label>
-                    <div className="flex flex-wrap gap-1.5 p-2 bg-white border border-slate-200 rounded-lg min-h-[42px]">
-                        {selectedFilters.length === 0 ? (
-                            <span className="text-xs text-slate-400 italic px-1 py-1">No filters selected (searching all types)</span>
-                        ) : (
-                            selectedFilters.map(f => (
-                                <span key={f} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-[10px] font-bold">
-                                    {f}
-                                    <button type="button" onClick={() => toggleFilter(f)} className="hover:text-blue-900">
-                                        <X className="w-2.5 h-2.5" />
-                                    </button>
-                                </span>
-                            ))
-                        )}
-                    </div>
-                </div>
-                <div className="space-y-1">
                     <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('precision.journal')}</label>
                     <input 
                         placeholder="e.g. Nature, Acta Biomaterialia" 
@@ -448,40 +446,79 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
 
         {/* Filters for Query Builder & Precision Search */}
         {(mode === 'QUERY_BUILDER' || mode === 'PRECISION_SEARCH_COMMANDER') && (
-          <div className="px-4 pb-2 flex flex-wrap gap-2 items-center border-t border-slate-50 pt-3">
-            <div className="flex items-center justify-between w-full mb-2">
-                <span className={`text-xs font-bold text-slate-400 uppercase tracking-wider ${isRTL ? 'ml-1' : 'mr-1'}`}>Study Type Library:</span>
-                {selectedFilters.length > 0 && (
-                    <button 
-                        type="button" 
-                        onClick={() => setSelectedFilters([])}
-                        className="text-[10px] font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest transition-colors"
-                    >
-                        Clear All
-                    </button>
-                )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-                {STUDY_TYPES.map(type => {
-                const isActive = selectedFilters.includes(type);
-                return (
-                    <button 
-                    key={type}
-                    type="button"
-                    onClick={() => toggleFilter(type)}
-                    disabled={isLoading}
+          <div className="px-4 pb-4 flex flex-wrap gap-2 items-center border-t border-slate-50 pt-4">
+            <div className="flex items-center gap-2 w-full">
+                <span className={`text-xs font-bold text-slate-400 uppercase tracking-wider ${isRTL ? 'ml-1' : 'mr-1'}`}>Study Types:</span>
+                
+                <div className="relative flex-1" ref={dropdownRef}>
+                  <div 
+                    onClick={() => !isLoading && setIsStudyTypeDropdownOpen(!isStudyTypeDropdownOpen)}
                     className={`
-                        text-[11px] px-2.5 py-1 rounded-full border transition-all duration-200 flex items-center gap-1.5 font-medium
-                        ${isActive 
-                        ? (mode === 'QUERY_BUILDER' ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm' : 'bg-blue-50 border-blue-200 text-blue-700 shadow-sm')
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}
+                      w-full flex items-center justify-between px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none cursor-pointer
+                      ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:border-slate-300'}
                     `}
-                    >
-                    {isActive && <Check className="w-3 h-3" />}
-                    {type}
-                    </button>
-                );
-                })}
+                  >
+                    <div className="flex flex-wrap gap-1.5 items-center">
+                      {selectedFilters.length === 0 ? (
+                        <span className="text-slate-400">Select study types...</span>
+                      ) : (
+                        selectedFilters.map(f => (
+                          <span key={f} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-[10px] font-bold">
+                            {f}
+                            <button 
+                              type="button" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFilter(f);
+                              }} 
+                              className="hover:text-blue-900"
+                            >
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          </span>
+                        ))
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 border-l border-slate-100 pl-2">
+                       {selectedFilters.length > 0 && (
+                            <button 
+                                type="button" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedFilters([]);
+                                }}
+                                className="text-[10px] font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest transition-colors mr-1"
+                            >
+                                Clear
+                            </button>
+                        )}
+                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isStudyTypeDropdownOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </div>
+
+                  {isStudyTypeDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 z-[100] w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {STUDY_TYPES.map(type => {
+                        const isActive = selectedFilters.includes(type);
+                        return (
+                          <div 
+                            key={type}
+                            onClick={() => toggleFilter(type)}
+                            className={`
+                              px-3 py-2 text-sm cursor-pointer flex items-center gap-2 hover:bg-slate-50
+                              ${isActive ? 'bg-blue-50/50 text-blue-700 font-medium' : 'text-slate-700'}
+                            `}
+                          >
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${isActive ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300'}`}>
+                               {isActive && <Check className="w-3 h-3" />}
+                            </div>
+                            {type}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
             </div>
           </div>
         )}

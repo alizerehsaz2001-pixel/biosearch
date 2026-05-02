@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Unlock, ExternalLink, FileText, Bookmark, BookOpen, Globe, Search, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { Unlock, ExternalLink, FileText, Bookmark, BookOpen, Globe, Search, Info, ChevronDown, ChevronUp, Sparkles, ShieldCheck, Check } from 'lucide-react';
 import { SearchResult } from '../types';
 
 interface OpenAccessResultCardProps {
@@ -11,8 +11,9 @@ interface ArticleOA {
   title: string;
   journal: string;
   url: string;
-  open_access: boolean;
-  source_type: "PMC" | "DOAJ" | "Journal_OA" | "Repository";
+  source_type: "PMC" | "DOAJ" | "Journal_OA" | "Repository" | "Preprint";
+  relevance_summary?: string;
+  impact_note?: string;
 }
 
 const JOURNALS = [
@@ -74,9 +75,19 @@ const JOURNALS = [
 
 const OpenAccessResultCard: React.FC<OpenAccessResultCardProps> = ({ result }) => {
   const [showJournals, setShowJournals] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  const handleCopyCitation = (article: ArticleOA, index: number) => {
+    const citation = `${article.title}. ${article.journal}. Available at: ${article.url}`;
+    navigator.clipboard.writeText(citation);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
   let articles: ArticleOA[] = [];
   try {
-    const parsed = JSON.parse(result.content);
+    const content = result.content.replace(/```json\n?|\n?```/g, "").trim();
+    const parsed = JSON.parse(content);
     articles = Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error("JSON Parse Error for Open Access Articles", e);
@@ -162,45 +173,67 @@ const OpenAccessResultCard: React.FC<OpenAccessResultCardProps> = ({ result }) =
                 <p className="text-slate-700 font-medium italic">"{result.originalQuery}"</p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-6">
                 {articles.map((article, index) => (
                     <div 
                         key={index} 
-                        className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-teal-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                        className="group bg-white border border-slate-200 rounded-2xl p-6 hover:border-teal-300 hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col"
                     >
-                        {/* Status Stripe */}
-                        <div className="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
+                        {/* Source Type Indicator */}
+                        <div className="absolute top-0 right-0 px-3 py-1 bg-teal-50 text-teal-700 text-[10px] font-bold uppercase tracking-widest rounded-bl-xl border-l border-b border-teal-100">
+                             {article.source_type}
+                        </div>
 
-                        <div className="flex justify-between items-start gap-4 mb-3">
-                            <h4 className="text-base font-bold text-slate-900 group-hover:text-teal-700 leading-snug transition-colors">
+                        <div className="flex justify-between items-start gap-4 mb-3 pr-16">
+                            <h4 className="text-lg font-bold text-slate-900 group-hover:text-teal-700 leading-tight transition-colors">
                                 {article.title}
                             </h4>
-                            <div className="shrink-0 flex items-center gap-1.5 bg-green-50 text-green-700 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border border-green-100">
-                                <Unlock className="w-2.5 h-2.5" />
-                                <span>Free</span>
-                            </div>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-y-2 gap-x-4 mb-4">
-                            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
                                 <BookOpen className="w-3.5 h-3.5 text-slate-400" />
                                 {article.journal}
                             </div>
-                            <div className="flex items-center gap-1.5 text-xs font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded border border-teal-100">
-                                {article.source_type}
+                            {article.impact_note && (
+                                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
+                                    <Sparkles className="w-3 h-3" />
+                                    {article.impact_note}
+                                </div>
+                            )}
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-lg border border-green-100 uppercase tracking-wide">
+                                <ShieldCheck className="w-3 h-3" />
+                                Verified Legal
                             </div>
                         </div>
 
-                        <div className="flex justify-end">
+                        {article.relevance_summary && (
+                            <div className="mb-5 bg-teal-50/30 border-l-2 border-teal-200 p-3 rounded-r-lg">
+                                <p className="text-sm text-slate-700 leading-relaxed italic">
+                                    <span className="font-bold text-teal-800 not-italic mr-1">Gist:</span>
+                                    {article.relevance_summary}
+                                </p>
+                            </div>
+                        )}
+
+                        <div className="mt-auto flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-50">
+                             <button 
+                                onClick={() => handleCopyCitation(article, index)}
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 text-slate-500 hover:text-teal-600 font-bold text-xs transition-colors px-3 py-2 rounded-lg hover:bg-teal-50"
+                            >
+                                {copiedIndex === index ? <Check className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
+                                {copiedIndex === index ? 'Citation Copied' : 'Copy Citation'}
+                            </button>
+                            
                             <a 
                                 href={article.url} 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
-                                className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all active:scale-95"
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-teal-100 transition-all active:scale-95 group/btn"
                             >
                                 <FileText className="w-4 h-4" />
                                 Read Full Text
-                                <ExternalLink className="w-3 h-3 opacity-60" />
+                                <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                             </a>
                         </div>
                     </div>

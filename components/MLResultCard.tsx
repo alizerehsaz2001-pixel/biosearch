@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cpu, Copy, Check, Terminal, Layers, Settings, BrainCircuit, Activity, GitBranch, Database, BarChart, Download, Zap } from 'lucide-react';
+import { Cpu, Copy, Check, Terminal, Layers, Settings, BrainCircuit, Activity, GitBranch, Database, BarChart, Download, Zap, ShieldCheck } from 'lucide-react';
 import { SearchResult } from '../types';
 import MermaidDiagram from './MermaidDiagram';
 
@@ -18,6 +18,7 @@ interface PipelineStrategy {
   preprocessing: string[];
   loss_function: string;
   metrics: string[];
+  interpretability?: string;
 }
 
 interface TrainingConfig {
@@ -33,7 +34,9 @@ interface MLArchitectureData {
   architecture_components: ArchitectureComponent[];
   mermaid_diagram: string;
   pipeline_strategy: PipelineStrategy;
+  uncertainty_quantification?: string;
   training_config?: TrainingConfig;
+  deployment_hints?: string;
   hardware_requirements?: string;
   implementation_code: string;
 }
@@ -90,12 +93,13 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
     return (
         <div className="space-y-8">
             {/* Model Header */}
-            <div className="bg-white p-6 rounded-xl border border-fuchsia-100 shadow-sm">
-                <h2 className="text-2xl font-bold text-fuchsia-900 mb-3 flex items-center gap-2">
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-fuchsia-600"></div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-3 flex items-center gap-2 font-tech tracking-tight">
                     <BrainCircuit className="w-6 h-6 text-fuchsia-600" />
                     {data.model_name}
                 </h2>
-                <p className="text-slate-700 leading-relaxed border-l-4 border-fuchsia-300 pl-4 italic">
+                <p className="text-slate-600 leading-relaxed italic font-academic text-lg">
                     {data.reasoning}
                 </p>
             </div>
@@ -112,8 +116,8 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
 
             {/* Architecture Components Grid */}
             <div>
-                <h3 className="text-lg font-bold text-fuchsia-900 mb-4 flex items-center gap-2">
-                    <GitBranch className="w-5 h-5 text-fuchsia-600" />
+                <h3 className="text-sm font-bold text-slate-400 mb-4 px-1 flex items-center gap-2 uppercase tracking-[0.2em]">
+                    <GitBranch className="w-4 h-4 text-fuchsia-600" />
                     Network Components
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -173,9 +177,39 @@ const MLResultCard: React.FC<MLResultCardProps> = ({ result }) => {
                                 ))}
                             </div>
                         </div>
+                        {data.pipeline_strategy.interpretability && (
+                            <div>
+                                <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Explainable AI (XAI)</span>
+                                <div className="text-sm text-slate-700 bg-teal-50 p-3 rounded-lg border border-teal-100">
+                                    {data.pipeline_strategy.interpretability}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Trustworthy & Deployment info */}
+            {(data.uncertainty_quantification || data.deployment_hints) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {data.uncertainty_quantification && (
+                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <ShieldCheck className="w-4 h-4 text-green-600" /> Trustworthy AI: Uncertainty
+                            </h3>
+                            <p className="text-sm text-slate-700">{data.uncertainty_quantification}</p>
+                        </div>
+                    )}
+                    {data.deployment_hints && (
+                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <Zap className="w-4 h-4 text-amber-500" /> Production Readiness
+                            </h3>
+                            <p className="text-sm text-slate-700">{data.deployment_hints}</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Training & Hardware */}
             {(data.training_config || data.hardware_requirements) && (

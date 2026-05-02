@@ -60,10 +60,10 @@ const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, 
                 <mode.icon className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold truncate ${isActive ? 'text-slate-800' : 'text-slate-600'}`}>
+                <p className={`text-sm font-bold font-tech tracking-tight truncate ${isActive ? 'text-slate-800' : 'text-slate-600'}`}>
                   {t(`mode.${mode.id}.label`)}
                 </p>
-                <p className={`text-xs truncate ${isActive ? 'text-slate-500' : 'text-slate-400'}`}>
+                <p className={`text-[10px] font-bold uppercase tracking-widest truncate ${isActive ? 'text-indigo-500' : 'text-slate-400'}`}>
                   {t(`mode.${mode.id}.desc`)}
                 </p>
               </div>
@@ -85,14 +85,14 @@ const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ currentMode, onModeChange, 
                     onClick={() => onModeChange(mode.id)}
                     disabled={disabled}
                     className={`
-                        flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
+                        flex items-center gap-2 px-4 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all duration-200 shrink-0
                         ${currentMode === mode.id 
-                        ? 'bg-white text-slate-800 shadow-sm' 
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}
+                        ? 'bg-white text-slate-900 shadow-sm ring-1 ring-black/5' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50'}
                         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
                 >
-                    <mode.icon className={`w-4 h-4 ${currentMode === mode.id ? mode.color : 'text-slate-400'}`} />
+                    <mode.icon className={`w-3.5 h-3.5 ${currentMode === mode.id ? mode.color : 'text-slate-400'}`} />
                     <span>{t(`mode.${mode.id}.label`)}</span>
                 </button>
             ))}

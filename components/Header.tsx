@@ -33,14 +33,17 @@ const Header: React.FC<HeaderProps> = ({ userProfile, onUpload, onProfileClick, 
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-indigo-600 rounded-lg">
-            <Microscope className="w-6 h-6 text-white" />
+          <div className="p-2 bg-slate-900 rounded-xl shadow-lg ring-4 ring-slate-100">
+            <Microscope className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              BioSearch <span className="text-indigo-600">Architect</span>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tighter flex items-center gap-1 font-tech">
+              BioSearch <span className="text-indigo-600 font-black">ARCHITECT</span>
             </h1>
-            <p className="text-xs text-slate-500 hidden sm:block">{t('app.subtitle')}</p>
+            <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest hidden sm:block">{t('app.subtitle')}</p>
+            </div>
           </div>
         </div>
         

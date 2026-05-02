@@ -42,11 +42,16 @@ const History: React.FC<HistoryProps> = ({ history, savedResults, onSelect, onCl
   ];
 
   return (
-    <div className="mt-12 w-full animate-in fade-in duration-700 delay-150">
-      <div className="flex items-center justify-between mb-6 px-2">
-        <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-slate-400" />
-            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">Research Archive</h3>
+    <div className="mt-16 w-full animate-in fade-in duration-1000 delay-200">
+      <div className="flex items-center justify-between mb-8 px-2 border-b border-slate-200 pb-4">
+        <div className="flex items-center gap-3">
+            <div className="p-2 bg-slate-900 rounded-lg shadow-sm">
+                <Clock className="w-4 h-4 text-white" />
+            </div>
+            <div>
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-[0.2em]">Research Intelligence Ledger</h3>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Chronological Node History</p>
+            </div>
         </div>
         {history.length > 0 && filter === 'ALL' && (
           <button 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GraduationCap, MapPin, FlaskConical, BookOpen, Search, Copy, Check, Globe, Link as LinkIcon, User, ExternalLink, Star, Tag } from 'lucide-react';
+import { GraduationCap, MapPin, FlaskConical, BookOpen, Search, Copy, Check, Globe, Link as LinkIcon, User, ExternalLink, Star, Tag, Mail } from 'lucide-react';
 import { SearchResult } from '../types';
 
 interface LabScoutResultCardProps {
@@ -9,19 +9,26 @@ interface LabScoutResultCardProps {
 interface LabData {
   name: string;
   university: string;
+  university_ranking?: string;
   pi: string;
   city: string;
   country: string;
   address: string;
-  match_score: string;
-  match_reason: string;
-  recent_paper: string;
+  match_score: number;
+  expertise_focus: string;
+  collaboration_potential: string;
+  recent_breakthrough: string;
   website: string;
-  keywords: string[];
+  tech_stack: string[];
+  contact_strategy?: string;
 }
 
 interface LabScoutData {
-  region: string;
+  region_summary: {
+    title: string;
+    landscape: string;
+    top_institutions: string[];
+  };
   labs: LabData[];
 }
 
@@ -66,21 +73,43 @@ const LabScoutResultCard: React.FC<LabScoutResultCardProps> = ({ result }) => {
 
     return (
         <div>
-            {data.region && (
-                <div className="mb-6 p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-center gap-2 shadow-sm">
-                    <span className="text-xl">🌍</span>
-                    <h3 className="font-bold text-slate-800 text-lg">Target Region: <span className="text-orange-700">{data.region}</span></h3>
+            {data.region_summary && (
+                <div className="mb-8 p-6 bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 rounded-2xl shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500">
+                        <Globe className="w-24 h-24 text-orange-900" />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="bg-orange-500 p-2 rounded-lg text-white shadow-md">
+                                <Globe className="w-5 h-5" />
+                            </div>
+                            <h3 className="font-bold text-slate-900 text-xl tracking-tight">{data.region_summary.title}</h3>
+                        </div>
+                        <p className="text-slate-700 leading-relaxed max-w-2xl mb-4 font-medium italic">
+                            {data.region_summary.landscape}
+                        </p>
+                        <div className="flex flex-wrap gap-2 items-center">
+                            <span className="text-[10px] font-bold text-orange-800 uppercase tracking-widest mr-2 flex items-center gap-1">
+                                <GraduationCap className="w-3.5 h-3.5" /> Key Hubs:
+                            </span>
+                            {data.region_summary.top_institutions.map((inst, i) => (
+                                <span key={i} className="px-3 py-1 bg-white border border-orange-200 text-orange-900 text-[11px] font-bold rounded-lg shadow-sm">
+                                    {inst}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             )}
             
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-8">
                 {data.labs.map((lab, index) => {
                     // Construct Search URLs
                     const scholarProfileUrl = lab.pi && lab.university 
                         ? `https://scholar.google.com/scholar?q=${encodeURIComponent(lab.pi + " " + lab.university)}` 
                         : null;
-                    const paperSearchUrl = lab.recent_paper 
-                        ? `https://scholar.google.com/scholar?q=${encodeURIComponent(lab.recent_paper)}` 
+                    const paperSearchUrl = lab.recent_breakthrough 
+                        ? `https://scholar.google.com/scholar?q=${encodeURIComponent(lab.recent_breakthrough)}` 
                         : null;
                     
                     // Find map source if available
@@ -89,108 +118,133 @@ const LabScoutResultCard: React.FC<LabScoutResultCardProps> = ({ result }) => {
                     const mapUrl = mapSource ? mapSource.uri : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
 
                     return (
-                        <div key={index} className="bg-white rounded-xl border border-orange-100 p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
-                             <div className="flex items-start gap-3 mb-4 border-b border-orange-50 pb-3">
-                                <div className="bg-orange-100 p-2.5 rounded-lg text-orange-600 shrink-0 mt-1">
+                        <div key={index} className="bg-white rounded-xl border border-orange-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+                             <div className="bg-orange-50/30 px-5 py-4 border-b border-orange-50 flex items-start gap-4">
+                                <div className="bg-white p-2.5 rounded-lg text-orange-600 shadow-sm border border-orange-100 shrink-0 mt-1">
                                     <FlaskConical className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-lg font-bold text-slate-800 leading-tight mb-1">
+                                    <h4 className="text-lg font-bold text-slate-800 leading-tight">
                                         {lab.name}
                                     </h4>
-                                    {lab.university && (
-                                        <p className="text-sm text-slate-500 font-medium flex items-center gap-1.5">
-                                            <GraduationCap className="w-4 h-4" /> 
-                                            {lab.university}
-                                        </p>
-                                    )}
+                                    <p className="text-sm text-slate-500 font-medium flex flex-wrap items-center gap-1.5 mt-0.5">
+                                        <GraduationCap className="w-3.5 h-3.5" /> 
+                                        {lab.university}
+                                        {lab.university_ranking && (
+                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-100 ml-1">
+                                                {lab.university_ranking}
+                                            </span>
+                                        )}
+                                    </p>
                                 </div>
-                                {lab.match_score && (
-                                    <div className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
-                                        lab.match_score.toLowerCase().includes('high') 
-                                        ? 'bg-green-50 text-green-700 border-green-100' 
-                                        : 'bg-slate-50 text-slate-600 border-slate-100'
-                                    }`}>
-                                        {lab.match_score} Match
+                                <div className="flex flex-col items-end gap-1 underline-offset-4">
+                                    <div className="flex items-center gap-1">
+                                        {[1, 2, 3, 4, 5].map((s) => (
+                                            <Star key={s} className={`w-3 h-3 ${lab.match_score >= s * 20 ? 'fill-orange-400 text-orange-400' : 'text-slate-200'}`} />
+                                        ))}
                                     </div>
-                                )}
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{lab.match_score}% Match</span>
+                                </div>
                             </div>
 
-                            <div className="space-y-3">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {lab.pi && (
-                                        <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                            <User className="w-4 h-4 text-orange-400" />
-                                            <span className="font-medium">PI: {lab.pi}</span>
-                                        </div>
-                                    )}
-                                    {(lab.city || lab.country || lab.address) && (
-                                        <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100 col-span-1 sm:col-span-2">
-                                            <MapPin className="w-4 h-4 text-orange-400 shrink-0" />
+                            <div className="p-5 space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-3">
+                                        {lab.pi && (
+                                            <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                                <User className="w-4 h-4 text-orange-500" />
+                                                <span className="font-bold">PI: {lab.pi}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-center gap-2 text-sm text-slate-600 px-1">
+                                            <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                                             <span className="truncate">{lab.address || [lab.city, lab.country].filter(Boolean).join(', ')}</span>
                                             <a 
                                                 href={mapUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="ml-auto text-xs text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 shrink-0"
-                                                title="View on Google Maps"
+                                                className="ml-auto text-[10px] bg-white border border-slate-200 px-2 py-0.5 rounded text-blue-600 hover:border-blue-200 font-bold uppercase transition-all"
                                             >
-                                                <ExternalLink className="w-3 h-3" /> Map
+                                                Map
                                             </a>
                                         </div>
-                                    )}
+                                    </div>
+
+                                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Technical Stack</span>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {lab.tech_stack.map((tech, i) => (
+                                                <span key={i} className="px-2 py-0.5 bg-white border border-slate-200 text-slate-600 text-[10px] font-bold rounded shadow-sm">
+                                                    {tech}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                {lab.keywords && lab.keywords.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        {lab.keywords.map((kw, i) => (
-                                            <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-orange-50 text-orange-700 text-xs font-medium border border-orange-100">
-                                                <Tag className="w-3 h-3" /> {kw}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
 
-                                {lab.match_reason && (
-                                    <div className="text-sm text-slate-700 mt-2 bg-slate-50/50 p-3 rounded-lg border border-slate-100">
-                                        <span className="font-semibold text-orange-800 text-xs uppercase tracking-wide block mb-1 flex items-center gap-1">
-                                            <Star className="w-3 h-3" /> Research Fit
-                                        </span>
-                                        {lab.match_reason}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="bg-blue-50/30 p-4 rounded-xl border border-blue-50">
+                                        <h5 className="text-xs font-bold text-blue-900 mb-2 flex items-center gap-2">
+                                            <Tag className="w-3.5 h-3.5 text-blue-500" />
+                                            Expertise Focus
+                                        </h5>
+                                        <p className="text-sm text-blue-800 leading-relaxed font-medium">
+                                            {lab.expertise_focus}
+                                        </p>
                                     </div>
-                                )}
+                                    <div className="bg-orange-50/30 p-4 rounded-xl border border-orange-50">
+                                        <h5 className="text-xs font-bold text-orange-900 mb-2 flex items-center gap-2">
+                                            <Star className="w-3.5 h-3.5 text-orange-500" />
+                                            Collaboration Potential
+                                        </h5>
+                                        <p className="text-sm text-orange-800 leading-relaxed font-medium">
+                                            {lab.collaboration_potential}
+                                        </p>
+                                    </div>
+                                </div>
 
-                                {lab.recent_paper && (
-                                    <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-                                        <div className="flex justify-between items-start">
-                                            <p className="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center gap-1">
-                                                <BookOpen className="w-3 h-3" /> Recent Activity (2024-2026)
+                                {lab.recent_breakthrough && (
+                                    <div className="bg-slate-900 p-4 rounded-xl shadow-inner group">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold flex items-center gap-2">
+                                                <BookOpen className="w-3.5 h-3.5" /> Recent Breakthrough (2024-2026)
                                             </p>
                                             {paperSearchUrl && (
                                                  <a 
                                                     href={paperSearchUrl} 
                                                     target="_blank" 
                                                     rel="noopener noreferrer" 
-                                                    className="flex items-center gap-1 text-[10px] bg-slate-50 border border-slate-200 px-2 py-0.5 rounded text-slate-600 hover:bg-slate-100 font-medium transition-colors"
-                                                    title="Search this paper on Google Scholar"
+                                                    className="text-[10px] text-orange-400 hover:text-orange-300 font-bold flex items-center gap-1 transition-colors"
                                                  >
-                                                    <Search className="w-3 h-3" /> Find Paper
+                                                    View Source <ExternalLink className="w-3 h-3" />
                                                  </a>
                                             )}
                                         </div>
-                                        <p className="text-slate-800 text-sm italic line-clamp-2 font-medium">"{lab.recent_paper}"</p>
+                                        <p className="text-white text-sm italic font-medium leading-relaxed">"{lab.recent_breakthrough}"</p>
                                     </div>
                                 )}
 
-                                <div className="pt-3 flex flex-wrap gap-3 justify-end border-t border-slate-50 mt-2">
+                                {lab.contact_strategy && (
+                                    <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 flex items-start gap-3">
+                                        <Mail className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
+                                        <div>
+                                            <h5 className="text-[10px] font-bold text-indigo-900 uppercase tracking-widest mb-1">Headhunter Advice: Contact Strategy</h5>
+                                            <p className="text-sm text-indigo-800 leading-relaxed font-semibold italic">
+                                                {lab.contact_strategy}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-wrap gap-3 pt-2 justify-end">
                                      {scholarProfileUrl && (
-                                        <a href={scholarProfileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-blue-200 transition-all">
-                                            <GraduationCap className="w-3 h-3" /> Google Scholar Profile
+                                        <a href={scholarProfileUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-slate-500 hover:text-blue-600 flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors">
+                                            <Search className="w-3.5 h-3.5" /> Scholar Profile
                                         </a>
                                      )}
                                      {lab.website && lab.website !== 'N/A' && (
-                                        <a href={lab.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 px-3 py-1.5 rounded-lg shadow-sm hover:shadow transition-all">
-                                            <LinkIcon className="w-3 h-3" /> Lab Website
+                                        <a href={lab.website} target="_blank" rel="noopener noreferrer" className="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition-all shadow-md shadow-orange-100 hover:shadow-orange-200">
+                                            <Globe className="w-3.5 h-3.5" /> Visit Lab Site
                                         </a>
                                      )}
                                 </div>

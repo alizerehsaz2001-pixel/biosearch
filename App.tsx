@@ -30,7 +30,7 @@ import ProfileModal from './components/ProfileModal';
 import UserGuide from './components/UserGuide';
 import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech, generateCitationQnA, generateFormulation, generateOptimalStack } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
-import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart } from 'lucide-react';
+import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart, Sparkles, LayoutGrid, Clock, Archive } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import ShortcutsModal from './components/ShortcutsModal';
@@ -291,14 +291,20 @@ const AppContent: React.FC = () => {
         {/* Sidebar */}
         <aside className="hidden md:flex w-72 shrink-0 border-r border-slate-200 bg-white p-6 overflow-y-auto max-h-[calc(100vh-4rem)] sticky top-16 flex-col">
            <div className="mb-8">
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 px-1">{t('sidebar.modules')}</h3>
+              <div className="flex items-center gap-2 mb-4 px-1">
+                <LayoutGrid className="w-3.5 h-3.5 text-indigo-500" />
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{t('sidebar.modules')}</h3>
+              </div>
               <ModeSwitcher currentMode={mode} onModeChange={handleModeChange} disabled={status === QueryStatus.LOADING} orientation="vertical" />
            </div>
 
            {savedResults.length > 0 && (
              <div className="mb-8">
                 <div className="flex items-center justify-between mb-4 px-1">
-                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{t('sidebar.saved')}</h3>
+                  <div className="flex items-center gap-2">
+                    <Archive className="w-3.5 h-3.5 text-amber-500" />
+                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{t('sidebar.saved')}</h3>
+                  </div>
                   <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{savedResults.length}</span>
                 </div>
                 <div className="space-y-1.5">
@@ -367,11 +373,14 @@ const AppContent: React.FC = () => {
               <ModeSwitcher currentMode={mode} onModeChange={handleModeChange} disabled={status === QueryStatus.LOADING} orientation="horizontal" />
             </div>
 
-            <div className="text-center mb-10 space-y-4">
-              <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
+            <div className="text-center mb-16 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-[10px] font-bold text-indigo-600 uppercase tracking-widest animate-pulse">
+                <Sparkles className="w-3 h-3" /> System Online: v2.0 AI Catalyst
+              </div>
+              <h2 className="text-5xl sm:text-7xl font-tech font-bold text-slate-900 tracking-tighter leading-none">
                 {t('hero.title_start')} <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getGradient()}`}>{t('hero.title_end')}</span>
               </h2>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
+              <p className="text-xl text-slate-500 max-w-2xl mx-auto font-academic italic leading-relaxed">
                 {t('hero.subtitle')}
               </p>
             </div>

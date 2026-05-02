@@ -292,15 +292,18 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
       <form onSubmit={handleSubmit} className="relative flex flex-col">
         
         {/* Module Orientation Header */}
-        <div className="bg-slate-50/80 px-6 py-4 border-b border-slate-100 flex items-start gap-4">
-            <div className={`p-2 rounded-lg bg-white shadow-sm border border-slate-200 mt-1 shrink-0 ${isRTL ? 'ml-0' : 'mr-0'}`}>
-                <Info className="w-4 h-4 text-slate-400" />
+        <div className="bg-slate-50/80 px-6 py-5 border-b border-slate-100 flex items-start gap-4">
+            <div className={`p-2.5 rounded-xl bg-white shadow-sm border border-slate-200 mt-1 shrink-0 ${isRTL ? 'ml-0' : 'mr-0'}`}>
+                <Info className="w-4 h-4 text-indigo-500" />
             </div>
-            <div>
-                <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wide flex items-center gap-2">
-                    {t(`mode.${mode}.label`)} Orientation
-                </h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium mt-0.5">
+            <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest">
+                        {t(`mode.${mode}.label`)}
+                    </h4>
+                    <span className="text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded font-bold uppercase tracking-[0.2em]">Active Module</span>
+                </div>
+                <p className="text-xs text-slate-500 leading-relaxed font-medium italic font-academic">
                     {t(`mode.${mode}.intro`)}
                 </p>
             </div>

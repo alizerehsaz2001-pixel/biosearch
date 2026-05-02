@@ -166,7 +166,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonColor = "bg-blue-600 text-white hover:bg-blue-700";
         break;
     case 'PICO_PROTOCOL':
-        placeholder = "Enter your research question (e.g., 'Does the use of PLGA nanoparticles improve drug delivery efficacy in glioblastoma compared to free drug?')...";
+        placeholder = "Define your PICO components:\n- Population (e.g. 'Patients with Glioblastoma Multiforme')\n- Intervention (e.g. 'PLGA nanoparticles loaded with Temozolomide')\n- Comparison (e.g. 'Free Temozolomide administration')\n- Outcome (e.g. 'Reduced tumor volume / improved 2-year survival')\n\nExample Filter: 'Study Design: Randomized Controlled Trials | Inclusion: Stage IV diagnosis'";
         buttonLabel = 'Define Protocol';
         buttonIcon = <FileText className="w-4 h-4" />;
         buttonColor = "bg-teal-600 text-white hover:bg-teal-700";

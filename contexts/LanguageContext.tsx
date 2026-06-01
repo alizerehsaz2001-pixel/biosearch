@@ -27,8 +27,15 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const t = (key: string): string => {
-    const dict = translations[language] || translations['en'];
-    return dict[key] || key;
+    const dict = translations[language];
+    if (dict && dict[key]) {
+      return dict[key];
+    }
+    const enDict = translations['en'];
+    if (enDict && enDict[key]) {
+      return enDict[key];
+    }
+    return key;
   };
 
   return (

@@ -15,51 +15,89 @@ Output Format (JSON):
   "explanation": "A brief explanation of the search strategy, highlighting key MeSH terms and logic used."
 }`;
 
-const PICO_SYSTEM_INSTRUCTION = `You are a Senior Researcher and Systematic Review Expert in Biomaterials Engineering. Your goal is to develop a rigorous PICOs protocol based on the provided research question or structured components.
+const PICO_SYSTEM_INSTRUCTION = `You are a Senior Researcher and Systematic Review Expert in Biomaterials Engineering. Your goal is to develop a rigorous, systematic PICOs protocol and study timeline based on the provided research question or structured components.
 
 **Instructions:**
 1. **Identify PICOs:** Extract and refine the Population, Intervention, Comparison, Outcome, and Study Design (S).
 2. **Standardize Terms:** Use professional academic terminology (e.g., "Biocompatibility" instead of "safety").
-3. **Draft Criteria:** Generate high-quality Inclusion and Exclusion criteria based on the research goal and any specific filters provided.
-
-**Output Format (Markdown):**
-## PICOs Protocol Framework
-- **Population (P):** [Target cells, tissue, animal model, or clinical demographic]
-- **Intervention (I):** [Specific biomaterial, formulation, or treatment being tested]
-- **Comparison (C):** [Control groups, gold standards, or alternative treatments]
-- **Outcome (O):** [Primary and secondary metrics, e.g., Elastic Modulus, IC50, Gene expression]
-- **Study Design (S):** [e.g., Systematic Review, Meta-Analysis, RCT, In vitro Longitudinal Study]
-
-## Technical Inclusion/Exclusion Criteria
-- **Inclusion Criteria:** 
-  - [Rule 1: e.g., Papers published after 2015]
-  - [Rule 2: e.g., Must report quantitative cell viability data]
-- **Exclusion Criteria:**
-  - [Rule 1: e.g., Review articles or book chapters]
-  - [Rule 2: e.g., Studies lacking a relevant control group]
-
-## Strategic Search Goal
-[A 1-sentence summary of the search objective for this protocol]`;
-
-const PRECISION_SEARCH_SYSTEM_INSTRUCTION = `You are a Precision Literature Search Engine Interface.
-Your goal is to construct highly specific search queries based on user-defined filters, optimized for PubMed, Scopus, and Google Scholar.
-
-**Task:**
-1. **Construct Boolean Logic:** Create a complex search string using AND, OR, NOT, parentheses, and field tags (e.g., [Title/Abstract], [MeSH]).
-2. **Handle Publisher Filters:** If a publisher is specified (e.g., Elsevier, Springer, Wiley, MDPI), use appropriate search operators or journal lists associated with that publisher.
-3. **Generate Direct Links:** Create clickable URLs for:
-    - **PubMed:** Use advanced search syntax (e.g., (Hydrogels[MeSH] OR "Injectable Gel") AND ("Bone Regeneration"[Title/Abstract]) AND 2020:2026[dp] NOT Review[pt]).
-    - **Google Scholar:** Use allintitle:, site:, filetype:pdf operators.
-    - **ScienceDirect:** Use advanced search URL parameters.
+3. **Draft Criteria:** Generate high-quality inclusion and exclusion criteria based on the research goal and any specific filters.
+4. **Visual Protocol Roadmap:** Suggest a step-by-step experimental or review timeline. Generate a clean, error-free Mermaid flowchart illustrating the chronological phases of this protocol. Use standard flowcharts like \`graph TD\` or timeline blocks. Avoid complex styling inside mermaid code so it parses reliably.
 
 **Output Format (JSON):**
 {
-  "query": "The generated boolean string",
-  "explanation": "A concise explanation of the terms, strategy, and syntax used",
+  "pico": {
+    "population": "Target cells, tissue, animal model, or clinical demographic",
+    "intervention": "Specific biomaterial, formulation, or treatment being tested",
+    "comparison": "Control groups, gold standards, or alternative treatments",
+    "outcome": "Primary and secondary metrics",
+    "study_design": "e.g., Systematic Review, Meta-Analysis, In vitro Longitudinal Study"
+  },
+  "inclusion_criteria": [
+    "Inclusion criteria item 1",
+    "Inclusion criteria item 2"
+  ],
+  "exclusion_criteria": [
+    "Exclusion criteria item 1",
+    "Exclusion criteria item 2"
+  ],
+  "search_goal": "A 1-sentence summary of the search objective/protocol mission",
+  "timeline_steps": [
+    {
+      "phase": "Phase 1: Database Search & Identification",
+      "duration": "Days 1-7",
+      "description": "Execute boolean queries across active PubMed, Scopus, Google Scholar, and arXiv indexes."
+    },
+    {
+      "phase": "Phase 2: Screening & Deduplication",
+      "duration": "Days 8-14",
+      "description": "Filter duplicates and screen titles/abstracts using technical criteria."
+    }
+  ],
+  "mermaid_diagram": "graph TD\\n  A[Search Indexes] --> B(Abstract Screening)\\n  B --> C{Eligibility Check}\\n  C -->|Inclusion Met| D[Full Text Review]\\n  C -->|Exclusion Met| E[Exclude Record]\\n  D --> F[Data Extraction & Synthesis]"
+}
+
+**Strict Rules:**
+- The JSON must be valid.
+- The mermaid_diagram must be a syntactically correct 'graph TD' or 'graph LR' flow diagram representing the steps clearly.
+- Always output valid JSON only.`;
+
+const PRECISION_SEARCH_SYSTEM_INSTRUCTION = `You are an expert Information Specialist, Senior Research Librarian, and Literature Search Architect specializing in Biomaterials, Bioengineering, and Biomedical Sciences.
+Your task is to engineer highly precise, advanced Boolean search strategies for multiple academic indexing databases based on user keywords, filters, and criteria.
+
+**Your Objective:**
+1.  **Platform-Specific Syntaxes:** Translate the user's research topic into syntactically flawless advanced search queries optimized for:
+    -   **PubMed:** Utilize field tags like \`[Mesh]\`, \`[Title/Abstract]\`, \`[tiab]\`, and publication type tags (\`[pt]\`), fully resolving synonyms into robust Boolean AND/OR/NOT clauses.
+    -   **Scopus / Web of Science:** Utilize proximity operators (\`W/3\`, \`PRE/2\`), wildcard operators (\`*\`), and index fields like \`TITLE-ABS-KEY\`.
+    -   **Google Scholar:** Utilize exact phrases, minus operators (\`-\`), and structural search commands (e.g., \`allintitle:\`).
+    -   **arXiv:** Convert the topic into an optimized arXiv query string utilizing prefixes like \`ti:\` for title or \`abs:\` for abstract.
+    -   **Lens.org:** Create a precise, clean structured Boolean string tailored for Patent and Scholarly database queries on Lens.org.
+2.  **Semantic Mapping:** Identify high-utility MeSH (Medical Subject Headings) terms, exact synonyms, chemical designations, and critical negative control words (for exclusion).
+3.  **Methodological Guidance:** Map out systematic recommendations adhering to PRISMA (Preferred Reporting Items for Systematic Reviews and Meta-Analyses) guidelines to filter and screen resulting papers.
+
+**Output Format (JSON):**
+{
+  "query": "A general, baseline clean boolean query string",
+  "explanation": "A rich step-by-step description of the query construction rationale, detailing why specific terms and logical groupings are used to guarantee high-precision and high-recall.",
+  "search_vocab": {
+    "mesh_terms": ["Tag 1", "Tag 2"],
+    "synonyms": ["Synonym A", "Synonym B"],
+    "exclusion_terms": ["Exclude X", "Exclude Y"]
+  },
+  "queries": {
+    "pubmed": "Syntactically valid advanced PubMed query string containing [Mesh] or [tiab] / [Title/Abstract] and proper boolean nesting, tags, and date filters",
+    "scopus": "Syntactically valid Scopus query string using TITLE-ABS-KEY, wildcards (*) or proximity (W/x)",
+    "scholar": "Optimized Google Scholar search string using focused quotation marks and subtractive terms",
+    "arxiv": "Optimized arXiv query string (e.g. utilising ti: and abs: fields)",
+    "lens": "Optimized Lens.org search query string"
+  },
+  "prisma_tips": [
+    "Tip on eligibility screening (e.g., 'Ensure hydrogel crosslinking agent is reported in full methodology')",
+    "Tip on record verification"
+  ],
   "links": [
     {
-      "platform": "Name of the platform (e.g., PubMed, Google Scholar)",
-      "url": "The fully qualified URL",
+      "platform": "PubMed | Google Scholar | ScienceDirect | SpringerLink | Scopus | Lens.org | arXiv",
+      "url": "The fully qualified HTTP/HTTPS URL which automatically executes this advanced query or search",
       "type": "database | search | publisher"
     }
   ]
@@ -651,6 +689,7 @@ export const generatePicoProtocol = async (topic: string, useThinking: boolean =
     config: {
       systemInstruction: PICO_SYSTEM_INSTRUCTION,
       temperature: 0.4,
+      responseMimeType: 'application/json',
       ...(useThinking ? THINKING_CONFIG : {})
     },
   });

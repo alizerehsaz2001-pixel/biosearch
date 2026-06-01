@@ -28,6 +28,7 @@ import WelcomeScreen from './components/WelcomeScreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import ProfileModal from './components/ProfileModal';
 import UserGuide from './components/UserGuide';
+import { BatchProcessor } from './components/BatchProcessor';
 import { generateSearchString, generatePicoProtocol, screenAbstract, extractTechnicalData, generateCriticalAnalysis, generateIsoComplianceReview, generateNoveltyIdeas, analyzeImage, generateResourceSuggestions, findOpenAccess, findLabs, troubleshootProtocol, generateAcademicEmail, generateMLArchitecture, generatePptOutline, generatePrecisionSearch, generateWordDocument, generateSpeech, generateCitationQnA, generateFormulation, generateOptimalStack } from './services/geminiService';
 import { QueryStatus, SearchResult, AppMode, GroundingSource, UserProfile } from './types';
 import { AlertCircle, Star, Bookmark, Trash2, ChevronRight, FolderHeart, Sparkles, LayoutGrid, Clock, Archive } from 'lucide-react';
@@ -257,6 +258,7 @@ const AppContent: React.FC = () => {
       case 'ISO_COMPLIANCE_AUDITOR': return 'from-amber-600 to-yellow-500';
       case 'WORD_ARCHITECT': return 'from-blue-600 to-indigo-600';
       case 'VOICE_ASSISTANT': return 'from-indigo-600 to-blue-600';
+      case 'BATCH_PROCESSOR': return 'from-teal-600 to-emerald-500';
       default: return 'from-indigo-600 to-teal-500';
     }
   };
@@ -386,17 +388,21 @@ const AppContent: React.FC = () => {
             </div>
 
             <div className="mb-12">
-              <SearchInput onGenerate={handleGenerate} status={status} mode={mode} initialValue={inputVal} />
+              {mode === 'BATCH_PROCESSOR' ? (
+                <BatchProcessor />
+              ) : (
+                <SearchInput onGenerate={handleGenerate} status={status} mode={mode} initialValue={inputVal} />
+              )}
             </div>
 
-            {status === QueryStatus.ERROR && error && (
+            {status === QueryStatus.ERROR && error && mode !== 'BATCH_PROCESSOR' && (
               <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 text-red-700 shadow-sm animate-in fade-in slide-in-from-top-2">
                 <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                 <div><p className="font-bold">System Error</p><p className="text-sm font-medium opacity-90">{error}</p></div>
               </div>
             )}
 
-            {currentResult && (
+            {currentResult && mode !== 'BATCH_PROCESSOR' && (
               <div className="mb-16 relative">
                 {/* Save Toggle Overlay */}
                 <div className="absolute -top-14 right-0 z-10 flex items-center gap-2 animate-in fade-in slide-in-from-right-4">

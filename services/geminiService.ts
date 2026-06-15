@@ -1,18 +1,35 @@
 
 import { GoogleGenAI, Modality, ThinkingLevel } from "@google/genai";
 
-const SEARCH_SYSTEM_INSTRUCTION = `You are an expert Information Specialist and Biomaterials Engineer. Your task is to translate natural language research topics into advanced boolean search strings suitable for PubMed and Scopus.
+const SEARCH_SYSTEM_INSTRUCTION = `You are an expert Information Specialist and Biomaterials Engineer. Your task is to translate natural language research topics into advanced boolean search strings suitable for multiple academic indexing databases.
 
 Follow this strict process:
 1. Analyze the user's research topic to identify key concepts (e.g., Biomaterial type, Application, Disease model).
 2. Expand keywords using MeSH terms (Medical Subject Headings) and synonyms (e.g., for "Hydrogel", use "Hydrogels"[MeSH] OR "Hydrogel networks" OR "Injectable gels").
-3. Construct a robust query using AND/OR operators. Group concepts with parentheses.
-4. If specific study types are requested (e.g., RCT, Systematic Review, Guidelines), append the correct publication type filters or search limits (e.g., "Practice Guideline"[pt], "Systematic Review"[pt], "Case Reports"[pt]). For "In Vitro" or "Animal Study", use appropriate MeSH terms like "In Vitro Techniques"[MeSH] or "Models, Animal"[MeSH] where strict filters don't apply.
+3. Construct robust queries using AND/OR operators. Group concepts with parentheses.
+4. If specific study types are requested (e.g., RCT, Systematic Review, Guidelines), append appropriate publication filters or search limits (e.g., "Practice Guideline"[pt], "Systematic Review"[pt], "Case Reports"[pt]).
+5. Generate the output in standard structured JSON.
 
 Output Format (JSON):
 {
-  "query": "The raw boolean search string",
-  "explanation": "A brief explanation of the search strategy, highlighting key MeSH terms and logic used."
+  "query": "The raw baseline boolean search string",
+  "explanation": "A description of the query construction rationale, detailing terms and logical groupings.",
+  "search_vocab": {
+    "mesh_terms": ["Mesh Term 1", "Mesh Term 2"],
+    "synonyms": ["Synonym A", "Synonym B"],
+    "exclusion_terms": ["Exclude X", "Exclude Y"]
+  },
+  "queries": {
+    "pubmed": "PubMed optimized query using [Mesh] or [Title/Abstract] tags",
+    "scopus": "Scopus optimized query using TITLE-ABS-KEY",
+    "scholar": "Google Scholar optimized query using quotes and minus signs",
+    "arxiv": "arXiv optimized query with ti: and abs: fields",
+    "lens": "Lens.org optimized boolean query"
+  },
+  "prisma_tips": [
+    "Tip on eligibility screening (e.g., 'Verify crosslinking methodology')",
+    "Tip on record verification"
+  ]
 }`;
 
 const PICO_SYSTEM_INSTRUCTION = `You are a Senior Researcher and Systematic Review Expert in Biomaterials Engineering. Your goal is to develop a rigorous, systematic PICOs protocol and study timeline based on the provided research question or structured components.
@@ -413,11 +430,14 @@ Your task is to design a high-fidelity Machine Learning or Deep Learning pipelin
   },
   "deployment_hints": "ONNX export / TensorRT optimization details",
   "hardware_requirements": "Specific GPU/VRAM/RAM recommendations",
-  "implementation_code": "Polished Python code using PyTorch or TensorFlow..."
+  "implementation_code": "Standard PyTorch scaffold implementation code as string",
+  "implementation_pytorch": "Clean, robust PyTorch implementation with model architecture and customized training pass as a string",
+  "implementation_lightning": "Clean PyTorch Lightning Module implementation highlighting multi-GPU scaling features as a string",
+  "implementation_jax": "Standard JAX/Flax implementation showing pure functional state transformations as a string"
 }
 
 **Strict Rule:** 
-- The implementation code should be a functional snippet or a very high-quality scaffold.
+- All implementation outputs (implementation_code, implementation_pytorch, implementation_lightning, and implementation_jax) must be robust, complete, functional python code blocks (raw strings, no backticks inside the JSON value strings).
 - Return ONLY the JSON object.`;
 
 const PPT_ARCHITECT_SYSTEM_INSTRUCTION = `You are a Senior Scientific Communications Specialist and Presentation Designer.
@@ -549,7 +569,7 @@ export const generateSpeech = async (text: string): Promise<{ audioData: string,
   
   // First, get a speech-optimized summary
   const summaryResponse = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-3.5-flash',
     contents: `Please summarize the following research content into a professional spoken briefing for a researcher:\n\n${text}`,
     config: {
       systemInstruction: VOICE_ASSISTANT_INSTRUCTION,
@@ -561,7 +581,7 @@ export const generateSpeech = async (text: string): Promise<{ audioData: string,
 
   // Then, generate the actual TTS audio
   const ttsResponse = await ai.models.generateContent({
-    model: "gemini-2.5-flash-preview-tts",
+    model: "gemini-3.1-flash-tts-preview",
     contents: [{ parts: [{ text: `Read this scientific summary professionally: ${textToSpeak}` }] }],
     config: {
       responseModalities: [Modality.AUDIO],
@@ -675,7 +695,7 @@ export const generateSearchString = async (topic: string, studyTypes?: string[])
 
   try {
     const json = JSON.parse(response.text);
-    return { content: json.query, explanation: json.explanation };
+    return { content: response.text, explanation: json.explanation };
   } catch (e) {
     return { content: response.text.replace(/^```\w*\n?/, '').replace(/\n?```$/, '').trim() };
   }

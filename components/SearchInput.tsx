@@ -46,6 +46,26 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
     publisher: ''
   });
 
+  // Lab Scout specific states
+  const [labScoutParams, setLabScoutParams] = useState({
+    focusTopic: '',
+    country: '',
+    city: '',
+    university: '',
+    techKeywords: '',
+    minMatchScore: '70'
+  });
+
+  // Formulation Chemist specific states
+  const [formulationParams, setFormulationParams] = useState({
+    targetMaterial: '',
+    batchSize: '100mL',
+    concentration: '',
+    crosslinker: '',
+    solvent: 'DI Water',
+    purity: 'ACS Grade'
+  });
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const criteriaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -96,6 +116,14 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         const studyTypesStr = selectedFilters.length > 0 ? selectedFilters.join(', ') : 'Any';
         const fullPrompt = `Keywords: ${input}\nMust Include: ${precisionParams.mustInclude}\nMust Exclude: ${precisionParams.mustExclude}\nDate Range: ${precisionParams.dateRange}\nResearcher Name: ${precisionParams.researcher}\nStudy Type: ${studyTypesStr}\nJournal Filter: ${precisionParams.journal}\nPublisher Filter: ${precisionParams.publisher}`;
         onGenerate(fullPrompt, undefined, selectedFilters, undefined, useThinking);
+    } else if (mode === 'LAB_SCOUT') {
+        const topic = input.trim() || labScoutParams.focusTopic || "Biomaterials";
+        const fullPrompt = `Focus Topic: ${topic}\nCountry: ${labScoutParams.country || "Any"}\nCity: ${labScoutParams.city || "Any"}\nUniversity: ${labScoutParams.university || "Any"}\nTechnical Stack / Keywords: ${labScoutParams.techKeywords || "Any"}\nMinimum Match Score: ${labScoutParams.minMatchScore}%`;
+        onGenerate(fullPrompt, undefined, undefined, undefined, useThinking);
+    } else if (mode === 'FORMULATION_CHEMIST') {
+        const material = input.trim() || formulationParams.targetMaterial || "Alginate";
+        const fullPrompt = `Target Material/Formulation Goal: ${material}\nBatch Size: ${formulationParams.batchSize || "100mL"}\nConcentration: ${formulationParams.concentration || "Standard / Optimized"}\nSolvent: ${formulationParams.solvent || "DI Water"}\nCrosslinker/Additives: ${formulationParams.crosslinker || "None"}\nReagent Purity/Grade: ${formulationParams.purity || "ACS Grade"}`;
+        onGenerate(fullPrompt, undefined, undefined, undefined, useThinking);
     } else if (input.trim()) {
        onGenerate(input, criteria, selectedFilters, undefined, useThinking);
     }
@@ -268,6 +296,12 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         buttonIcon = <FileText className="w-4 h-4" />;
         buttonColor = "bg-indigo-600 text-white hover:bg-indigo-700";
         break;
+    case 'FORMULATION_CHEMIST':
+        placeholder = "Describe your desired formulation (e.g., 'Chitosan membrane crosslinked with genipin') or raw compound...";
+        buttonLabel = 'Find & Formulate';
+        buttonIcon = <FlaskConical className="w-4 h-4" />;
+        buttonColor = "bg-cyan-600 text-white hover:bg-cyan-700";
+        break;
   }
 
   return (
@@ -288,6 +322,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         mode === 'ACADEMIC_EMAIL_DRAFTER' ? 'focus-within:ring-purple-500/20' :
         mode === 'ML_DEEP_LEARNING_ARCHITECT' ? 'focus-within:ring-fuchsia-500/20' :
         mode === 'PPT_ARCHITECT' ? 'focus-within:ring-amber-500/20' :
+        mode === 'FORMULATION_CHEMIST' ? 'focus-within:ring-cyan-500/20' :
         'focus-within:ring-teal-500/20'
     }`} dir={isRTL ? 'rtl' : 'ltr'}>
       <form onSubmit={handleSubmit} className="relative flex flex-col">
@@ -378,6 +413,139 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                         value={precisionParams.publisher}
                         onChange={e => setPrecisionParams({...precisionParams, publisher: e.target.value})}
                     />
+                </div>
+            </div>
+          </div>
+        )}
+
+        {/* Lab Scout Inputs */}
+        {mode === 'LAB_SCOUT' && (
+          <div className="p-4 bg-orange-50/20 border-b border-orange-100/50 animate-in fade-in slide-in-from-top-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('labscout.topic') || 'Core Focus / Topic'}</label>
+                    <input 
+                        placeholder="e.g. Hydrogels, Tissue Engineering" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-orange-400"
+                        value={labScoutParams.focusTopic}
+                        onChange={e => setLabScoutParams({...labScoutParams, focusTopic: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('labscout.country') || 'Target Country'}</label>
+                    <input 
+                        placeholder="e.g. South Korea, Germany, USA" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-orange-400"
+                        value={labScoutParams.country}
+                        onChange={e => setLabScoutParams({...labScoutParams, country: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('labscout.city') || 'Specific City (Optional)'}</label>
+                    <input 
+                        placeholder="e.g. Seoul, Munich, Boston" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-orange-400"
+                        value={labScoutParams.city}
+                        onChange={e => setLabScoutParams({...labScoutParams, city: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('labscout.university') || 'Target University (Optional)'}</label>
+                    <input 
+                        placeholder="e.g. SNU, TU Munich, MIT" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-orange-400"
+                        value={labScoutParams.university}
+                        onChange={e => setLabScoutParams({...labScoutParams, university: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('labscout.techKeywords') || 'Technical Stack / Tools (Optional)'}</label>
+                    <input 
+                        placeholder="e.g. 3D Bioprinting, Electrospinning" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-orange-400"
+                        value={labScoutParams.techKeywords}
+                        onChange={e => setLabScoutParams({...labScoutParams, techKeywords: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('labscout.minMatchScore') || 'Min Match Score %'}</label>
+                    <select 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-orange-400 cursor-pointer"
+                        value={labScoutParams.minMatchScore}
+                        onChange={e => setLabScoutParams({...labScoutParams, minMatchScore: e.target.value})}
+                    >
+                        <option value="50">50% Match</option>
+                        <option value="60">60% Match</option>
+                        <option value="70">70% Match</option>
+                        <option value="80">80% Match</option>
+                        <option value="90">90% Match</option>
+                    </select>
+                </div>
+            </div>
+          </div>
+        )}
+
+        {/* Find Chemical Formula Inputs */}
+        {mode === 'FORMULATION_CHEMIST' && (
+          <div className="p-4 bg-cyan-50/20 border-b border-cyan-100/50 animate-in fade-in slide-in-from-top-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Target Material/Molecule</label>
+                    <input 
+                        placeholder="e.g. Alginate, Chitosan, PEGDA" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-cyan-400"
+                        value={formulationParams.targetMaterial}
+                        onChange={e => setFormulationParams({...formulationParams, targetMaterial: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Batch Size / Target Volume</label>
+                    <input 
+                        placeholder="e.g. 50mL, 10mL, 100mL" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-cyan-400"
+                        value={formulationParams.batchSize}
+                        onChange={e => setFormulationParams({...formulationParams, batchSize: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Concentration (Optional)</label>
+                    <input 
+                        placeholder="e.g. 2% w/v, 50mg/mL, 3.5 mM" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-cyan-400"
+                        value={formulationParams.concentration}
+                        onChange={e => setFormulationParams({...formulationParams, concentration: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Crosslinker / Buffer / Additives</label>
+                    <input 
+                        placeholder="e.g. CaCl2, PBS, Genipin" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-cyan-400"
+                        value={formulationParams.crosslinker}
+                        onChange={e => setFormulationParams({...formulationParams, crosslinker: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Solvent</label>
+                    <input 
+                        placeholder="e.g. DI Water, PBS, Acetic Acid" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-cyan-400"
+                        value={formulationParams.solvent}
+                        onChange={e => setFormulationParams({...formulationParams, solvent: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>Reagent Purity/Grade</label>
+                    <select 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-cyan-400 cursor-pointer"
+                        value={formulationParams.purity}
+                        onChange={e => setFormulationParams({...formulationParams, purity: e.target.value})}
+                    >
+                        <option value="ACS Grade">ACS Grade (Standard)</option>
+                        <option value="Biocompatible / Sterile">Biocompatible / Sterile (Cell Culture)</option>
+                        <option value="USP / Pharmaceutical">USP / Pharmaceutical Grade</option>
+                        <option value="HPLC / Analytical">HPLC / Analytical Grade</option>
+                    </select>
                 </div>
             </div>
           </div>

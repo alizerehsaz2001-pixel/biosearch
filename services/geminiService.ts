@@ -79,15 +79,15 @@ const PICO_SYSTEM_INSTRUCTION = `You are a Senior Researcher and Systematic Revi
 - Always output valid JSON only.`;
 
 const PRECISION_SEARCH_SYSTEM_INSTRUCTION = `You are an expert Information Specialist, Senior Research Librarian, and Literature Search Architect specializing in Biomaterials, Bioengineering, and Biomedical Sciences.
-Your task is to engineer highly precise, advanced Boolean search strategies for multiple academic indexing databases based on user keywords, filters, and criteria.
+Your task is to engineer highly precise, advanced Boolean search strategies for multiple academic indexing databases based on user keywords, filters, and criteria (e.g. must include/exclude terms, date range, journal filters, and researcher/author names).
 
 **Your Objective:**
-1.  **Platform-Specific Syntaxes:** Translate the user's research topic into syntactically flawless advanced search queries optimized for:
-    -   **PubMed:** Utilize field tags like \`[Mesh]\`, \`[Title/Abstract]\`, \`[tiab]\`, and publication type tags (\`[pt]\`), fully resolving synonyms into robust Boolean AND/OR/NOT clauses.
-    -   **Scopus / Web of Science:** Utilize proximity operators (\`W/3\`, \`PRE/2\`), wildcard operators (\`*\`), and index fields like \`TITLE-ABS-KEY\`.
-    -   **Google Scholar:** Utilize exact phrases, minus operators (\`-\`), and structural search commands (e.g., \`allintitle:\`).
-    -   **arXiv:** Convert the topic into an optimized arXiv query string utilizing prefixes like \`ti:\` for title or \`abs:\` for abstract.
-    -   **Lens.org:** Create a precise, clean structured Boolean string tailored for Patent and Scholarly database queries on Lens.org.
+1.  **Platform-Specific Syntaxes & Metadata Filters:** Translate the user's research topic and specific parameters into syntactically flawless advanced search queries optimized for:
+    -   **PubMed:** Utilize field tags like \`[Mesh]\`, \`[Title/Abstract]\`, \`[tiab]\`, and publication type tags (\`[pt]\`), fully resolving synonyms into robust Boolean AND/OR/NOT clauses. If a Researcher Name is specified, incorporate it with author tags like \`[Author]\` or \`[au]\` (e.g., \`Langer R[Author]\`). If a Journal Filter is specified, append with \`[Journal]\` or \`[ta]\` (e.g., \`Nature[Journal]\`). Incorporate Date Range (e.g., \`2020:2026[dp]\`) if provided.
+    -   **Scopus / Web of Science:** Utilize proximity operators (\`W/3\`, \`PRE/2\`), wildcard operators (\`*\`), and index fields like \`TITLE-ABS-KEY\`. Include \`AUTHOR-NAME("name")\` if researcher name is specified, and journal filters (e.g., \`SRCTITLE("Nature")\`) or date filters as appropriate.
+    -   **Google Scholar:** Utilize exact phrases, minus operators (\`-\`), and structural search commands (e.g., \`allintitle:\`). Support author searches using \`author:"name"\` and journal searches using \`source:"Journal Name"\` if provided.
+    -   **arXiv:** Convert the topic into an optimized arXiv query string utilizing prefixes like \`ti:\` for title or \`abs:\` for abstract. Support author queries using \`au:"name"\` if provided.
+    -   **Lens.org:** Create a precise, clean structured Boolean string tailored for Patent and Scholarly database queries on Lens.org, mapping author names or journal titles to their respective metadata fields if provided.
 2.  **Semantic Mapping:** Identify high-utility MeSH (Medical Subject Headings) terms, exact synonyms, chemical designations, and critical negative control words (for exclusion).
 3.  **Methodological Guidance:** Map out systematic recommendations adhering to PRISMA (Preferred Reporting Items for Systematic Reviews and Meta-Analyses) guidelines to filter and screen resulting papers.
 
@@ -231,13 +231,46 @@ Criteria for Novelty:
 - Combine materials or methods from different papers (e.g., "Use the fabrication method from Paper A with the polymer from Paper B").
 - Address a specific limitation identified in the analysis.
 
-Output Format:
-### Idea 1: [Title]
-- **Hypothesis:** [If we combine X and Y...]
-- **Innovation:** [Why is this new?]
-- **Feasibility:** [Low/Medium/High based on standard lab equipment]
+Output JSON Format:
+You MUST output a valid JSON object matching the following structure:
 
-Repeat for 3 ideas. Use Markdown formatting.`;
+{
+  "ideas": [
+    {
+      "title": "Title of the research idea",
+      "hypothesis": "Clear scientific hypothesis if we combine X and Y...",
+      "innovation_gap": "Why is this new and what gap does it address",
+      "feasibility": "High" | "Medium" | "Low",
+      "feasibility_explanation": "Detailed explanation of feasibility based on standard biological / material lab equipment",
+      "experimental_steps": [
+        "Step 1: Description of first critical lab step",
+        "Step 2: Description of second critical lab step",
+        "Step 3: Description of third critical lab step"
+      ],
+      "materials": ["Material 1", "Material 2", "etc."],
+      "estimated_budget": "Low" | "Medium" | "High",
+      "estimated_budget_value": "$1,000 - $3,000",
+      "outcomes": "Expected biological, mechanical, or clinical outcomes",
+      "risks": [
+        {
+          "risk": "Potential pitfall or hazard",
+          "remediation": "Mitigation strategy"
+        }
+      ],
+      "database_keywords": ["keyword1", "keyword2", "keyword3"],
+      "simulated_variables": {
+        "x_label": "Name of input independent variable (e.g., Polymer Concentration (%))",
+        "y_label": "Name of output dependent variable (e.g., Cell Viability (%) or Tensile Strength (MPa))",
+        "data_points": [
+          {"x": 0.5, "y": 95},
+          {"x": 1.0, "y": 90},
+          {"x": 2.0, "y": 80},
+          {"x": 5.0, "y": 45}
+        ]
+      }
+    }
+  ]
+}`;
 
 const IMAGE_SYSTEM_INSTRUCTION = `You are a Scientific Image Analyst. Your task is to extract information from biomedical images (e.g., microscopy images, charts, graphs, or screenshots of research papers).
 
@@ -782,10 +815,11 @@ export const generateIsoComplianceReview = async (methodsSection: string, useThi
 export const generateNoveltyIdeas = async (summaryInput: string, useThinking: boolean = false): Promise<{ content: string }> => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
-    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3-flash-preview',
+    model: useThinking ? 'gemini-3.1-pro-preview' : 'gemini-3.5-flash',
     contents: summaryInput,
     config: {
       systemInstruction: NOVELTY_SYSTEM_INSTRUCTION,
+      responseMimeType: 'application/json',
       temperature: 0.7,
       ...(useThinking ? THINKING_CONFIG : {})
     },

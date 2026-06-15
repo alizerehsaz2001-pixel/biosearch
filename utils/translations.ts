@@ -96,7 +96,8 @@ export const translations: Record<Language, Dictionary> = {
     "precision.include": "Include Keywords",
     "precision.exclude": "Exclude Keywords",
     "precision.date": "Date Range",
-    "precision.journal": "Journal Filter"
+    "precision.journal": "Journal Filter",
+    "precision.researcher": "Researcher / Author"
   },
   fr: {
     "app.title": "BioSearch Architect",

@@ -40,6 +40,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
     mustInclude: '',
     mustExclude: '',
     dateRange: '',
+    researcher: '',
     studyType: '',
     journal: '',
     publisher: ''
@@ -93,7 +94,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
         onGenerate(input, undefined, undefined, selectedImage, useThinking, extractFullText);
     } else if (mode === 'PRECISION_SEARCH_COMMANDER') {
         const studyTypesStr = selectedFilters.length > 0 ? selectedFilters.join(', ') : 'Any';
-        const fullPrompt = `Keywords: ${input}\nMust Include: ${precisionParams.mustInclude}\nMust Exclude: ${precisionParams.mustExclude}\nDate Range: ${precisionParams.dateRange}\nStudy Type: ${studyTypesStr}\nJournal Filter: ${precisionParams.journal}\nPublisher Filter: ${precisionParams.publisher}`;
+        const fullPrompt = `Keywords: ${input}\nMust Include: ${precisionParams.mustInclude}\nMust Exclude: ${precisionParams.mustExclude}\nDate Range: ${precisionParams.dateRange}\nResearcher Name: ${precisionParams.researcher}\nStudy Type: ${studyTypesStr}\nJournal Filter: ${precisionParams.journal}\nPublisher Filter: ${precisionParams.publisher}`;
         onGenerate(fullPrompt, undefined, selectedFilters, undefined, useThinking);
     } else if (input.trim()) {
        onGenerate(input, criteria, selectedFilters, undefined, useThinking);
@@ -349,6 +350,15 @@ const SearchInput: React.FC<SearchInputProps> = ({ onGenerate, status, mode, ini
                         className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-teal-400"
                         value={precisionParams.dateRange}
                         onChange={e => setPrecisionParams({...precisionParams, dateRange: e.target.value})}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <label className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider block ${isRTL ? 'mr-1' : 'ml-1'}`}>{t('precision.researcher') || 'Researcher / Author'}</label>
+                    <input 
+                        placeholder="e.g. Langer R, Mooney DJ" 
+                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-1 focus:ring-emerald-400"
+                        value={precisionParams.researcher}
+                        onChange={e => setPrecisionParams({...precisionParams, researcher: e.target.value})}
                     />
                 </div>
                 <div className="space-y-1">
